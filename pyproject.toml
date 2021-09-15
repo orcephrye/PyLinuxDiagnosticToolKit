@@ -1,0 +1,16 @@
+[tool.portray]
+extra_dirs = ["sshConnector", "LinuxModules", "libs"]
+modules = ["sshConnector/sshLibs/SCPChannel", "sshConnector/sshLibs/SFTPChannel", "sshConnector/sshConnect", "sshConnector/sshBufferControl", "sshConnector/sshEnvironmentControl", "sshConnector/sshEnvironmentManager", "sshConnector/sshThreader", "sshConnector/sshLibs/sshChannelEnvironment", "LinuxModules/genericCmdModule", "LinuxModules/CommandContainers", "ldtk"]
+
+
+[[tool.portray.mkdocs.nav]]
+Summary = "README.md"
+
+[[tool.portray.mkdocs.nav]]
+Tutorial = "TUTORIAL.md"
+
+[[tool.portray.mkdocs.nav]]
+sshConnector = "sshConnector/README.md"
+
+[[tool.portray.mkdocs.nav]]
+CommandContainer = "LinuxModules/README.md"

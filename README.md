@@ -6,13 +6,13 @@ URL:
 
 These documentation pages are made by Portray: https://timothycrosley.github.io/portray/
 
-* REQUIRES: MiscDebris and Paramiko
+* REQUIRES: Python 3.7+, PyMultiprocessTools, PyCustomParsers, PyCustomCollections and Paramiko
 
-Currently this toolkit only has one connector: [sshConnector](../LST_LinuxDiagnosticToolKit/sshConnector/ "sshConnector")
+```shell
+python3 -m pip install --upgrade paramiko
+```
 
 **The Linux Diagnostic Tool Kit:**
-
-For a full tutorial go to the [tutorial](../LST_LinuxDiagnosticToolKit/TUTORIAL/ "TUTORIAL") page.
 
 This is a set of Modules (python packages) themed after linux commands or programs, packaged together with some tools to
 interact with a remote machine. Currently, the only 'connector' is the 'sshConnector' which provides connectivity too 
@@ -22,24 +22,31 @@ package.
 The ToolKitInterface class should be the primary class a python script interacts with. It is as simple as importing 
 the package and instantiating an object.
 
+```pycon
+from ldtk import ToolKitInterface
+tki = ToolKitInterface()
+```
 
-    from ldtk import ToolKitInterface
-    tki = ToolKitInterface()
 
 
 In order to get login information the TKI uses the ArgumentWrapper package. This is a highly customizable NamespaceDict 
 object. If you are not creating a callable script but utilizing this program within an environment like ipython then 
 you will need too pass the ArgumentWrapper manually.
     
-    from LST_LinuxDiagnosticToolKit.libs import ArgumentWrapper
-    args = ArgumentWrapper.arguments().parse_known_args()[0]
-    args.host = '127.0.0.1'; args.username = 'server'; args.password = 'abc123'; args.root = True; args.rootpwd = 'abc123'
-    tki = ToolKitInterface(arguments=args)
-    
+```python
+from LST_LinuxDiagnosticToolKit.libs import ArgumentWrapper
+args = ArgumentWrapper.arguments().parse_known_args()[0]
+args.host = '127.0.0.1'; args.username = 'server'; args.password = 'abc123'; args.root = True; args.rootpwd = 'abc123'
+tki = ToolKitInterface(arguments=args)
+```
+
 or
-    
-    args = ArgumentWrapper.parseString("--host 127.0.0.1 --username server --password abc123 -r --rootpwd abc123")
-    tki = ToolKitInterface(arguments=args)
+
+````python
+args = ArgumentWrapper.parseString("--host 127.0.0.1 --username server --password abc123 -r --rootpwd abc123")
+tki = ToolKitInterface(arguments=args)
+````
+
     
 > Note: There is a massive list of possible arguments please review the ArgumentWrapper for all possible options. Also, 
 you do not necessarily need to provide it the exact class with all arguments. Simply any NamespaceDict object will do. 
@@ -50,12 +57,16 @@ For more information on Argument Wrapper please review its readme file: [tutoria
 
 From here if a dev wants to run a custom command it is as simple as:
 
-    cc = tki.execute("whoami")
-    print(cc.results)
+```python
+cc = tki.execute("whoami")
+print(cc.results)
+```
     
 or
 
-    print(tki.execute("whoami").waitForResults())
+```python
+print(tki.execute("whoami").waitForResults())
+```
 
 Execute returns a CommandContainer if threading is True. If Threading is false then it returns the output of the
 command as a string. We will get to how to use CommandContainer later.
@@ -77,13 +88,16 @@ commands. For example the psmodule uses the 'ps' command and has custom parsing 
 
 To use a module:
 
-    ps = tki.getModule('ps')
-    print(ps())
-    print(ps(rerun=False))
-    print(ps(wait=10, rerun=True))
-    print(ps('-ef'))
-    print(type(ps.ef))
-    print(ps.getTopCPU())
+```python
+ps = tki.getModule('ps')
+print(ps())
+print(ps(rerun=False))
+print(ps(wait=10, rerun=True))
+print(ps('-ef'))
+print(type(ps.ef))
+print(ps.getTopCPU())
+```
+
 
 The first command creates an instance of the psmodule and makes it aware of the ToolKitInterface.
 
@@ -118,14 +132,20 @@ This is more 'under the hood' stuff that is likely not necessary for most automa
 around Paramiko and adds extra functionality to make managing users and extra channels and sftp connections.
 
 > Getting and using a SFTP connection
-    
-    sftp = tki.getSFTPClient()
-    sftp.put('/path/too/file.out', '/remote/path/too/new/filename')
+
+```python
+sftp = tki.getSFTPClient()
+sftp.put('/path/too/file.out', '/remote/path/too/new/filename')
+```
+
 
 > Getting and using a SCP connection 
 
-    scp = tki.getSCPClient()
-    scp.put('/path/too/file.out', '/remote/path/too/new/filename')
+```python
+scp = tki.getSCPClient()
+scp.put('/path/too/file.out', '/remote/path/too/new/filename')
+```
+
 
 A few things to note is how to escalate too a specific user, change environment and how to make custom channels and run
 commands on them.
@@ -135,17 +155,25 @@ By default environment=None and thus any are done to whatever SSH channel is ava
 
 > Escalate too root (if the correct information is already passed in via arguments to the script)
     
-    tki.becomeRoot()
-    tki.becomeRoot(environment=<sshEnvironment>)
+```python
+tki.becomeRoot()
+tki.becomeRoot(environment=<sshEnvironment>)
+```
+
 
 > Escalate too root (with custom options, this also works for any other user)
-    
-    tki.becomeuser('root', 'abc123', loginCmd='sudo')
-    tki.becomeuser('root', 'abc123', loginCmd='sudo', environment=<ChannelObject>)
+
+```python
+tki.becomeuser('root', 'abc123', loginCmd='sudo')
+tki.becomeuser('root', 'abc123', loginCmd='sudo', environment=<ChannelObject>)
+```
+
 
 > Escalate to root before executing a command without dealing with environment directly using the standard root keyword.
 
-    cc = tki.execute('whoami', root=True)
+```python
+cc = tki.execute('whoami', root=True)
+```
 
 > NOTE: There is an argument in the ArgumentWrapper '-r' or '--root' the default is False. If passed the script will 
 always automatically attempt to run the 'becomeRoot' method.
@@ -157,24 +185,35 @@ user. It can look at the password for the requested user. It will also attempt t
 
 > Escalate too a different console, environment param optional
 
-    tki.consoleEscalation('bash', '-norc', name='BASH')
+```python
+tki.consoleEscalation('bash', '-norc', name='BASH')
+```
 
 > Change an environment variable, environment param optional
 
-    tki.environmentChange("export=CHEESE='blah'", name='cheese')
+```python
+tki.environmentChange("export=CHEESE='blah'", name='cheese')
+```
+    
 
 > Creating a custom channel to then mess with.
 
-    environment = tki.createEnvironment(label='cheese')
-    tki.becomeUser('root', 'abc123', loginCmd='sudo', environment=environment)
+```python
+environment = tki.createEnvironment(label='cheese')
+tki.becomeUser('root', 'abc123', loginCmd='sudo', environment=environment)
+``` 
 
 > Run a command on your customer channel.
 
-    tki.execute('whoami', labelReq='cheese')
+```python
+tki.execute('whoami', labelReq='cheese')
+``` 
 
 > Also with a commandModule
 
-    print(ps(rerun=True, wait=10, labelReq='cheese'))
+````python
+print(ps(rerun=True, wait=10, labelReq='cheese'))
+````
 
 So why don't we pass the environment directly into execute or simpleExecute? Well this is because you can make multi
 channels with the same label. Each with an identical environment and then run possibly 100s of commands each one finding
@@ -195,18 +234,24 @@ are unordered data types and imply a batch and run asynchronously.
 
 Examples:
 > An Que of commands that will run one at a time.
-    
-    tki.execute(['whoami', 'id', 'w'])
+
+```python
+tki.execute(['whoami', 'id', 'w'])
+```
 
 > batch of commands that will run all at once.
 
-    tki.execute({'whoami', 'id', 'w'})
+````python
+tki.execute({'whoami', 'id', 'w'})
+````
 
 > A Que of commands with custom arguments.
 
-    queCmds = [{'command': 'whoami', 'commandKey': 'username', 'preparser': _someMethod},
+```python
+queCmds = [{'command': 'whoami', 'commandKey': 'username', 'preparser': _someMethod},
                {'command': 'id', 'commandKey': 'userInfo', 'preparser': _someOtherMethod}]
-    tki.execute(queCmds)
+tki.execute(queCmds)
+``` 
 
 The CommandContainer is explained in more detail in the documentation for it. In most cases you will never need its more
 advanced features.
@@ -225,17 +270,21 @@ Firstly when executing a command with the 'execute' method it will return a Comm
 results are stored. You can string multiple commands together and wait on each of them individually or use a method 
 like 'waitForIdle'. Methods that wait on threads will return a None by default implying that the thread is not yet 
 finished. You can change this behavior with parameters.
-    
-    cmd1 = tki.execute('w')
-    cmd1.waitForResults(wait=10)
-    print(f"w output: {cmd1.results}")
+
+```python
+cmd1 = tki.execute('w')
+cmd1.waitForResults(wait=10)
+print(f"w output: {cmd1.results}")
+```
     
 or...
 
-    cmd1 = tki.execute('w')
-    cmd2 = tki.execute('ps awux')
-    tki.waitForIdle(timeout=60)
-    print(f"W output: {cmd1.results}\nps awux output: {cmd2.results}"
+```python
+cmd1 = tki.execute('w')
+cmd2 = tki.execute('ps awux')
+tki.waitForIdle(timeout=60)
+print(f"W output: {cmd1.results}\nps awux output: {cmd2.results}"
+```
 
 If you are using command modules the default value for 'wait' in the parameters is 60. This means each command ran will
 run one at a time finishing or at least waiting for 60 seconds before continuing to the next. 'wait' can be set to 
@@ -243,11 +292,13 @@ False or 0. That way multiple commands from the CommandModules can be ran asynch
 return a CC (CommandContainer) while a 0 will return a None. The CC is created but cached on the module object and can 
 be retrived by running the method again.
 
-    w, ps = tki.getModules('w', 'ps')
-    cmd1 = w('-f', wait=False)
-    ps(wait=None)
-    tki.waitForIdle(timeout=60)
-    print(f"W output: {cmd1.results}\nps awux output: {ps()})
+```python
+w, ps = tki.getModules('w', 'ps')
+cmd1 = w('-f', wait=False)
+ps(wait=None)
+tki.waitForIdle(timeout=60)
+print(f"W output: {cmd1.results}\nps awux output: {ps()})
+```
 
 By default the max aloud threads, and thus ssh channels for the ThreadingPool to manage is determined by the the 
 'MaxSessions' variable in the '/etc/ssh/sshd_conf' configuration file on the target machine. This value is retrieved 
@@ -259,16 +310,18 @@ a Dictionary/Set of commands is treated as a batch of commands and thus are exec
     
 This example takes roughly 15 seconds:
 
-    results = tki.execute(['sleep(5); echo "one"', sleep(5); echo "two", sleep(5); echo "three"])
-    results.waitForResults(wait=60)
-    for child in results.children:
-        print(child.results)
+````python
+results = tki.execute(['sleep(5); echo "one"', sleep(5); echo "two", sleep(5); echo "three"])
+results.waitForResults(wait=60)
+for child in results.children:
+    print(child.results)
+````
 
 This example takes roughly 5 seconds:
 
-    results = tki.execute({'sleep(5); echo "one"', sleep(5); echo "two", sleep(5); echo "three"})
-    results.waitForResults(wait=60)
-    for child in results.children:
-        print(child.results)
-        
-You can learn more about this via the [tutorial](../LST_LinuxDiagnosticToolKit/TUTORIAL/ "TUTORIAL"). 
+```python
+results = tki.execute({'sleep(5); echo "one"', sleep(5); echo "two", sleep(5); echo "three"})
+results.waitForResults(wait=60)
+for child in results.children:
+    print(child.results)
+```

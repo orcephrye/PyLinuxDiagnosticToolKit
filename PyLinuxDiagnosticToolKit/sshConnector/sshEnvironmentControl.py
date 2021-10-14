@@ -16,9 +16,9 @@ import logging
 from time import sleep
 from io import StringIO
 from typing import Callable, Optional, Union
-from LDTKExceptions import _becomeUser, _errorChannel
+from PyLinuxDiagnosticToolKit.libs import dummy_func
+from PyLinuxDiagnosticToolKit.libs.LDTKExceptions import BecomeUserException, SSHExceptionChannel
 from sshConnector.sshBufferControl import sshBufferControl
-from sshConnector.sshLibs import dummyFunction
 from sshConnector.sshLibs.sshChannelEnvironment import sshEnvironment
 
 
@@ -166,7 +166,7 @@ class sshEnvironmentControl(sshBufferControl):
         while environment.recv_ready() is not True and environment.send_ready() is not True:
             if environment.closed:
                 environment.get_transport().close()
-                raise _errorChannel('Unable to create SSH channel...')
+                raise SSHExceptionChannel('Unable to create SSH channel...')
             sleep(.5)
 
         channel = False
@@ -179,7 +179,7 @@ class sshEnvironmentControl(sshBufferControl):
             channel = self._escalateUser(loginCmd=loginCmd, loginPasswd=loginPasswd, userName=userName,
                                          environment=environment, verifyUser=verifyUser, buffer=strBuffer,
                                          unsafe=unsafe)
-        except _becomeUser as e:
+        except BecomeUserException as e:
             if self.arguments.rootLoginExplicit:
                 raise e
             log.warning(f"Unable to become user will try again: {e}")
@@ -235,7 +235,7 @@ class sshEnvironmentControl(sshBufferControl):
         while environment.recv_ready() is not True and environment.send_ready() is not True:
             if environment.closed:
                 environment.get_transport().close()
-                raise _errorChannel('Unable to create SSH channel...')
+                raise SSHExceptionChannel('Unable to create SSH channel...')
             sleep(.5)
 
         if name is None:
@@ -277,7 +277,7 @@ class sshEnvironmentControl(sshBufferControl):
         :return: None
         """
 
-        getattr(environment or self.mainEnvironment, 'resetEnvironment', dummyFunction)()
+        getattr(environment or self.mainEnvironment, 'resetEnvironment', dummy_func)()
 
     def logoutCurrentUser(self, environment: Optional[sshEnvironment] = None, junkOut: Optional[StringIO] = None,
                           reCapturePrompt: bool = True) -> Union[sshEnvironment, bool]:
@@ -418,7 +418,7 @@ class sshEnvironmentControl(sshBufferControl):
                                               userName=userName, buffer=buffer, unsafe=unsafe, **kwargs)
         if verifyUser:
             if not self._verifyLogin(environment, userName, buffer):
-                raise _becomeUser(f'Unable to become user {userName}')
+                raise BecomeUserException(f'Unable to become user {userName}')
         environment.push(loginCmd, name=userName, additionalInput=loginPasswd, escalationType='user')
         return environment
 

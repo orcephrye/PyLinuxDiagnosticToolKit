@@ -13,6 +13,7 @@ import logging
 from functools import partial
 from copy import copy, deepcopy
 from LinuxModules import CommandContainers
+from libs import dummy_func
 from typing import Any, Optional, Union, Hashable, Callable
 
 
@@ -29,15 +30,14 @@ def executionDecorator(func):
 
 
 # noinspection PyBroadException
-class CommandModuleSettings(object):
+class CommandModuleSettings:
     """
         A list of variables that represent the settings of a Command Module and their default values.
         Also a collection of properties used for accessing and manipulating those settings.
     """
 
-    tki = None
-    useDefaultParsing = __useDefaultParsing = None
-    returnValueType = __returnValueType = None
+    __useDefaultParsing = None
+    __returnValueType = None
     __ignoreAlias = None
     __requireFlags = None
 
@@ -53,37 +53,32 @@ class CommandModuleSettings(object):
         except Exception:
             super(CommandModuleSettings, self).__init__()
 
-    def doesCommandExistPreParser(self, *args, **kwargs) -> Optional[bool]:
-        return self.tki.modules.which.doesCommandExist(kwargs.get('executable',
-                                                                  getattr(kwargs.get("this"), 'command', '')
-                                                                  .strip().split()[0]))
-
     @property
-    def _useDefaultParsing(self) -> Optional[bool]:
+    def useDefaultParsing(self) -> Optional[bool]:
         return self.__useDefaultParsing
 
-    @_useDefaultParsing.setter
-    def _useDefaultParsing(self, value):
+    @useDefaultParsing.setter
+    def useDefaultParsing(self, value):
         if value not in (True, False, None):
             raise AttributeError('Default parsing must have a boolean value or None')
         self.__useDefaultParsing = value
 
-    @_useDefaultParsing.deleter
-    def _useDefaultParsing(self):
+    @useDefaultParsing.deleter
+    def useDefaultParsing(self):
         self.__useDefaultParsing = self.useDefaultParsing = None
 
     @property
-    def _returnValueType(self) -> Optional[bool]:
+    def returnValueType(self) -> Optional[bool]:
         return self.__returnValueType
 
-    @_returnValueType.setter
-    def _returnValueType(self, value):
+    @returnValueType.setter
+    def returnValueType(self, value):
         if value not in (str, None):
             raise AttributeError('%s is not a supported return value type' % value)
         self.__returnValueType = self.returnValueType = value
 
-    @_returnValueType.deleter
-    def _returnValueType(self):
+    @returnValueType.deleter
+    def returnValueType(self):
         self.__returnValueType = None
 
     @property
@@ -116,7 +111,7 @@ class CommandModuleSettings(object):
 
 
 # noinspection PyProtectedMember,PyUnusedLocal,PyBroadException
-class GenericCmdModule(CommandModuleSettings, object):
+class GenericCmdModule(CommandModuleSettings):
     """
         This class is inherited by all Command Modules. This is has a collection of helper functions including
         'simpleExecute'. 'simpleExecute' is the most important method in this class as it how most commands get
@@ -168,7 +163,15 @@ class GenericCmdModule(CommandModuleSettings, object):
                 kwargs.update(self.updatekwargs('postparser', self.defaultKwargs.get('postparser'), **kwargs))
         return self.simpleExecute(command={newKey: newCmd}, **self.mergeKwargs(kwargs, self.defaultKwargs))
 
-    def _verifyNeedForRun(self, **kwargs) -> None:
+    def doesCommandExistPreParser(self, *args, **kwargs) -> Optional[bool]:
+        return getattr(getattr(getattr(getattr(self, 'tki', None),
+                                       'modules', None),
+                               'which', None),
+                       'doesCommandExist', dummy_func)(kwargs.get('executable',
+                                                                  getattr(kwargs.get("this"), 'command', '')
+                                                                  .strip().split()[0]))
+
+    def verifyNeedForRun(self, **kwargs) -> None:
         """ This is a helper method that can be used to see if the CommandModule needs to be ran again. It checks
             with a 'if not self' first which is useful if the CommandModule has inherited the BashParser class. It then
             checks to see if the 'rerun' parameter was passed True. If it determines that it needs to run again then

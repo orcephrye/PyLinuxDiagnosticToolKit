@@ -24,9 +24,9 @@ from collections import OrderedDict
 from threading import RLock, Event
 from functools import partial
 from sshConnector.sshLibs.sshChannelEnvironment import EnvironmentControls
-from libs.LDTKExceptions import _errorConn, RequirementsException, PreparserException, ExecutionException, \
-    PostParserException, SetFailureException, CompletionTaskException, TimeoutException, DataFormatException, \
-    ForceCompleteException, _BetweenBitException, _TimeToFirstBitException
+from PyLinuxDiagnosticToolKit.libs.LDTKExceptions import SSHExceptionConn, RequirementsException, PreparserException, \
+    ExecutionException, PostParserException, SetFailureException, CompletionTaskException, TimeoutException, \
+    DataFormatException, ForceCompleteException, BetweenBitException, TimeToFirstBitException
 from PyThreadingPool.ThreadingPool import safe_acquire, safe_release, method_wait, Pool, MultiEvent, \
     PriorityTaskQueue, Task
 # from ThreadingTools.ThreadingTool import safe_acquire, safe_release, method_wait, Pool, MultiEvent, \
@@ -371,6 +371,7 @@ class CommandParsers(CommandData):
         if isinstance(command, dict) and CommandData._needsKwargs(command) and not commandKey:
             commandKey, command = self._findCmdAndKey(command)
         self.commandKey = (command, commandKey)
+        print(f'command/type = {command} / {type(command)}')
         self.command = command
 
     @staticmethod
@@ -433,7 +434,7 @@ class CommandParsers(CommandData):
             It determines if the command is a single command or a queue or batch of commands.
             This is based on the command datatype and structure.
         """
-
+        print(f'command/type: {command} / {type(command)}')
         if isinstance(command, str):
             return CommandData._createTags(command, noParsing, ignoreAlias)
         if len(command) == 1:
@@ -611,12 +612,14 @@ class CommandRequirements(CommandParsers):
                 requirements = [requirements]
             self.requirementTasks = requirements
             if len(self.requirementTasks) != len(self._requirementKeys):
-                raise Exception(f"The func keys for requirements does not match the number of requirementTasks\n"
-                                f"requirementKeys: {self._requirementKeys}\nrequirementTasks: {self.requirementTasks}")
+                raise RequirementsException(f"The func keys for requirements does not match the number of "
+                                            f"requirementTasks\nrequirementKeys: "
+                                            f"{self._requirementKeys}\nrequirementTasks: {self.requirementTasks}")
             self.requirementResults = OrderedDict([])
         except Exception as e:
             log.error(f"ERROR: Requirements setup failed: \n{e}\n")
-            raise RequirementsException(f"Requirements setup failed: {e}")
+            log.debug(f"[DEBUG] for _parseRequirements: {traceback.format_exc()}")
+            raise e
 
     def _parseRequirementsHelper(self, rawRequirements: Any) -> Union[Union[List[partial], partial], Exception]:
         """ This is the work horse of the __init__/_parseRequirements methods.
@@ -694,23 +697,20 @@ class CommandRequirements(CommandParsers):
         - :return: None or Exception
         """
 
-        tempException = None
         if not self.requirementResults:
             log.error("ERROR: Requirements results are empty")
-            tempException = RequirementsException("Requirements results are empty")
+            return RequirementsException("Requirements results are empty")
         if isinstance(self.requirementResults, Exception):
+            log.error(f"An Exception occurred within the requirements: {self.requirementResults}")
+            return RequirementsException(self.requirementResults)
+        if not isinstance(self.requirementResults, dict):
             log.error(self.requirementResults)
-            try:
-                tempException.appendException(baseException=self.requirementResults)
-            except:
-                tempException = RequirementsException(self.requirementResults)
+            return DataFormatException(f"The requirementsResults should be a dict but instead are "
+                                       f"{type(self.requirementResults)}")
         if self.requirementResults and len(requirements) != len(self.requirementResults):
             missingReq = set.difference(self._requirementKeys, set(self.requirementResults.keys()))
             log.error(f"ERROR: Missing requirements results after execution: {missingReq}")
-            try:
-                tempException.appendException(baseException=f"Requirements did not complete: {missingReq}")
-            except:
-                tempException = RequirementsException(f"Requirements did not complete: {missingReq}")
+            return RequirementsException(f"Requirements did not complete: {missingReq}")
         if self.requirementResults:
             failedReqs = []
             for funcKey, results in self.requirementResults.items():
@@ -721,11 +721,7 @@ class CommandRequirements(CommandParsers):
                         funcKey in self.requirementFailureVar and results is failureVar:
                     failedReqs.append(funcKey)
             if failedReqs:
-                try:
-                    tempException.appendException(baseException=f"Requirements failed: {', '.join(failedReqs)}")
-                except:
-                    tempException = RequirementsException(f"Requirements failed: {', '.join(failedReqs)}")
-        return tempException
+                return RequirementsException(f"Requirements failed: {', '.join(failedReqs)}")
 
     def setRequirementsFailureCondition(self, requirementsFailureCondition: Any) -> None:
         """ This will be checked against the results of the requirements to determine if a failure occurred.
@@ -1221,13 +1217,13 @@ class CommandContainer(CommandSetup):
         if not isinstance(e, Exception):
             return DataFormatException(f"The object provided is not an exception: {str(e)}")
         objectType = type(e)
-        if objectType == _errorConn:
+        if objectType == SSHExceptionConn:
             log.error(f'CONNECTION ERROR: {e}\n{traceback.format_exc()}')
             log.debug(f'This usually occurs when the SSH connection is prematurely severed.')
             log.debug(f'The preRunner failed for CommandObject with preparser and requirements: '
                       f'{self.commandKey} : {str(self._preparser)} : {str(self.requirements)}')
             e = _disconnectHelper()
-        elif objectType == _TimeToFirstBitException or objectType == _BetweenBitException:
+        elif objectType == TimeToFirstBitException or objectType == BetweenBitException:
             log.error(f"Error receiving data from buffer after command was sent. "
                       f"\nError: {e}\n{traceback.format_exc()}\n")
             log.debug(f'The preRunner failed for CommandObject with preparser and requirements: '

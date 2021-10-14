@@ -1,9 +1,4 @@
-import inspect
-import os
-import sys
 import warnings
-
-sys.path.append(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))))
 
 
 def ignore_warnings(func):
@@ -12,3 +7,7 @@ def ignore_warnings(func):
             warnings.simplefilter("ignore", ResourceWarning)
             func(self, *args, **kwargs)
     return wrapper
+
+
+def dummy_func(*args, **kwargs):
+    return kwargs.get('_default', None)

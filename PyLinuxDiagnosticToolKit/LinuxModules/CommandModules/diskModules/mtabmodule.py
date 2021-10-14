@@ -62,7 +62,7 @@ class mtabModule(GenericCmdModule, BashParser):
         :param filesystem:
         :return:
         """
-        self._verifyNeedForRun()
+        self.verifyNeedForRun()
         if len(filesystem) == 1:
             if re.search("^/$", filesystem):
                 reg = re.compile('^/$')

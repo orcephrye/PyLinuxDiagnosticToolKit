@@ -100,12 +100,12 @@ class fstabModule(GenericCmdModule, BashParser):
 
     @exceptionDecorator(returnOnExcept=[])
     def mountPointToDevice(self, mountPoint):
-        self._verifyNeedForRun()
+        self.verifyNeedForRun()
         return self.getSearch(('MountPoint', mountPoint))['Device']
 
     @exceptionDecorator(returnOnExcept=[])
     def deviceToMountPoint(self, device):
-        self._verifyNeedForRun()
+        self.verifyNeedForRun()
         return self.getSearch(('Device', device))['MountPoint']
 
     @exceptionDecorator(returnOnExcept=False)
@@ -116,7 +116,7 @@ class fstabModule(GenericCmdModule, BashParser):
         return typeOfFS.lower().strip() in [x.lower().strip() for x in fsType]
 
     def whatType(self, filesystem):
-        self._verifyNeedForRun()
+        self.verifyNeedForRun()
         output = self.getSearch(('MountPoint', filesystem))
         if output:
             return output['Type'][0]

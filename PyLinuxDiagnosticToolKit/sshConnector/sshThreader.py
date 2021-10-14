@@ -20,7 +20,7 @@
 
 import logging
 import traceback
-from libs.LDTKExceptions import _errorConn
+from PyLinuxDiagnosticToolKit.libs.LDTKExceptions import SSHExceptionChannel
 # A requirement for portray
 try:
     from LinuxModules.CommandContainers import CommandContainer
@@ -160,7 +160,7 @@ class sshThreader(sshEnvironmentManager):
         log.info(f'running _exeThread for: {CC.command}')
         if not self.checkConnection():
             log.debug("The SSH Connection is closed!")
-            raise _errorConn("While running a thread it was found that the SSH Channel is closed!")
+            raise SSHExceptionChannel("While running a thread it was found that the SSH Channel is closed!")
 
         def setupParams(otherObject: CommandContainer) -> tuple:
             if otherObject is None:

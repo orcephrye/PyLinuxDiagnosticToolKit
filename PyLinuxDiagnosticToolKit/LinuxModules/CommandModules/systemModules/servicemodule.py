@@ -22,15 +22,13 @@ class serviceModule(GenericCmdModule):
          defaultFlags =
      """
 
-    servicecontrol = None
-    persistencecontrol = None
     __COMMAND__ = {
-        'servicecontrol': 'if [[ -n `which systemctl 2>/dev/null` ]]; then echo "systemctlCMD"; '
+        '__servicecontrol': 'if [[ -n `which systemctl 2>/dev/null` ]]; then echo "systemctlCMD"; '
                           'elif [[ -n `which service 2>/dev/null` ]]; then echo "serviceCMD"; '
                           'else echo "initdCMD"; fi'
     }
     __PERSISTENCE__ = {
-        'persistencecontrol': 'if [[ -n `which systemctl 2>/dev/null` ]]; then echo "systemctlPersistence"; '
+        '__persistencecontrol': 'if [[ -n `which systemctl 2>/dev/null` ]]; then echo "systemctlPersistence"; '
                               'elif [[ -n `which chkconfig 2>/dev/null` ]]; then echo "chkconfigPersistence"; '
                               'else echo "placeHolderPersistence"; fi'
     }
@@ -38,9 +36,9 @@ class serviceModule(GenericCmdModule):
     def __init__(self, tki, *args, **kwargs):
         log.info("Creating Service Command Module")
         super(serviceModule, self).__init__(tki=tki)
-        self.simpleExecute(command=self.__COMMAND__, rerun=True)
-        log.info("About to simple execute persistence command")
-        self.simpleExecute(command=self.__PERSISTENCE__, rerun=True)
+        # self.simpleExecute(command=self.__COMMAND__, rerun=True)
+        # log.info("About to simple execute persistence command")
+        # self.simpleExecute(command=self.__PERSISTENCE__, rerun=True)
         self.__NAME__ = "service"
 
     def run(self, *args, **kwargs):
@@ -194,3 +192,16 @@ class serviceModule(GenericCmdModule):
     @staticmethod
     def placeHolderPersistence(*args, **kwargs):
         return False
+
+    @property
+    def servicecontrol(self):
+        if not hasattr(self, '__servicecontrol'):
+            self.simpleExecute(command=self.__COMMAND__, rerun=True)
+        return getattr(self, '__servicecontrol', None)
+
+
+    @property
+    def persistencecontrol(self):
+        if not hasattr(self, '__persistencecontrol'):
+            self.simpleExecute(command=self.__PERSISTENCE__, rerun=True)
+        return getattr(self, '__persistencecontrol', None)

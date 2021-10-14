@@ -9,17 +9,19 @@
 # on a Linux box via SSH. This is necessary to progress to user management and threading.
 
 
-from sshConnector.sshConnect import sshConnect as sshCon
-from paramiko import Channel
-from sshConnector.sshLibs.sshChannelEnvironment import EnvironmentControls
-from io import StringIO
 import logging
 import socket
 import re
 import time
 import warnings
+import traceback
 from time import sleep
-from libs.LDTKExceptions import _errorConn, _BetweenBitException, _TimeToFirstBitException, _RecvReady
+from sshConnector.sshConnect import sshConnect as sshCon
+from paramiko import Channel
+from sshConnector.sshLibs.sshChannelEnvironment import EnvironmentControls
+from io import StringIO
+from PyLinuxDiagnosticToolKit.libs.LDTKExceptions import ClosedBufferException, RecvReady, BetweenBitException, \
+    TimeToFirstBitException, SSHExceptionConn
 from typing import Any, AnyStr, Optional, Union, Tuple, Type
 
 log = logging.getLogger('sshBufferControl')
@@ -29,7 +31,6 @@ warnings.filterwarnings("ignore", category=ResourceWarning)
 class sshBufferControl(sshCon):
     promptTextTuple = ('$', '>', '#', '@', ']', '~')
     escapeChars = re.compile(r'((\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]|[\x00|\x0e-\x1f])')
-    tmpOutput = None
 
     def __init__(self, arguments, **kwargs):
         """ init function for sshBufferControl.
@@ -58,6 +59,11 @@ class sshBufferControl(sshCon):
         - :return: (str)
         """
 
+        def _parseOutput(tmpOut, tmpPrompt):
+            tmpOut = sshBufferControl._decodeStringEscape(tmpOut)
+            tmpOut = sshBufferControl.escapeChars.sub('', tmpOut).strip()
+            return tmpOut.replace(tmpPrompt, '').replace(cmd, '').strip()
+
         if not super(sshBufferControl, self).checkConnection(sshChannel=environment):
             log.error("There is not valid connection.")
             return ''
@@ -71,21 +77,12 @@ class sshBufferControl(sshCon):
         if prompt is None and unsafe is False:
             prompt = environment.getPrompt(reCapturePrompt=reCapturePrompt)
 
-        def _parseOutput(tmpOut, tmpPrompt):
-            tmpOut = sshBufferControl._decodeStringEscape(tmpOut)
-            tmpOut = sshBufferControl.escapeChars.sub('', tmpOut).strip()
-            # print(f'removed escape chars output: {tmpOut}\n\n')
-            return tmpOut.replace(tmpPrompt, '').replace(cmd, '').strip()
-
         try:
-            # if prompt is None and unsafe is False:
-            #     prompt = self._capturePrompt(environment, out)
-            #     out.truncate(0)
             self._bufferControl(environment, cmd, out, prompt=prompt, unsafe=unsafe, **kwargs)
-            self.tmpOutput = out.getvalue()
-            output = _parseOutput(self.tmpOutput, prompt)
-        except _RecvReady:
+            output = _parseOutput(out.getvalue(), prompt)
+        except RecvReady as e:
             log.error(f"The timeout of {self.runTimeout} was reached while waiting for prompt on buffer.")
+            log.debug(f"[DEBUG] for executeOnEnvironment: {traceback.format_exc()}")
             output = _parseOutput(out.getvalue(), prompt)
             environment.close()
         except socket.timeout:
@@ -163,16 +160,16 @@ class sshBufferControl(sshCon):
                                           firstBitTimeout=firstBitTimeout, betweenBitTimeout=betweenBitTimeout,
                                           delay=delay, endText=endText, cmd=cmd)
 
-                except _BetweenBitException:
+                except BetweenBitException:
                     log.debug("noprompt execution has returned a timeout failure for BetweenBit. Ignoring")
-                except _TimeToFirstBitException:
+                except TimeToFirstBitException:
                     log.debug("noprompt execution has returned a timeout failure for Time To First Bit. Ignoring")
 
             # log.debug(f'Channel releasing buffer: [{str(channel)[18:20]}]  Closed: {channel.closed}')
         except socket.error as e:
             log.debug(f'An error occurred: {e}')
             channel.get_transport().close()
-            raise _errorConn(f"Connection Error: {e}")
+            raise SSHExceptionConn(f"Connection Error: {e}") from e
 
     def _capturePrompt(self, channel: Channel, out: StringIO) -> Union[bool, AnyStr]:
         """
@@ -191,7 +188,7 @@ class sshBufferControl(sshCon):
         if prompt:
             prompt = prompt.group().strip()
             log.debug(f" === The search prompt value is: {prompt}")
-            return self.escapeChars.sub('', sshBufferControl._decodeStringEscape(prompt)).strip()
+            return sshBufferControl.escapeChars.sub('', sshBufferControl._decodeStringEscape(prompt)).strip()
         return False
 
     def _passwdWait(self, channel: Channel, out: StringIO, cmd: AnyStr = '', **kwargs) -> Optional[bool]:
@@ -204,11 +201,11 @@ class sshBufferControl(sshCon):
                                     firstBitTimeout=0,
                                     betweenBitTimeout=kwargs.get("betweenBitTimeout", self.betweenBitTimeout),
                                     delay=kwargs.get("delay", self.delay),
-                                    endText=('assword', 'assword:') + self.promptTextTuple,
+                                    endText=('assword', 'assword:') + sshBufferControl.promptTextTuple,
                                     cmd=cmd)
-        except _BetweenBitException:
+        except BetweenBitException:
             log.debug("_passwdWait execution has returned a timeout failure for BetweenBit. Ignoring")
-        except _TimeToFirstBitException:
+        except TimeToFirstBitException:
             log.debug("_passwdWait execution has returned a timeout failure for Time To First Bit. Ignoring")
         return None
 
@@ -228,11 +225,11 @@ class sshBufferControl(sshCon):
                                     firstBitTimeout=0,
                                     betweenBitTimeout=kwargs.get("betweenBitTimeout", self.betweenBitTimeout),
                                     delay=kwargs.get("delay", self.delay),
-                                    endText=kwargs.get('endText', self.promptTextTuple), cmd=cmd,
+                                    endText=kwargs.get('endText', sshBufferControl.promptTextTuple), cmd=cmd,
                                     exitOnAnything=True)
-        except _BetweenBitException:
+        except BetweenBitException:
             log.debug("_promptWait execution has returned a timeout failure for BetweenBit. Ignoring")
-        except _TimeToFirstBitException:
+        except TimeToFirstBitException:
             log.debug("_promptWait execution has returned a timeout failure for Time To First Bit. Ignoring")
         return False
 
@@ -292,9 +289,9 @@ class sshBufferControl(sshCon):
             if channel.recv_ready() is True:
                 return True
             if channel.closed:
-                raise Exception("Channel closed while attempting to get first bit!")
+                raise ClosedBufferException("Channel closed while attempting to get first bit!")
             sleep(delay)
-        raise _TimeToFirstBitException("Time to First Bit exceeded timeout: %s" % str(fbEnd))
+        raise TimeToFirstBitException("Time to First Bit exceeded timeout: %s" % str(fbEnd))
 
     @staticmethod
     def _bufferBetweenBitWait(channel: Channel, bbEnd: float, delay: float) -> Any:
@@ -311,11 +308,11 @@ class sshBufferControl(sshCon):
             try:
                 if channel.recv_ready() is True:
                     return channel.recv(65536).decode('utf-8')
-            except socket.timeout:
+            except socket.timeout as e:
                 if channel.closed:
-                    raise Exception("Channel closed while attempting to read from it!")
+                    raise ClosedBufferException("Channel closed while attempting to read from it!") from e
             sleep(delay)
-        raise _BetweenBitException(f"IO Timeout: waited for {str(bbEnd)}")
+        raise BetweenBitException(f"IO Timeout: waited for {str(bbEnd)}")
 
     @staticmethod
     def _bufferSendWait(data: AnyStr, channel: EnvironmentControls, delay: float) -> None:
@@ -323,16 +320,16 @@ class sshBufferControl(sshCon):
             try:
                 if channel.send_ready() is True:
                     data = data[channel.send(data[:1024]):]
-            except socket.timeout:
+            except socket.timeout as e:
                 if channel.isClosed:
-                    raise Exception('Channel closed while attempting to send data to it!')
+                    raise ClosedBufferException('Channel closed while attempting to send data to it!') from e
             sleep(delay)
         try:
             if channel.send_ready() is True:
                 channel.send('\n')
-        except socket.timeout:
+        except socket.timeout as e:
             if channel.isClosed:
-                raise Exception('Channel closed while attempting to send data to it!')
+                raise ClosedBufferException('Channel closed while attempting to send data to it!') from e
 
     @staticmethod
     def _endTextParser(endText: Union[Tuple, AnyStr]) -> Tuple[Type, Union[Tuple, AnyStr]]:

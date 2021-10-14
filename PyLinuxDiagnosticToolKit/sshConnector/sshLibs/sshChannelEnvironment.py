@@ -13,7 +13,7 @@ import traceback
 import re
 from paramiko import Channel
 from threading import RLock
-from LDTKExceptions import _errorConn
+from PyLinuxDiagnosticToolKit.libs.LDTKExceptions import SSHExceptionConn
 from typing import Optional, Union, AnyStr, Any
 
 
@@ -340,7 +340,7 @@ class EnvironmentControls(sshEnvironment):
         if not self._LOCK.acquire():
             raise RuntimeError(f"Channel ID: {self.EnvironmentID} The Lock failed within the time frame: 60")
         if not self.sshParent.checkConnection(self):
-            raise _errorConn("Connection closed!")
+            raise SSHExceptionConn("Connection closed!")
         self.active = True
         return self
 
@@ -438,7 +438,7 @@ class EnvironmentControls(sshEnvironment):
                 return False
             try:
                 self.sshParent.disconnect(environment=self)
-            except _errorConn:
+            except SSHExceptionConn:
                 log.debug("Failed to complete logout correctly! This could because of a corrupt userList!")
             except Exception as e:
                 log.error(f"error in disconnectEnvironment: {e}")

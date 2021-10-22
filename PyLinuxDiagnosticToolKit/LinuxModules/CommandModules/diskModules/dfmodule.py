@@ -81,7 +81,7 @@ class dfModule(GenericCmdModule, BashParser):
         return [indexList[x] for x in range(len(values)) if values[x] <= threshold]
 
     def _helperMountFilesystemFinder(self, filesystem=None, mountpoint=None):
-        self._verifyNeedForRun()
+        self.verifyNeedForRun()
         if not self:
             return []
         if filesystem:

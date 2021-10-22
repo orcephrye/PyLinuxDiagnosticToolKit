@@ -19,11 +19,8 @@ from paramiko.transport import Transport
 from paramiko.proxy import ProxyCommand
 from io import StringIO, TextIOWrapper
 from sshConnector.sshLibs.sshChannelEnvironment import sshChannelWrapper, sshEnvironment, EnvironmentControls
-from LDTKExceptions import _errorChannel as errChannel
-from LDTKExceptions import _errorSSH as errSSH
-from LDTKExceptions import _errorConn as errConn
-from LDTKExceptions import _errorAuth as errAuth
-from LDTKExceptions import _errorUnknown as errUnknown
+from PyLinuxDiagnosticToolKit.libs.LDTKExceptions import LDTKSSHException, SSHExceptionAuth, SSHExceptionConn, \
+    SSHExceptionUnknown, SSHExceptionChannel
 from typing import AnyStr, Optional, Union
 
 
@@ -87,51 +84,55 @@ class sshConnect(object):
         - :return: Paramiko SSHClient object. Otherwise known as SSH Connection.
         """
 
-        ssh = paramiko.SSHClient()
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-
-        if host:
-            self.host = host
-        if port:
-            self.port = port
-        if username:
-            self.username = username
-        if password:
-            self.password = password
-        if connTimeout:
-            self.connTimeout = connTimeout
-        proxy = self._makeSockProxy()
-        sshKey = self._handleSSHKey(self.key, self.password)
+        ssh = None
 
         try:
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+            if host:
+                self.host = host
+            if port:
+                self.port = port
+            if username:
+                self.username = username
+            if password:
+                self.password = password
+            if connTimeout:
+                self.connTimeout = connTimeout
+
             ssh.connect(self.host,
                         port=int(self.port),
-                        pkey=sshKey,
+                        pkey=self._handleSSHKey(self.key, self.password),
                         username=self.username,
                         password=self.password,
                         timeout=float(self.connTimeout),
                         look_for_keys=False,
                         banner_timeout=60.0,
-                        sock=proxy)
+                        sock=self._makeSockProxy())
         except socket.error as e:
             if ssh:
                 ssh.close()
-            raise errConn('Connection Error for User %s: %s' % (self.username, e))
-        except paramiko.AuthenticationException as e:
+            raise LDTKSSHException('Connection Error for User %s: %s' % (self.username, e)) from e
+        except (paramiko.AuthenticationException, paramiko.BadAuthenticationType, paramiko.BadHostKeyException,
+                paramiko.PasswordRequiredException, paramiko.ssh_exception.PartialAuthentication) as e:
             if ssh:
                 ssh.close()
-            raise errAuth('Authentication Error for User %s: %s' % (self.username, e))
+            raise SSHExceptionAuth('Authentication Error for User %s: %s' % (self.username, e)) from e
+        except (paramiko.ssh_exception.ConfigParseError, paramiko.ProxyCommandFailure,
+                paramiko.ssh_exception.CouldNotCanonicalize, paramiko.ssh_exception.NoValidConnectionsError) as e:
+            raise SSHExceptionConn('Could not connect to remove machine for User %s: %s' % (self.username, e)) from e
         except paramiko.SSHException as e:
             if ssh:
                 ssh.close()
-            raise errSSH('SSH Error for User %s: %s' % (self.username, e))
+            raise SSHExceptionUnknown('Generic Paramiko Exception for User %s: %s' % (self.username, e)) from e
         except Exception as e:
             if ssh:
                 ssh.close()
-            raise errUnknown('Unknown Error for User %s: %s' % (self.username, e))
-
-        self.ssh = ssh
-        return self.ssh
+            raise LDTKSSHException('Unknown Error for User %s: %s' % (self.username, e)) from e
+        else:
+            self.ssh = ssh
+            return self.ssh
 
     def checkConnection(self, sshChannel: Optional[Channel] = None) -> bool:
         """ Creates ssh key object or returns None.
@@ -163,12 +164,6 @@ class sshConnect(object):
             log.error(f'Disconnect failed: {e}')
             log.debug(f'[DEBUG]: Disconnect failure reason: {traceback.format_exc()}')
 
-    @staticmethod
-    def processRootLogin(loginMethod: str) -> str:
-        if 'sudo' in loginMethod:
-            return '/usr/bin/sudo -k; /usr/bin/sudo su -'
-        return 'su -'
-
     def _makeSockProxy(self) -> Optional[ProxyCommand]:
         """ Use a proxy to ssh into a server.
 
@@ -181,7 +176,50 @@ class sshConnect(object):
         flags = "-F '/dev/null' -o ControlMaster='auto' -o ControlPath='%s' -o TCPKeepAlive='yes' " \
                 "-o ServerAliveInterval=300" % controlPath
         proxycommand = f"ssh {flags} -A {self.proxyUser}@{self.proxyServer} 'nc {self.host} {self.port}'"
-        return paramiko.ProxyCommand(proxycommand)
+        try:
+            return paramiko.ProxyCommand(proxycommand)
+        except Exception as e:
+            log.debug(f'Error occurred setting up proxy command: {e}')
+            log.debug(f"[DEBUG] for _makeSockProxy: {traceback.format_exc()}")
+            raise SSHExceptionConn(f'Failed setting up SSH ProxyCommand: {e}') from e
+
+    def _createTransport(self) -> Optional[Transport]:
+        """
+            Creates the transport object.
+        """
+        if not self.ssh:
+            raise LDTKSSHException('There is not SSH object which implies Paramiko is not connected!')
+        try:
+            sshTransport = self.ssh.get_transport()
+            sshTransport.set_keepalive(10)
+            sshTransport.use_compression()
+            return sshTransport
+        except Exception as e:
+            log.debug(f'Error occurred creating transport object: {e}')
+            log.debug(f"[DEBUG] for _createTransport: {traceback.format_exc()}")
+            if self.checkConnection():
+                self.ssh.close()
+            raise SSHExceptionChannel(f'Failed create SSH Transport: {e}') from e
+
+    def _openChannel(self, sshTransport: Transport, **kwargs) -> EnvironmentControls:
+        """ Creates SSH Channel using existing SSH Transport Object.
+
+        - :return: (Channel)
+        """
+
+        try:
+            channel = sshTransport.open_session()
+            channel.settimeout(self.ioTimeout)
+            channel.get_pty()
+            channel.invoke_shell()
+            kwargs.update({'sshParent': self})
+            return EnvironmentControls(sshEnvironment(sshChannelWrapper(channel, **kwargs), **kwargs), **kwargs)
+        except paramiko.ChannelException as e:
+            log.debug(f'Error occurred when opening channel: {e}')
+            log.debug(f"[DEBUG] for _openChannel: {traceback.format_exc()}")
+            if sshTransport:
+                sshTransport.close()
+            raise SSHExceptionChannel(f'Failed to open SSH Channel: {e}') from e
 
     @staticmethod
     def _handleSSHKey(key: Union[AnyStr, TextIOWrapper], passphrase: AnyStr = None) -> Optional[PKey]:
@@ -201,8 +239,9 @@ class sshConnect(object):
                 sshKeyFile.write(key.read())
             else:
                 sshKeyFile.write(key)
-        except:
-            log.debug("The provided SSH key failed!")
+        except Exception as e:
+            log.debug("There was a failure to read the provied SSH key file!")
+            log.debug(f"[DEBUG] for _handleSSHKey: {traceback.format_exc()}")
             return None
 
         def _rsaHelper():
@@ -211,6 +250,7 @@ class sshConnect(object):
                 return paramiko.RSAKey.from_private_key(sshKeyFile, password=passphrase)
             except Exception as e:
                 log.error(f'RSA Key failed: {e}')
+                log.debug(f"[DEBUG] for _rsaHelper: {traceback.format_exc()}")
 
         def _dssKey():
             try:
@@ -218,6 +258,7 @@ class sshConnect(object):
                 return paramiko.DSSKey.from_private_key(sshKeyFile, password=passphrase)
             except Exception as e:
                 log.error(f'DSS Key failed: {e}')
+                log.debug(f"[DEBUG] for _dssKey: {traceback.format_exc()}")
 
         def _ECDSAKey():
             try:
@@ -225,6 +266,7 @@ class sshConnect(object):
                 return paramiko.ECDSAKey.from_private_key(sshKeyFile, password=passphrase)
             except Exception as e:
                 log.error(f'ECDSA Key failed: {e}')
+                log.debug(f"[DEBUG] for _ECDSAKey: {traceback.format_exc()}")
 
         sshKey = _rsaHelper()
         if sshKey:
@@ -239,41 +281,11 @@ class sshConnect(object):
         log.warning(f'Unable to translate SSH private SSH key for use.')
         return None
 
-    def _createTransport(self) -> Optional[Transport]:
-        """
-            Creates the transport object.
-        """
-        if not self.ssh:
-            raise errSSH(f'the ssh object is empty Paramiko is not connected.')
-        try:
-            sshTransport = self.ssh.get_transport()
-            sshTransport.set_keepalive(10)
-            sshTransport.use_compression()
-            return sshTransport
-        except Exception as e:
-            log.debug(f'Error occurred creating transport object: {e}')
-            if self.checkConnection():
-                self.ssh.close()
-            raise errSSH(f'SSH Transport Error: {e}')
-
-    def _openChannel(self, sshTransport: Transport, **kwargs) -> EnvironmentControls:
-        """ Creates SSH Channel using existing SSH Transport Object.
-
-        - :return: (Channel)
-        """
-
-        try:
-            channel = sshTransport.open_session()
-            channel.settimeout(self.ioTimeout)
-            channel.get_pty()
-            channel.invoke_shell()
-            kwargs.update({'sshParent': self})
-            return EnvironmentControls(sshEnvironment(sshChannelWrapper(channel, **kwargs), **kwargs), **kwargs)
-        except paramiko.ChannelException as e:
-            log.debug(f'Error occurred when opening channel: {e}')
-            if sshTransport:
-                sshTransport.close()
-            raise errChannel(f'SSH Channel Error: {e}')
+    @staticmethod
+    def processRootLogin(loginMethod: str) -> str:
+        if 'sudo' in loginMethod:
+            return '/usr/bin/sudo -k; /usr/bin/sudo su -'
+        return 'su -'
 
     @property
     def mainEnvironment(self):

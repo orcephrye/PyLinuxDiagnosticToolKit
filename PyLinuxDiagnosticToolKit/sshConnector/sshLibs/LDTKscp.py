@@ -13,7 +13,6 @@ import locale
 import os
 import re
 from socket import timeout as SocketTimeout
-import types
 import sys
 import time
 import zipfile

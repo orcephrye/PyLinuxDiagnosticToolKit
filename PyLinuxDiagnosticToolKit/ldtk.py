@@ -13,6 +13,7 @@
 
 # A requirement for portray
 # import sys
+# sys.path.append('/home/rye/PycharmProjects/PyLinuxDiagnosticToolKit')
 # sys.path.append('/home/rye/PycharmProjects/PyCustomCollections')
 # sys.path.append('/home/rye/PycharmProjects/PyCustomParsers')
 # sys.path.append('/home/rye/PycharmProjects/PyMultiprocessTools')
@@ -31,8 +32,8 @@ from sshConnector.sshLibs.sshChannelEnvironment import sshEnvironment, Environme
 from typing import Union, List, Any, Optional
 
 
-# logging.basicConfig(format='%(asctime)s %(levelname)s %(name)s %(funcName)s %(lineno)s %(message)s',
-#                     level=logging.DEBUG)
+logging.basicConfig(format='%(asctime)s %(levelname)s %(name)s %(funcName)s %(lineno)s %(message)s',
+                    level=logging.DEBUG)
 _ptlog = logging.getLogger('paramiko.transport')
 _ptlog.setLevel(logging.WARNING)
 _pclog = logging.getLogger('paramiko.channel')
@@ -40,7 +41,7 @@ _pclog.setLevel(logging.WARNING)
 log = logging.getLogger('ToolKitInterface')
 
 
-class _ToolKitModules(dict, object):
+class _ToolKitModules(dict):
 
     tki = None
 
@@ -49,21 +50,17 @@ class _ToolKitModules(dict, object):
         super(_ToolKitModules, self).__init__(*args, **kwargs)
 
     def __getattr__(self, item):
-        if not item.startswith('__') and not item.endswith('__'):
+        if not (item.startswith('_') or (item.startswith('__') and item.endswith('__'))):
             return self.tki.getModules(item) or getattr(self.tki, item)
 
 
-class ToolKitInterface(object):
+class ToolKitInterface:
 
-    modules: _ToolKitModules = None
-    sshCon: threadedSSH = None
-    arguments: ArgumentParsers = None
-    autoLogin: bool = None
     __KNOWNMODULES__ = {'sophos': {'from': 'sophosModule', 'import': 'SophosModule'},
                         'oracle': {'from': 'OracleModule', 'import': 'oracleAllTheThings'},
                         'mysql': {'from': 'mysqlModule', 'import': 'mysqlModule'}}
 
-    def __init__(self, arguments: ArgumentParsers, autoLogin: bool = True, *args, **kwargs):
+    def __init__(self, arguments: ArgumentParsers, auto_login: bool = True, *args, **kwargs):
         """ This acts differently depending on what is passed to it. More explained below.
 
         - :param arguments: Args is from argparse and is the main way data is passed between classes
@@ -73,18 +70,19 @@ class ToolKitInterface(object):
         """
 
         log.debug("Creating a ToolKitInterface module")
+        self.sshCon: Optional[threadedSSH] = None
         self.modules = _ToolKitModules(self)
         if arguments is None:
             arguments = ArgumentWrapper.arguments().parse_known_args()[0]
         self.arguments = arguments
-        self.autoLogin = autoLogin
-        if autoLogin:
+        self.auto_login = auto_login
+        if auto_login:
             self.createConnection()
-        try:
-            super(ToolKitInterface, self).__init__(*args, **kwargs)
-        except Exception as e:
-            log.warning(f"Call too super init failed trying without args: {e}")
-            super(ToolKitInterface, self).__init__()
+        # try:
+        #     super(ToolKitInterface, self).__init__(*args, **kwargs)
+        # except Exception as e:
+        #     log.warning(f"Call too super init failed trying without args: {e}")
+        #     super(ToolKitInterface, self).__init__()
 
     def createConnection(self, arguments: Optional[ArgumentParsers] = None) -> threadedSSH:
         """ This creates a new SSH connection using the sshConnector tool which wraps Paramiko
@@ -220,11 +218,11 @@ class ToolKitInterface(object):
             CommandContainer. Threading=False: It will return a dictionary.
         """
 
-        log.info(f'Executing command: {commands} with threading = {threading}')
+        log.info(f'Executing command/type: {commands}/{type(commands)} with threading = {threading}')
 
-        kwargs.update({'tki': kwargs.get('tki', self)})
-        kwargs.update({'commandKey': kwargs.get('commandKey', None)})
         if not isinstance(commands, CommandContainer):
+            kwargs.update({'tki': kwargs.get('tki', self)})
+            kwargs.update({'commandKey': kwargs.get('commandKey', None)})
             commands = CommandContainer(commands, **kwargs)
 
         if not self.checkConnection():
@@ -233,13 +231,13 @@ class ToolKitInterface(object):
             except Exception as e:
                 raise commands.forceComplete(e)
 
-        environmentObject = kwargs.get('environment', None)
-        if environmentObject is not None:
+        env_obj = kwargs.get('environment', None)
+        if env_obj is not None:
             commands.root = False
         threading = commands.kwargs.get('threading', threading) or threading
         if not threading:
             return self._executeUnthread(commands)
-        self.sshCon.executeOnThread(commands, EnvObj=environmentObject)
+        self.sshCon.executeOnThread(commands, EnvObj=env_obj)
         return commands
 
     def _executeUnthread(self, commands: Any) -> Any:

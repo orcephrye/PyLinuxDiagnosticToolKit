@@ -40,22 +40,20 @@ class osModule(GenericCmdModule):
 
     __SUPPORTED__ = ['rhel', 'redhat', 'red hat', 'centos', 'cent os', 'ubuntu']
 
-    __fullName = None
-    __name = None
-    __version = None
-    __versionName = None
-    __majorV = None
-    __minorV = None
-    __timezone = None
-    __kernelVersion = None
-    __hostName = None
-    __architecture = None
-
-    modules = None
-
     def __init__(self, tki, *args, **kwargs):
         log.info("Creating Operating System Command Module")
         super(osModule, self).__init__(tki=tki)
+        self.__fullName = None
+        self.__name = None
+        self.__version = None
+        self.__versionName = None
+        self.__majorV = None
+        self.__minorV = None
+        self.__timezone = None
+        self.__kernelVersion = None
+        self.__hostName = None
+        self.__architecture = None
+        self.__isCluster = None
         self.tki.getModules('cat', 'tail', 'service', 'uptime', 'timedatectl', 'uname', 'll')
         self.modules = self.tki.modules
         self.__NAME__ = "os"
@@ -157,15 +155,16 @@ class osModule(GenericCmdModule):
         results = self.modules.service('cman', status=True, **kwargs)
         if not results:
             log.error("There was an error in executing the command by default returning False.")
-            return False
+            self.__isCluster = False
         if re.search('running', results) or re.search('stopped', results):
-            return True
-        return False
+            self.__isCluster = True
+        self.__isCluster = False
+        return self.__isCluster
 
-    def getUptime(self, formatted=False, parse=True):
+    def getUptime(self, formatted=False, parse=True, rerun=True):
         if formatted:
-            return self.modules.uptime(rerun=True)
-        return self.modules.uptime.getUptimeViaProc(parse=parse, rerun=True)
+            return self.modules.uptime(rerun=rerun)
+        return self.modules.uptime.getUptimeViaProc(parse=parse, rerun=rerun)
 
     def rebootedWithin(self, timeInSeconds):
         return self.modules.uptime.rebootedWithin(timeInSeconds)
@@ -219,11 +218,11 @@ class osModule(GenericCmdModule):
 
     @property
     def isCluster(self):
-        return self.getCluster()
+        return self.getCluster() if self.__isCluster is None else self.__isCluster
 
     @property
     def timezone(self):
-        return self.getTimeZone()
+        return self.__timezone if self.__timezone else self.getTimeZone()
 
     @property
     def osName(self):
@@ -282,17 +281,17 @@ class osModule(GenericCmdModule):
     @property
     def uptimeInSeconds(self):
         try:
-            return float(self.getUptime(formatted=False, parse=False))
+            return float(self.getUptime(formatted=False, parse=False, rerun=False))
         except:
             return 0.0
 
     @property
     def uptimeAsString(self):
-        return self.getUptime(formatted=False, parse=True)
+        return self.getUptime(formatted=False, parse=True, rerun=False)
 
     @property
     def uptimeViaCommand(self):
-        return self.getUptime(formatted=True)
+        return self.getUptime(formatted=True, rerun=False)
 
     def _prettyStrFormat(self):
         if self.__name is None:

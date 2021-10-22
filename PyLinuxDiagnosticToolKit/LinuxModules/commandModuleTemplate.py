@@ -132,16 +132,16 @@ class ModuleNameBashParser(GenericCmdModule, BashParser):
 
     def specialMethod(self, *args, **kwargs):
         """ This is a simple unpractical method. You can ignore the 'return' line. The point is to show case the
-            '_verifyNeedForRun' method found in the GenericCmdModule. This method can take the flags from kwargs and
+            'verifyNeedForRun' method found in the GenericCmdModule. This method can take the flags from kwargs and
             look at the state of the object too see if the object needs to run before accessing data. It will run the
             default 'run' method if it thinks it needs to run. This is helpful for special parsing methods. It is also
             thread safe. So multiple threads can access different methods on the same object that each have this
-            '_verifyNeedForRun' method and it will not cause the 'run' method to run more then once.
+            'verifyNeedForRun' method and it will not cause the 'run' method to run more then once.
 
         :param args:
         :param kwargs:
         :return:
         """
 
-        self._verifyNeedForRun(**kwargs)
+        self.verifyNeedForRun(**kwargs)
         return getattr(self, 'test', None)

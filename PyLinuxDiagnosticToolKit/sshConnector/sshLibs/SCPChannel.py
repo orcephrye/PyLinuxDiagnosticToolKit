@@ -10,7 +10,7 @@
 
 
 import logging
-from libs.LDTKExceptions import exceptionDecorator as expDec
+from PyLinuxDiagnosticToolKit.libs.LDTKExceptions import exceptionDecorator as expDec
 from sshConnector.sshLibs.LDTKscp import SCPClient
 from paramiko import SSHClient
 from typing import Any, Optional, AnyStr
@@ -86,7 +86,7 @@ class SCPChannel(object):
         if self.scp is not None and not reopen:
             return self.scp
         if autoLogin is None:
-            autoLogin = self.ldtk.autoLogin
+            autoLogin = self.ldtk.auto_login
         if self.ldtk.checkConnection() is False and autoLogin:
             self.ldtk.createConnection()
         self.ssh = self.ldtk.sshCon.ssh

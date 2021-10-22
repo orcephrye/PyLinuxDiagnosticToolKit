@@ -10,7 +10,7 @@
 
 
 import logging
-from libs.LDTKExceptions import exceptionDecorator as expDec
+from PyLinuxDiagnosticToolKit.libs.LDTKExceptions import exceptionDecorator as expDec
 from paramiko.sftp_client import SFTPClient
 from paramiko.sftp_attr import SFTPAttributes
 from paramiko import SSHClient
@@ -85,7 +85,7 @@ class SFTPChannel(object):
         if self.sftp is not None and not reopen:
             return self.sftp
         if autoLogin is None:
-            autoLogin = self.ldtk.autoLogin
+            autoLogin = self.ldtk.auto_login
         if self.ldtk.checkConnection() is False and autoLogin:
             self.ldtk.createConnection()
         self.ssh = self.ldtk.sshCon.ssh

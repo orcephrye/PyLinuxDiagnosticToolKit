@@ -28,7 +28,7 @@ except:
     from ldtk import CommandContainer
 from sshConnector.sshEnvironmentManager import sshEnvironmentManager
 from sshConnector.sshLibs.sshChannelEnvironment import EnvironmentControls
-from PyThreadingPool.ThreadingPool import Pool
+from PyMultiprocessTools.ThreadingPool import ThreadPool as Pool
 from typing import Optional, Union, Any
 from time import time
 
@@ -62,7 +62,7 @@ class sshThreader(sshEnvironmentManager):
         - :return: bool
         """
 
-        return self.tPool.isIdle
+        return self.tPool.is_idle
 
     def waitForIdle(self, **kwargs) -> bool:
         """ This is a wrapper for the 'waitCompletion' method in ThreadingPool.
@@ -71,7 +71,7 @@ class sshThreader(sshEnvironmentManager):
         - :return: (bool)
         """
 
-        return self.tPool.waitCompletion(**kwargs)
+        return self.tPool.wait_completion(**kwargs)
 
     def executeOnThread(self, cmd: Union[CommandContainer, Any],
                         EnvObj: Optional[EnvironmentControls] = None, **kwargs) -> CommandContainer:
@@ -136,7 +136,7 @@ class sshThreader(sshEnvironmentManager):
                 super(sshThreader, self).disconnectEnvironments()
             else:
                 with self.tPool:
-                    self.tPool.waitCompletion(timeout=wait)
+                    self.tPool.wait_completion(timeout=wait)
                     for env in [envs for envs in self.EnvironmentList if not envs.isMain]:
                         self.tPool.submit(env.disconnectEnvironment)
                     self.tPool.join(_parseWait(wait))

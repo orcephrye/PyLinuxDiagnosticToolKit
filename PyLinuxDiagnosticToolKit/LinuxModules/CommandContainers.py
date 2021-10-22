@@ -27,10 +27,8 @@ from sshConnector.sshLibs.sshChannelEnvironment import EnvironmentControls
 from PyLinuxDiagnosticToolKit.libs.LDTKExceptions import SSHExceptionConn, RequirementsException, PreparserException, \
     ExecutionException, PostParserException, SetFailureException, CompletionTaskException, TimeoutException, \
     DataFormatException, ForceCompleteException, BetweenBitException, TimeToFirstBitException
-from PyThreadingPool.ThreadingPool import safe_acquire, safe_release, method_wait, Pool, MultiEvent, \
-    PriorityTaskQueue, Task
-# from ThreadingTools.ThreadingTool import safe_acquire, safe_release, method_wait, Pool, MultiEvent, \
-#     PriorityTaskQueue, Task
+from PyMultiprocessTools import safe_acquire, safe_release, method_wait, MultiEvent, PriorityTaskQueue, Task
+from PyMultiprocessTools.ThreadingPool import ThreadPool as Pool
 from LinuxModules import genericCmdModule
 from typing import Any, Optional, Union, Hashable, Iterable, List, Callable
 
@@ -200,7 +198,7 @@ class CommandData(object):
             return
         self._event = MultiEvent(len(self.children))
         for child in self.children:
-            child.addEvent(self._event)
+            child.add_event(self._event)
             child.parent = self
             if tki:
                 child.tki = tki

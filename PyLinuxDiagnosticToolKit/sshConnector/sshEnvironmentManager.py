@@ -164,7 +164,7 @@ class sshEnvironmentManager(sshEnvironmentControl):
             return False
 
     def disconnectEnvironments(self) -> None:
-        """ Disconnects all Environments. Used by 'disconnect' method from 'sshThreader'
+        """ Disconnects all Environments. Used as a single thread alternative to 'threadedDisconnect' from 'sshThreader'
 
         - :return:
         """

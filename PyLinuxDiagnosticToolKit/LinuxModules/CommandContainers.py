@@ -27,8 +27,8 @@ from sshConnector.sshLibs.sshChannelEnvironment import EnvironmentControls
 from PyLinuxDiagnosticToolKit.libs.LDTKExceptions import SSHExceptionConn, RequirementsException, PreparserException, \
     ExecutionException, PostParserException, SetFailureException, CompletionTaskException, TimeoutException, \
     DataFormatException, ForceCompleteException, BetweenBitException, TimeToFirstBitException
-from PyMultiprocessTools import safe_acquire, safe_release, method_wait, MultiEvent, PriorityTaskQueue, Task
-from PyMultiprocessTools.ThreadingPool import ThreadPool as Pool
+from PyMultiTasking import safe_acquire, safe_release, method_wait, MultiEvent, PriorityTaskQueue, Task
+from PyMultiTasking.ThreadingUtils import ThreadPool as Pool
 from LinuxModules import genericCmdModule
 from typing import Any, Optional, Union, Hashable, Iterable, List, Callable
 

@@ -15,7 +15,7 @@
 # import sys
 # sys.path.append('/home/rye/PycharmProjects/PyCustomCollections')
 # sys.path.append('/home/rye/PycharmProjects/PyCustomParsers')
-# sys.path.append('/home/rye/PycharmProjects/PyMultiprocessTools')
+# sys.path.append('/home/rye/PycharmProjects/PyMultiTasking')
 
 
 import logging
@@ -28,7 +28,7 @@ except:
     from ldtk import CommandContainer
 from sshConnector.sshEnvironmentManager import sshEnvironmentManager
 from sshConnector.sshLibs.sshChannelEnvironment import EnvironmentControls
-from PyMultiprocessTools.ThreadingPool import ThreadPool as Pool
+from PyMultiTasking.ThreadingUtils import ThreadPool as Pool
 from typing import Optional, Union, Any
 from time import time
 

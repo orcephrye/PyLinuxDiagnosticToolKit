@@ -12,7 +12,7 @@
 
 import logging
 from multiprocessing import RLock
-from PyMultiprocessTools import wait_lock
+from PyMultiTasking import wait_lock
 from PyCustomCollections.CustomDataStructures import IndexList
 from OracleData import oracleData
 from OracleLogs import oracleLogs

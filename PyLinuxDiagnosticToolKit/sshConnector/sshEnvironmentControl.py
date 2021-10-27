@@ -339,7 +339,6 @@ class sshEnvironmentControl(sshBufferControl):
         - :param environment: (sshEnvironment) default None -
         - :return: None
         """
-
         environment = environment or self.mainEnvironment
         for x in range(environment.numEscalations):
             self.logoutCurrentUser(environment, reCapturePrompt=False)

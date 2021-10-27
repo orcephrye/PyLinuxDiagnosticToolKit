@@ -4,9 +4,15 @@ PyLinuxDiagnosticToolkit (probably development branch) and other Py* packages fr
 This goes over some useful abilities of the LDTK and how to use them.
 
 Step 1) Imports:
+
 ```python
-import PyMultiprocessTools; import PyCustomCollections; import PyLinuxDiagnosticToolKit; import PyLinuxDiagnosticToolkit; from ldtk import ToolKitInterface
-%pycat PyLinuxDiagnosticToolkit/__init__.py
+import PyMultiTasking;
+import PyCustomCollections;
+import PyLinuxDiagnosticToolKit;
+import PyLinuxDiagnosticToolkit;
+from ldtk import ToolKitInterface
+% pycat
+PyLinuxDiagnosticToolkit / __init__.py
 ```
 
 > Notes: Explain that when you import a package from any Py* package and PyLinuxDiagnosticToolkit the __init__ file 

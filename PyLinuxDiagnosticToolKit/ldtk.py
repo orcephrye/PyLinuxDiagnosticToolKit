@@ -16,7 +16,7 @@
 # sys.path.append('/home/rye/PycharmProjects/PyLinuxDiagnosticToolKit')
 # sys.path.append('/home/rye/PycharmProjects/PyCustomCollections')
 # sys.path.append('/home/rye/PycharmProjects/PyCustomParsers')
-# sys.path.append('/home/rye/PycharmProjects/PyMultiprocessTools')
+# sys.path.append('/home/rye/PycharmProjects/PyMultiTasking')
 
 
 import logging

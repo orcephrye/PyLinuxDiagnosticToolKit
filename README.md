@@ -8,8 +8,9 @@ These documentation pages are made by Portray: https://timothycrosley.github.io/
 
 * REQUIRES: Python 3.7+, PyMultiprocessTools, PyCustomParsers, PyCustomCollections and Paramiko
 
-```shell
-python3 -m pip install --upgrade paramiko
+```sh
+# Install requirements (pip should point to a Python 3.7+ environment.)
+pip install -r requirements.txt
 ```
 
 **The Linux Diagnostic Tool Kit:**

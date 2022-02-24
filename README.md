@@ -2,7 +2,7 @@ LST_LinuxDiagnosticToolKit
 ==========================
 
 Wiki can be viewed on GitHub Pages. 
-URL: 
+URL: https://orcephrye.github.io/PyLinuxDiagnosticToolKit/
 
 These documentation pages are made by Portray: https://timothycrosley.github.io/portray/
 

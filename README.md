@@ -1,6 +1,11 @@
 LST_LinuxDiagnosticToolKit
 ==========================
 
+
+----
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://choosealicense.com/licenses/gpl-3.0/)
+[![Docs](https://readthedocs.org/projects/ansicolortags/badge/?version=latest)](https://orcephrye.github.io/PyLinuxDiagnosticToolKit/)
+
 Wiki can be viewed on GitHub Pages. 
 URL: https://orcephrye.github.io/PyLinuxDiagnosticToolKit/
 

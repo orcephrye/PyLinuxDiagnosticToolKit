@@ -1,6 +1,18 @@
 [tool.portray]
-extra_dirs = ["sshConnector", "LinuxModules", "libs"]
-modules = ["sshConnector/sshLibs/SCPChannel", "sshConnector/sshLibs/SFTPChannel", "sshConnector/sshConnect", "sshConnector/sshBufferControl", "sshConnector/sshEnvironmentControl", "sshConnector/sshEnvironmentManager", "sshConnector/sshThreader", "sshConnector/sshLibs/sshChannelEnvironment", "LinuxModules/genericCmdModule", "LinuxModules/CommandContainers", "ldtk"]
+output_dir = "documentation_website"
+append_directory_to_python_path = "/home/rye/PycharmProjects/PyLinuxDiagnosticToolKit/PyLinuxDiganosticToolKit"
+extra_dirs = ["PyLinuxDiagnosticToolKit/sshConnector", "PyLinuxDiagnosticToolKit/LinuxModules", "PyLinuxDiagnosticToolKit/libs"]
+modules = ["PyLinuxDiagnosticToolKit/sshConnector/sshLibs/SCPChannel",
+    "PyLinuxDiagnosticToolKit/sshConnector/sshLibs/SFTPChannel",
+    "PyLinuxDiagnosticToolKit/sshConnector/sshConnect",
+    "PyLinuxDiagnosticToolKit/sshConnector/sshBufferControl",
+    "PyLinuxDiagnosticToolKit/sshConnector/sshEnvironmentControl",
+    "PyLinuxDiagnosticToolKit/sshConnector/sshEnvironmentManager",
+    "PyLinuxDiagnosticToolKit/sshConnector/sshThreader",
+    "PyLinuxDiagnosticToolKit/sshConnector/sshLibs/sshChannelEnvironment",
+    "PyLinuxDiagnosticToolKit/LinuxModules/genericCmdModule",
+    "PyLinuxDiagnosticToolKit/LinuxModules/CommandContainers",
+    "PyLinuxDiagnosticToolKit/ldtk"]
 
 
 [[tool.portray.mkdocs.nav]]
@@ -10,7 +22,7 @@ Summary = "README.md"
 Tutorial = "TUTORIAL.md"
 
 [[tool.portray.mkdocs.nav]]
-sshConnector = "sshConnector/README.md"
+sshConnector = "PyLinuxDiagnosticToolKit/sshConnector/README.md"
 
 [[tool.portray.mkdocs.nav]]
-CommandContainer = "LinuxModules/README.md"
+CommandContainer = "PyLinuxDiagnosticToolKit/LinuxModules/README.md"

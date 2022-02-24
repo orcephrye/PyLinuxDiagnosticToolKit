@@ -1,6 +1,5 @@
 [tool.portray]
-output_dir = "documentation_website"
-append_directory_to_python_path = "/home/rye/PycharmProjects/PyLinuxDiagnosticToolKit/PyLinuxDiganosticToolKit"
+output_dir = "docs"
 extra_dirs = ["PyLinuxDiagnosticToolKit/sshConnector", "PyLinuxDiagnosticToolKit/LinuxModules", "PyLinuxDiagnosticToolKit/libs"]
 modules = ["PyLinuxDiagnosticToolKit/sshConnector/sshLibs/SCPChannel",
     "PyLinuxDiagnosticToolKit/sshConnector/sshLibs/SFTPChannel",

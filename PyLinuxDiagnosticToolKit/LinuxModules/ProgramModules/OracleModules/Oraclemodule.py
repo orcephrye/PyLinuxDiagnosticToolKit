@@ -36,7 +36,7 @@ class AllTheOracle(oracleData, OracleEscalation, oracleLogs, oracleSystem, Oracl
         super(AllTheOracle, self).__init__(*args, **kwargs)
 
 
-class oracleAllTheThings(AllTheOracle):
+class oracleModule(AllTheOracle):
 
     __REQUIRE_ROOT__ = True
     __PRIORITY__ = 20
@@ -52,7 +52,7 @@ class oracleAllTheThings(AllTheOracle):
     _LOCK = None
 
     def __init__(self, *args, **kwargs):
-        super(oracleAllTheThings, self).__init__(*args, **kwargs)
+        super(oracleModule, self).__init__(*args, **kwargs)
         self._LOCK = RLock()
 
     def run(self, *args, **kwargs):

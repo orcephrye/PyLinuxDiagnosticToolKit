@@ -50,5 +50,5 @@ class touchModule(GenericCmdModule):
             return results
         elif results == "NONE":
             return Exception('An error occurred while trying to run the touch command')
-        self.tki.modules.rm.runUpload(f'-rf {path}', rerun=kwargs.get('rerun', False))
+        self.tki.modules.rm.run(f'-rf {path}', rerun=kwargs.get('rerun', False))
         return results

@@ -182,8 +182,8 @@ class sshEnvironment(sshChannelWrapper):
         if not self.consoleStack:
             return []
 
-        itemList = list(filter(_filterUsers, self.consoleStack))
-        return _userGenerator(itemList)
+        # itemList = list(filter(_filterUsers, self.consoleStack))
+        return _userGenerator(filter(_filterUsers, self.consoleStack))
 
     def getCurrentUser(self) -> str:
         """ Returns a string that is the name of the current user authenticated on this environment. """
@@ -204,8 +204,8 @@ class sshEnvironment(sshChannelWrapper):
                 output.append(item[1])
             return output
 
-        itemList = list(filter(_filterConsoles, self.consoleStack))
-        return _consoleGenerator(itemList)
+        # itemList = list(filter(_filterConsoles, self.consoleStack))
+        return _consoleGenerator(filter(_filterConsoles, self.consoleStack))
 
     def getCurrentConsole(self) -> str:
         """ Like 'getCurrentUser' but gets what the current console type is. """
@@ -229,11 +229,6 @@ class sshEnvironment(sshChannelWrapper):
             if item[-1] is not None:
                 return item[-1]
         return ""
-
-    # def close(self) -> None:
-    #     """ Deletes the current console stack. """
-    #     del self.consoleStack
-    #     super(sshEnvironment, self).close()
 
     def resetEnvironment(self) -> None:
         """ Resets the environment console stack """

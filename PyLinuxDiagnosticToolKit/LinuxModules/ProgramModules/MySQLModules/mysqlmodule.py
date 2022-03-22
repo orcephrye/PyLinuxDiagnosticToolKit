@@ -134,7 +134,7 @@ class mysqlModule(GenericCmdModule):
                     mysqlResults.append(' '.join(temp[1:]).strip())
                 elif len(temp) == 1:
                     mysqlResults.append(temp.pop())
-            tempList = [[mysqlResults[x], mysqlResults[x+1]] for x in xrange(0, len(mysqlResults), 2)]
+            tempList = [[mysqlResults[x], mysqlResults[x+1]] for x in range(0, len(mysqlResults), 2)]
             self._mysqlSummary.extend(tempList)
             del results
             del mysqlResults

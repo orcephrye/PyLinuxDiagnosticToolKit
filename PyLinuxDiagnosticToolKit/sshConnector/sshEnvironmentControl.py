@@ -304,7 +304,7 @@ class sshEnvironmentControl(sshBufferControl):
             log.info(f"Connection still valid on: {environment._id} - Num Escalations: {environment.numEscalations}")
             self.getPrompt(environment=environment, reCapturePrompt=reCapturePrompt)
         else:
-            log.warning(f"Connection closed on: {environment._id}")
+            log.info(f"Connection closed on: {environment._id}")
 
         return environment
 

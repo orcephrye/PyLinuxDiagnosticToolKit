@@ -14,7 +14,7 @@ def standard_check(testObj):
     if tki is None:
         testObj.skipTest("The ToolKitInterface failed to instantiate skipping...")
     if not tki.checkConnection():
-        testObj.skipTest("The ToolKitInterface failed to login skipping...")
+        testObj.skipTest("The ToolKitInterface does not have a valid connection...")
 
 
 class TestAuthentication(unittest.TestCase):
@@ -160,12 +160,59 @@ class TestUserEscalation(unittest.TestCase):
         username = tki.sshCon.checkWhoAmI(environment=env)
         self.assertEqual(username, 'testerOne')
 
-        print(env.printStack())
-
         env.logoutCurrentUser()
         username = tki.sshCon.checkWhoAmI(environment=env)
         self.assertEqual(username, 'root')
         self.assertEqual(env.userList[-1], 'root')
+
+    def test_e_sudo_escalation_in_channel(self):
+        """
+            This assumes that sudo will ask for the root password!
+        """
+        global tki
+        standard_check(self)
+
+        env = tki.sshCon.getEnvironment()
+
+        self.assertTrue(env.becomeRoot())
+
+        env.escalate(loginCmd='sudo', userName='testerOne')
+        username = tki.sshCon.checkWhoAmI(environment=env)
+        self.assertEqual(username, 'testerOne')
+
+        env.escalate(loginCmd='sudo', userName='testerTwo')
+        username = tki.sshCon.checkWhoAmI(environment=env)
+        self.assertEqual(username, 'testerTwo')
+
+        self.assertEqual(env.numUsers, 4)
+
+        self.assertTrue(env.becomeRoot())
+        username = tki.sshCon.checkWhoAmI(environment=env)
+        self.assertEqual(username, 'root')
+        self.assertEqual(env.userList[-1], 'root')
+
+    def test_f_escalation_with_envid(self):
+        global tki
+        standard_check(self)
+
+        def _su_escalate_test(*args, **kwargs):
+            this = kwargs.get('this')
+            env = this.EnvironmentObject
+            if env.becomeRoot():
+                return env.escalate(loginCmd='su -', userName='testerOne')
+            return False
+
+        env = tki.createEnvironment(label='test')
+
+        cc = tki.execute("echo test", lable='test', preparser=_su_escalate_test)
+
+        cc.waitForResults()
+
+        username = tki.sshCon.checkWhoAmI(environment=env)
+
+        self.assertEqual(username, 'testerOne')
+
+        self.assertEqual(cc.EnvironmentObject._id, env._id)
 
     def test_z_disconnect(self):
         global tki

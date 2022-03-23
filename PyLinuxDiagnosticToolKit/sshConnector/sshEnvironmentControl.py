@@ -279,6 +279,47 @@ class sshEnvironmentControl(sshBufferControl):
 
         getattr(environment or self.mainEnvironment, 'resetEnvironment', dummy_func)()
 
+    def logoutCurrentEscalation(self, environment: Optional[sshEnvironment] = None,
+                                junkOut: Optional[StringIO] = None,
+                                reCapturePrompt: bool = True,
+                                logoutCmd: Optional[str] = None) -> Union[sshEnvironment, bool]:
+
+        environment = environment or self.mainEnvironment
+
+        if not self.checkConnection(environment):
+            return environment
+
+        if not junkOut:
+            junkOut: StringIO = StringIO()
+
+        if not logoutCmd:
+            logoutCmd = "exit"
+
+        while environment.getPreviousEscalationType() == environment.__ENVIRONMENT_CHANGE__:
+            environment.pull()
+
+        self._bufferControl(environment, logoutCmd, junkOut, unsafe=True)
+        environment.pull()
+        if self.checkConnection(environment):
+            log.info(f"Connection still valid on: {environment._id} - Num Escalations: {environment.numEscalations}")
+            self.getPrompt(environment=environment, reCapturePrompt=reCapturePrompt)
+        else:
+            log.warning(f"Connection closed on: {environment._id}")
+
+        return environment
+
+    def logoutConsole(self, logoutCmd: Optional[str] = None, environment: Optional[sshEnvironment] = None) -> bool:
+        """ This reverses through past environment changes until it undoes the previous console escalation.
+
+        :param logoutCmd: (str) (default None) This is a custom command to leave the console. For example 'exit' or
+            'quit'.
+        :param environment: (sshEnvironment/Paramiko Channel)
+        :return:
+        """
+        environment = self.logoutCurrentEscalation(environment=environment, logoutCmd=logoutCmd)
+
+        return environment.checkConnection()
+
     def logoutCurrentUser(self, environment: Optional[sshEnvironment] = None, junkOut: Optional[StringIO] = None,
                           reCapturePrompt: bool = True) -> Union[sshEnvironment, bool]:
         """ Runs the command 'exit' once on a specified environment. Effectively logging out of a user or other
@@ -298,39 +339,16 @@ class sshEnvironmentControl(sshBufferControl):
         if environment.consoleStack is None or len(environment.consoleStack) == 0:
             return environment
 
-        if not junkOut:
-            junkOut: StringIO = StringIO()
+        userList = environment.getUserList()
+        userListLength = len(userList)
+        expectedUser = userList[-2] if userListLength > 1 else ''
 
-        self._bufferControl(environment, 'exit', junkOut, unsafe=True)
-        environment.pull()
-        if self.checkConnection(environment):
-            log.info(f"Connection still valid on: {environment._id} - Num Escalations: {environment.numEscalations}")
-            self.getPrompt(environment=environment, reCapturePrompt=reCapturePrompt)
-        else:
-            log.info(f"Connection closed on: {environment._id}")
-            
+        while environment.consoleStack:
+            self.logoutCurrentEscalation(environment=environment, junkOut=junkOut, reCapturePrompt=reCapturePrompt)
+            if userListLength < len(environment.getUserList()) and expectedUser == environment.getCurrentUser():
+                break
+
         return environment
-
-    def logoutConsole(self, logoutCmd: Optional[str] = None, environment: Optional[sshEnvironment] = None) -> bool:
-        """ This reverses through past environment changes until it undoes the previous console escalation.
-
-        :param logoutCmd: (str) (default None) This is a custom command to leave the console. For example 'exit' or
-            'quit'.
-        :param environment: (sshEnvironment/Paramiko Channel)
-        :return:
-        """
-
-        environment = environment or self.mainEnvironment
-
-        if not logoutCmd:
-            logoutCmd = "exit"
-
-        self._bufferControl(environment, 'exit', StringIO(), unsafe=True)
-
-        if environment.pull()[0] != environment.__CONSOLE_ESCALATION__:
-            return self.logoutConsole(logoutCmd, environment)
-        environment.getPrompt(reCapturePrompt=True)
-        return environment.checkConnection()
 
     def disconnect(self, environment: Optional[sshEnvironment] = None) -> None:
         """ This attempts to graceful log out by exiting/de-escalating through all previous console escalations on a
@@ -340,7 +358,7 @@ class sshEnvironmentControl(sshBufferControl):
         - :return: None
         """
         environment = environment or self.mainEnvironment
-        for x in range(environment.numEscalations):
+        for x in range(environment.numUsers):
             self.logoutCurrentUser(environment, reCapturePrompt=False)
         if environment.isMain:
             super(sshEnvironmentControl, self).disconnect()

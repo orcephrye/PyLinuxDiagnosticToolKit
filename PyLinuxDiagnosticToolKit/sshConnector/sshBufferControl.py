@@ -65,7 +65,7 @@ class sshBufferControl(sshCon):
             return tmpOut.replace(tmpPrompt, '').replace(cmd, '').strip()
 
         if not super(sshBufferControl, self).checkConnection(sshChannel=environment):
-            log.error("There is not valid connection.")
+            log.error("There is not a valid connection.")
             return ''
 
         log.debug(f"Attempting to exec command[s]: {cmd}")

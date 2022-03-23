@@ -345,7 +345,7 @@ class sshEnvironmentControl(sshBufferControl):
 
         while environment.consoleStack:
             self.logoutCurrentEscalation(environment=environment, junkOut=junkOut, reCapturePrompt=reCapturePrompt)
-            if userListLength < len(environment.getUserList()) and expectedUser == environment.getCurrentUser():
+            if userListLength > len(environment.getUserList()) and expectedUser == environment.getCurrentUser():
                 break
 
         return environment

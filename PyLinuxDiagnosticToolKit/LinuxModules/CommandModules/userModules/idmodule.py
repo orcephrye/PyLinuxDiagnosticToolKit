@@ -11,7 +11,7 @@
 import logging
 from LinuxModules.genericCmdModule import GenericCmdModule
 import re
-from NamespaceClasses import NamespaceDict
+from NamespaceClasses import NamespaceDict  # TODO this import breaks this package
 
 
 log = logging.getLogger('idModule')

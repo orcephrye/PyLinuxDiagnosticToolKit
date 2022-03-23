@@ -10,7 +10,7 @@
 
 import logging
 from LinuxModules.genericCmdModule import GenericCmdModule
-from OSNetworking.PyRoute import Routes
+from OSNetworking.PyRoute import Routes  # TODO this import breaks this package
 
 
 log = logging.getLogger('routeModule')

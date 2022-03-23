@@ -10,6 +10,7 @@
 
 import logging
 from LinuxModules.genericCmdModule import GenericCmdModule
+# TODO the following imports break this package
 from OSNetworking.PyNIC import NetworkInterfaceCards
 from OSNetworking.PyRoute import Routes
 

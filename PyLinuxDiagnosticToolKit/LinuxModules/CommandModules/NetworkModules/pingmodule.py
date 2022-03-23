@@ -8,7 +8,7 @@
 
 
 import logging
-from collections import Iterable
+from collections.abc import Iterable
 from LinuxModules.genericCmdModule import GenericCmdModule
 
 

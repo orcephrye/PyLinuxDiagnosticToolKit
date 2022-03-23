@@ -9,9 +9,9 @@
 
 
 import logging
-from LinuxModules.genericCmdModule import GenericCmdModule
 import re
-from NamespaceClasses import NamespaceDict
+from LinuxModules.genericCmdModule import GenericCmdModule
+from PyCustomCollections import NamespaceDict
 
 
 log = logging.getLogger('idModule')

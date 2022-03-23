@@ -27,7 +27,6 @@ class lspciModule(GenericCmdModule):
     def __init__(self, tki, *args, **kwargs):
         log.info("Creating lspci module.")
         super(lspciModule, self).__init__(tki=tki)
-        self.tki.getModules('lspci')
         self.defaultCmd = 'lspci '
         self.defaultKey = "lspci%s"
         self.defaultFlags = "%s"

@@ -10,7 +10,7 @@
 
 import logging
 from LinuxModules.genericCmdModule import GenericCmdModule
-from OSNetworking.PyRoute import Routes
+from PyLinuxDiagnosticToolKit.libs.OSNetworking.PyRoute import Routes
 
 
 log = logging.getLogger('routeModule')
@@ -34,10 +34,13 @@ class routeModule(GenericCmdModule):
         self.__NAME__ = 'route'
 
     def getRouteData(self, **kwargs):
+        kwargs['wait'] = kwargs.get('wait', 30)
+        kwargs.update(self.defaultKwargs)
+
         def _postParserHelper(results, *args, **kwargs):
             if not isinstance(results, str):
                 return False
-            return Routes(results.strip(), dataType='ip')
+            return Routes(results.strip(), dataType='route')
 
         kwargs.update({'postparser': _postParserHelper})
 

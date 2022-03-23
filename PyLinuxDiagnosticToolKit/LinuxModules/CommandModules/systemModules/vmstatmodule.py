@@ -11,7 +11,7 @@
 import logging
 from LinuxModules.genericCmdModule import GenericCmdModule
 from PyCustomParsers.GenericParser import GenericInputParser
-from collections import OrderedDict
+from collections import OrderedDict  # TODO remove OrderedDict
 
 
 log = logging.getLogger('vmstatModule')

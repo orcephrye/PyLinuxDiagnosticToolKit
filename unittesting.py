@@ -1,9 +1,11 @@
 import unittest
 import json
-from PyLinuxDiagnosticToolKit import ldtk
+from functools import partialmethod
+from PyLinuxDiagnosticToolKit import ldtk, find_modules
 from PyLinuxDiagnosticToolKit.libs import ArgumentWrapper
 from sshConnector.sshThreader import sshThreader as threadedSSH
 from LinuxModules.CommandContainers import CommandContainer
+from LinuxModules.genericCmdModule import GenericCmdModule
 
 
 tki = None
@@ -17,7 +19,14 @@ def standard_check(testObj):
         testObj.skipTest("The ToolKitInterface does not have a valid connection...")
 
 
-class TestAuthentication(unittest.TestCase):
+def letters_generator():
+    for s in range(97, 123):
+        for m in range(97, 123):
+            for e in range(97, 123):
+                yield f'{chr(s)}{chr(m)}{chr(e)}'
+
+
+class TestAAuthentication(unittest.TestCase):
 
     def test_a_new_instance(self):
         global tki
@@ -52,7 +61,7 @@ class TestAuthentication(unittest.TestCase):
         self.assertFalse(tki.checkConnection())
 
 
-class TestSimpleExecution(unittest.TestCase):
+class TestBSimpleExecution(unittest.TestCase):
 
     def test_a_login(self):
         global tki
@@ -93,7 +102,7 @@ class TestSimpleExecution(unittest.TestCase):
         self.assertFalse(tki.checkConnection())
 
 
-class TestUserEscalation(unittest.TestCase):
+class TestCUserEscalation(unittest.TestCase):
 
     def test_a_login(self):
         global tki
@@ -221,5 +230,75 @@ class TestUserEscalation(unittest.TestCase):
         self.assertFalse(tki.checkConnection())
 
 
+class TestDCommandModulesNoFlags(unittest.TestCase):
+    """
+        These are CommandModules that do not require flags. Modules that do require flags simply confirm they
+        can be created.
+    """
+
+    def test_aaa_login(self):
+        global tki
+
+        with open('unittesting.json') as f:
+            config = json.load(f)
+        args = ArgumentWrapper.arguments().parse_known_args()[0]
+        args.host = config.get('host')
+        args.username = config.get('username')
+        args.password = config.get('password')
+        args.root = True if config.get('root') else False
+        args.rootpwd = config.get('rootpwd')
+
+        tki = ldtk.ToolKitInterface(arguments=args, auto_login=False)
+        self.assertIsInstance(tki, ldtk.ToolKitInterface)
+        conn = tki.createConnection()
+        self.assertIsInstance(conn, threadedSSH)
+        self.assertTrue(tki.checkConnection())
+
+    def test_zzz_disconnect(self):
+        global tki
+        standard_check(self)
+        tki.disconnect()
+        self.assertFalse(tki.checkConnection())
+
+
+def _test_dummy(self, moduleName=None):
+    if moduleName is None:
+        self.skipTest("The is a dummy test skipping...")
+
+    global tki
+    standard_check(unittest.TestCase)
+
+    module = tki.getModules(moduleName)
+
+    self.assertIsInstance(module, GenericCmdModule)
+
+    moduleTwo = getattr(tki.modules, moduleName, None)
+
+    self.assertIsInstance(moduleTwo, GenericCmdModule)
+
+    self.assertIs(module, moduleTwo)
+
+    if module.requireFlags is True:
+        return None
+
+    output = module()
+
+    self.assertIsNotNone(output)
+
+
 if __name__ == '__main__':
+    modules = find_modules(moduleSubDir='CommandModules')
+    maxLength = 17572
+    letterGen = letters_generator()
+    next(letterGen)
+    for module in modules:
+        letter = next(letterGen)
+        funcName = f"test_{letter}_{module}"
+        if hasattr(TestDCommandModulesNoFlags, funcName):
+            maxLength -= 1
+            continue
+        setattr(TestDCommandModulesNoFlags, funcName, partialmethod(_test_dummy, *(), **{'moduleName': module}))
+        maxLength -= 1
+        if maxLength <= 0:
+            break
     unittest.main()

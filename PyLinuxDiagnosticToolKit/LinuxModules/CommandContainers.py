@@ -20,7 +20,7 @@ import re
 import traceback
 import time
 import uuid
-from collections import OrderedDict
+from collections import OrderedDict  # TODO remove OrderedDict
 from threading import RLock, Event
 from functools import partial
 from sshConnector.sshLibs.sshChannelEnvironment import EnvironmentControls
@@ -198,7 +198,7 @@ class CommandData(object):
             return
         self._event = MultiEvent(len(self.children))
         for child in self.children:
-            child.add_event(self._event)
+            child.addEvent(self._event)
             child.parent = self
             if tki:
                 child.tki = tki

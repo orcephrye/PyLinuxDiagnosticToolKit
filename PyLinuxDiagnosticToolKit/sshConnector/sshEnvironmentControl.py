@@ -304,7 +304,7 @@ class sshEnvironmentControl(sshBufferControl):
             log.info(f"Connection still valid on: {environment._id} - Num Escalations: {environment.numEscalations}")
             self.getPrompt(environment=environment, reCapturePrompt=reCapturePrompt)
         else:
-            log.info(f"Connection closed on: {environment._id}")
+            log.warning(f"Connection closed on: {environment._id}")
 
         return environment
 
@@ -330,7 +330,7 @@ class sshEnvironmentControl(sshBufferControl):
         - :param reCapturePrompt: (bool) default True -
         - :return: Either 'sshEnvironment' (success) or False (Failure)
         """
-        
+
         environment = environment or self.mainEnvironment
 
         if not self.checkConnection(environment):
@@ -345,7 +345,7 @@ class sshEnvironmentControl(sshBufferControl):
 
         while environment.consoleStack:
             self.logoutCurrentEscalation(environment=environment, junkOut=junkOut, reCapturePrompt=reCapturePrompt)
-            if userListLength > len(environment.getUserList()) and expectedUser == environment.getCurrentUser():
+            if userListLength < len(environment.getUserList()) and expectedUser == environment.getCurrentUser():
                 break
 
         return environment

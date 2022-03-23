@@ -39,6 +39,7 @@ class serviceModule(GenericCmdModule):
         # self.simpleExecute(command=self.__COMMAND__, rerun=True)
         # log.info("About to simple execute persistence command")
         # self.simpleExecute(command=self.__PERSISTENCE__, rerun=True)
+        self.requireFlags = True
         self.__NAME__ = "service"
 
     def run(self, *args, **kwargs):

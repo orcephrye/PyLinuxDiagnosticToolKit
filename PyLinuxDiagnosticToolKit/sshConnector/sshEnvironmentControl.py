@@ -504,7 +504,7 @@ class sshEnvironmentControl(sshBufferControl):
 
         if environment.whoami != 'root':
             wait = self._passwdWait(environment, out, cmd)
-            lastline = out.getvalue().splitlines()[-1].strip()
+            lastline = sshBufferControl._processString(out.getvalue().splitlines()[-1].strip())
             if 'assword' not in lastline and lastline.endswith(self.promptTextTuple):
                 log.debug("Found a prompt skipping inserting password")
                 return None
@@ -512,8 +512,10 @@ class sshEnvironmentControl(sshBufferControl):
                 if self.arguments.password:
                     loginPasswd = self.arguments.password
                 if 'assword for root' in lastline:
+                    wait = True
                     loginPasswd = self.arguments.rootpwd
                 elif 'assword for' in lastline:
+                    wait = True
                     requestedName = re.search('assword for(.*):', lastline)
                     if requestedName:
                         requestedName = requestedName.group(1).strip()

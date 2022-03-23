@@ -104,7 +104,7 @@ class sshThreader(sshEnvironmentManager):
             if not EnvObj.active:
                 log.warning("This channel is not active and it has been manually requested for use by the executor!")
             with CC:
-                return CC.executor(channelObject=EnvObj)
+                return CC.executor(EnvironmentObject=EnvObj)
 
     def threadedDisconnect(self, wait: int = 90) -> None:
         """ This does what it says. It disconnects the SSH connection to a server using a thread for each Environment.

@@ -11,7 +11,7 @@ URL: https://orcephrye.github.io/PyLinuxDiagnosticToolKit/
 
 These documentation pages are made by Portray: https://timothycrosley.github.io/portray/
 
-* REQUIRES: Python 3.7+, PyMultiprocessTools, PyCustomParsers, PyCustomCollections and Paramiko
+* REQUIRES: Python 3.7+, PyMultiTasking, PyCustomParsers, PyCustomCollections and Paramiko
 
 ```sh
 # Install requirements (pip should point to a Python 3.7+ environment.)

@@ -1,6 +1,8 @@
 import unittest
+import os
 import json
 from functools import partialmethod
+from io import StringIO
 from PyLinuxDiagnosticToolKit import ldtk, find_modules
 from PyLinuxDiagnosticToolKit.libs import ArgumentWrapper
 from sshConnector.sshThreader import sshThreader as threadedSSH
@@ -11,6 +13,15 @@ from LinuxModules.genericCmdModule import GenericCmdModule
 tki = None
 
 
+testFile = """#!/bin/bash
+
+sleep 1
+
+echo 'this is a test'
+"""
+
+
+# noinspection PyUnresolvedReferences
 def standard_check(testObj):
     global tki
     if tki is None:
@@ -26,6 +37,7 @@ def letters_generator():
                 yield f'{chr(s)}{chr(m)}{chr(e)}'
 
 
+# noinspection PyUnresolvedReferences
 class TestAAuthentication(unittest.TestCase):
 
     def test_a_new_instance(self):
@@ -61,6 +73,7 @@ class TestAAuthentication(unittest.TestCase):
         self.assertFalse(tki.checkConnection())
 
 
+# noinspection PyUnresolvedReferences
 class TestBSimpleExecution(unittest.TestCase):
 
     def test_a_login(self):
@@ -102,6 +115,7 @@ class TestBSimpleExecution(unittest.TestCase):
         self.assertFalse(tki.checkConnection())
 
 
+# noinspection PyUnresolvedReferences
 class TestCUserEscalation(unittest.TestCase):
 
     def test_a_login(self):
@@ -230,6 +244,7 @@ class TestCUserEscalation(unittest.TestCase):
         self.assertFalse(tki.checkConnection())
 
 
+# noinspection PyUnresolvedReferences
 class TestDCommandModulesNoFlags(unittest.TestCase):
     """
         These are CommandModules that do not require flags. Modules that do require flags simply confirm they
@@ -284,6 +299,120 @@ def _test_dummy(self, moduleName=None):
     output = module()
 
     self.assertIsNotNone(output)
+
+
+# noinspection PyUnresolvedReferences
+class TestESFTPandSCP(unittest.TestCase):
+    """
+        These are CommandModules that do not require flags. Modules that do require flags simply confirm they
+        can be created.
+    """
+
+    def test_a_login(self):
+        global tki
+
+        with open('unittesting.json') as f:
+            config = json.load(f)
+        args = ArgumentWrapper.arguments().parse_known_args()[0]
+        args.host = config.get('host')
+        args.username = config.get('username')
+        args.password = config.get('password')
+        args.root = True if config.get('root') else False
+        args.rootpwd = config.get('rootpwd')
+
+        tki = ldtk.ToolKitInterface(arguments=args, auto_login=False)
+        self.assertIsInstance(tki, ldtk.ToolKitInterface)
+        conn = tki.createConnection()
+        self.assertIsInstance(conn, threadedSSH)
+        self.assertTrue(tki.checkConnection())
+
+    def test_b_sftp(self):
+        global testFile
+        global tki
+        standard_check(self)
+
+        sftpClient = tki.getSFTPClient()
+
+        rm, ll = tki.getModules('rm', 'll')
+
+        localIO = StringIO(testFile)
+
+        if ll.fileExist('/tmp/testFile.txt', rerun=True):
+            rm('/tmp/testFile.txt')
+
+        with sftpClient as sftp:
+            sftp.put(localIO, '/tmp/testFile.txt')
+
+        doesExist = ll.fileExist('/tmp/testFile.txt', rerun=True)
+        self.assertTrue(doesExist)
+
+        if os.path.exists("testFile.txt"):
+            os.remove("testFile.txt")
+
+        with sftpClient as sftp:
+            sftp.get('/tmp/testFile.txt', 'testFile.txt')
+            sftp.put('testFile.txt', '/tmp/testFileTwo.sh')
+
+        doesExistTwo = ll.fileExist('/tmp/testFileTwo.sh', rerun=True)
+        self.assertTrue(doesExistTwo)
+
+        output = tki.execute('bash /tmp/testFileTwo.sh', threading=False)
+
+        self.assertEqual(output, 'this is a test')
+
+        if doesExist:
+            rm('/tmp/testFile.txt')
+        if doesExistTwo:
+            rm('/tmp/testFileTwo.sh')
+        if os.path.exists("testFile.txt"):
+            os.remove("testFile.txt")
+
+    def test_c_scp(self):
+        global testFile
+        global tki
+        standard_check(self)
+
+        scpClient = tki.getSCPClient()
+
+        rm, ll = tki.getModules('rm', 'll')
+
+        localIO = StringIO(testFile)
+
+        if ll.fileExist('/tmp/testFile.txt', rerun=True):
+            rm('/tmp/testFile.txt')
+
+        with scpClient as scp:
+            scp.put(localIO, '/tmp/testFile.txt')
+
+        doesExist = ll.fileExist('/tmp/testFile.txt', rerun=True)
+        self.assertTrue(doesExist)
+
+        if os.path.exists("testFile.txt"):
+            os.remove("testFile.txt")
+
+        with scpClient as scp:
+            scp.get('/tmp/testFile.txt', 'testFile.txt')
+            scp.put('testFile.txt', '/tmp/testFileTwo.sh')
+
+        doesExistTwo = ll.fileExist('/tmp/testFileTwo.sh', rerun=True)
+        self.assertTrue(doesExistTwo)
+
+        output = tki.execute('bash /tmp/testFileTwo.sh', threading=False)
+
+        self.assertEqual(output, 'this is a test')
+
+        if doesExist:
+            rm('/tmp/testFile.txt')
+        if doesExistTwo:
+            rm('/tmp/testFileTwo.sh')
+        if os.path.exists("testFile.txt"):
+            os.remove("testFile.txt")
+
+    def test_zzz_disconnect(self):
+        global tki
+        standard_check(self)
+        tki.disconnect()
+        self.assertFalse(tki.checkConnection())
 
 
 if __name__ == '__main__':

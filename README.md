@@ -16,6 +16,8 @@ These documentation pages are made by Portray: https://timothycrosley.github.io/
 ```sh
 # Install requirements (pip should point to a Python 3.7+ environment.)
 pip install -r requirements.txt
+# Install the whole package
+pip install .
 ```
 
 **The Linux Diagnostic Tool Kit:**

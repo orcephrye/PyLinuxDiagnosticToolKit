@@ -70,11 +70,6 @@ class ToolKitInterface:
         self.auto_login = auto_login
         if auto_login:
             self.createConnection()
-        # try:
-        #     super(ToolKitInterface, self).__init__(*args, **kwargs)
-        # except Exception as e:
-        #     log.warning(f"Call too super init failed trying without args: {e}")
-        #     super(ToolKitInterface, self).__init__()
 
     def createConnection(self, arguments: Optional[ArgumentParsers] = None) -> threadedSSH:
         """ This creates a new SSH connection using the sshConnector tool which wraps Paramiko
@@ -85,7 +80,9 @@ class ToolKitInterface:
         """
 
         if self.sshCon is not None:
-            return self.sshCon
+            if self.checkConnection():
+                return self.sshCon
+            self.disconnect()
         try:
             if arguments is None:
                 arguments = self.arguments
@@ -100,6 +97,9 @@ class ToolKitInterface:
         """ This wraps around the 'threadedDisconnect' method of the sshConnector """
         if self.sshCon:
             self.sshCon.threadedDisconnect()
+            del self.sshCon
+            self.sshCon = None
+            self.modules.clear()
 
     def checkConnection(self, *args, **kwargs) -> bool:
         """ This wraps around the 'checkConnection' method of the sshConnector """

@@ -63,17 +63,21 @@ For more information on Argument Wrapper please review its readme file: [tutoria
 
 ***Execute Commands:***
 
+---
+
 From here if a dev wants to run a custom command it is as simple as:
 
 ```python
-cc = tki.execute("whoami")
-print(cc.results)
+results = tki.execute("whoami", threading=False)
+print(results)
 ```
     
 or
 
 ```python
-print(tki.execute("whoami").waitForResults())
+cc = tki.execute("whoami", threading=True)  # Threading is True by default
+results = cc.waitForResults()  
+print(cc.results)  # This demonstrates that the 'CommandContainer' object also stores the results
 ```
 
 Execute returns a CommandContainer if threading is True. If Threading is false then it returns the output of the
@@ -83,6 +87,10 @@ For a full explanation go to the [CommandContainer](../LST_LinuxDiagnosticToolKi
 
 **Modules:**
 
+---
+
+Currently, there are only 'LinuxModulse' which contain 'CommandModules', 'OtherModules', and 'ProgramModules'. 
+Eventually These will be reorganized once Windows is supported. 
 Currently, there are only 'LinuxModulse' which contain 'CommandModules' and 'ProgramModules'. Eventually These will be 
 reorganized once Windows is supported. 
 
@@ -146,17 +154,17 @@ The method 'getTopCPU' was added to the psModule to parse the ps data in a commo
 methods across a lot of the Modules. 
 
 > Note: Threading can be tricky and may cause unexpected behavior. For example if you run 'cat('/etc/hosts')' ten times 
-in a loop it will not spin up 10 cat commands but actually just one. The default wait is 60 so it will run the first 
-command to completion and then the remaining 9 will return the cache result. If you run it with 'wait=None' the cache 
-process is thread safe so the CommandObject will be stored and the remaining 9 threads will simply return cached results. 
+in a loop it will not spin up 10 cat commands but actually just one. It will run the first command to completion and 
+then the remaining 9 will return the cache result. If you run it with 'wait=None' the cache process is thread safe so 
+the first cat command will return the CommandObject which will be the same CommandObject for the remaining 9 runs.
 However, if you have that same loop run ten different cat commands (ie: cat /tmp/hosts, cat /etc/resolv.conf, etc...) 
-commands (with wait=None) it will run all 10 in as many threads as is allowed. (default is 8) If you want to run ten of 
-the same commands at the same time you will need to give each command a uniq 'commandKey' in kwargs. ie: 'commandKey=X'
+commands (with wait=None) it will run all 10 in as many threads as is allowed. (default is 8). If you want the same 
+command to run over and over again the flag 'rerun' can be set to True. If 'wait' is set to anything other than None it
+is considering 'blocking' and will wait until either the command is finished or the wait time is reached.
 
-**The sshConnector:**
+**The SCP and SFTP:**
 
-This is more 'under the hood' stuff that is likely not necessary for most automation. The ssh Connector is a wrapper
-around Paramiko and adds extra functionality to make managing users and extra channels and sftp connections.
+---
 
 > Getting and using a SFTP connection
 
@@ -173,6 +181,26 @@ scp = tki.getSCPClient()
 scp.put('/path/too/file.out', '/remote/path/too/new/filename')
 ```
 
+> SCP and SFTP can use 'with'
+```python
+with tki.getSFTPClient() as sftp:
+    sftp.put('/path/too/file.out', '/remote/path/too/new/filename')
+```
+
+> Both SCP and SFTP can handle IO and file objects
+```python
+from io import StringIO
+sIO = StringIO("Some file saved in memory as a str")
+with tki.getSFTPClient() as sftp:
+    sftp.put(sIO, '/remote/path/too/new/filename')
+```
+
+**The sshConnector:**
+
+---
+
+This is more 'under the hood' stuff that is likely not necessary for most automation. The ssh Connector is a wrapper
+around Paramiko and adds extra functionality to make managing users and extra channels and sftp connections.
 
 A few things to note is how to escalate too a specific user, change environment and how to make custom channels and run
 commands on them.
@@ -191,8 +219,8 @@ tki.becomeRoot(environment=<sshEnvironment>)
 > Escalate too root (with custom options, this also works for any other user)
 
 ```python
-tki.becomeuser('root', 'abc123', loginCmd='sudo')
-tki.becomeuser('root', 'abc123', loginCmd='sudo', environment=<ChannelObject>)
+tki.becomeUser('root', 'abc123', loginCmd='sudo')
+tki.becomeUser('root', 'abc123', loginCmd='sudo', environment=<ChannelObject>)
 ```
 
 
@@ -249,6 +277,8 @@ a thread/channel pair to execute on.
 
 **The CommandContainer:**
 
+---
+
 This is where a lot of the heaving lifting for command execution happens. These objects are thread safe and
 customizable.
 
@@ -284,6 +314,8 @@ The CommandContainer is explained in more detail in the documentation for it. In
 advanced features.
 
 **Threading:**
+
+---
 
 The ToolKitInterface and specifically the sshConnector handles threading. This tool uses the 'threading' module within 
 Python. This means it doesn't handle multipleprocess nor does it work with asyncio modules. Threading is acceptable 

@@ -81,11 +81,30 @@ For a full explanation go to the [CommandContainer](../LST_LinuxDiagnosticToolKi
 
 **Modules:**
 
-Currently, there are only 'LinuxModulse' which contain 'CommandModules', 'OtherModules', and 'ProgramModules'. 
-Eventually These will be reorganized once Windows is supported. 
+Currently, there are only 'LinuxModulse' which contain 'CommandModules' and 'ProgramModules'. Eventually These will be 
+reorganized once Windows is supported. 
 
 - Command Modules are common Linux specific commands (i.e: cat, ps, etc...)
 - Program Modules are programs that run on the target remote OS. (i.e: MySQL, Oracle, etc...)
+
+To get a list of modules use the 'getAvailableModules' method. This returns a list of strings that represent the 
+supported commands.
+
+```pycon
+from ldtk import ToolKitInterface
+tki = ToolKitInterface()
+tki.getAvailableModules()
+```
+
+Any command regardless if it is present in the list of supported modules can be executed via the 'execute' method. 
+Modules are a more 'pythonic' or programmatic way of handling shell commands. They also can have special methods 
+specific to the nature of the command they represent. An example of this would be 'ps' command module having a method 
+'getTopCPU' or the 'll' module which has the method 'fileExist'. 
+
+Also not all modules directly map too a single command. Some modules use multiple commands together when using a certain
+methods while others are a collection of commands following a particular theme. An example of this would be the 'touch'
+modules 'isWritable' method which determines if a filesystem can be written too. It also uses the 'rm' module. While
+the service module combines the commands service, chkconfig, and systemctl all in one.
 
 **The CommandModules:**
 

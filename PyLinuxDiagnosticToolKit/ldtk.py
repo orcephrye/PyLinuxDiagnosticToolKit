@@ -13,6 +13,7 @@
 
 import logging
 import traceback
+from PyLinuxDiagnosticToolKit import find_modules
 from libs import ArgumentWrapper
 from libs.ArgumentWrapper import ArgumentParsers
 from LinuxModules.genericCmdModule import GenericCmdModule
@@ -24,8 +25,8 @@ from sshConnector.sshLibs.sshChannelEnvironment import sshEnvironment, Environme
 from typing import Union, List, Any, Optional
 
 
-logging.basicConfig(format='%(asctime)s %(levelname)s %(name)s %(funcName)s %(lineno)s %(message)s',
-                    level=logging.DEBUG)
+# logging.basicConfig(format='%(asctime)s %(levelname)s %(name)s %(funcName)s %(lineno)s %(message)s',
+#                     level=logging.DEBUG)
 _ptlog = logging.getLogger('paramiko.transport')
 _ptlog.setLevel(logging.WARNING)
 _pclog = logging.getLogger('paramiko.channel')
@@ -106,6 +107,16 @@ class ToolKitInterface:
         if not self.sshCon:
             return False
         return self.sshCon.checkConnection(*args, **kwargs)
+
+    def getAvailableModules(self, moduleType: str = None) -> list:
+        """
+            This Function returns all modules found under the 'LinuxModules' directory.
+
+        - :param moduleTYpe: (str or None) Defaults too None. This the sub-directory that the helper function
+            find modules will search under. IE: CommandModules or ProgramModules.
+        """
+
+        return find_modules(moduleSubDir=moduleType)
 
     def getModules(self, *args, **kwargs) -> Union[GenericCmdModule, List[GenericCmdModule]]:
         """ Takes in arguments as args or a single arg in the form of a str or iterable data type. This will take that

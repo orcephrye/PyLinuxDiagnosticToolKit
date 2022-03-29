@@ -3,7 +3,7 @@ PyLinuxDiagnosticToolkit (probably development branch) and other Py* packages fr
 
 This goes over some useful abilities of the LDTK and how to use them.
 
-Step 1) Imports:
+Step 1) Imports (Inside of IPython):
 
 ```python
 import PyMultiTasking;
@@ -11,8 +11,7 @@ import PyCustomCollections;
 import PyLinuxDiagnosticToolKit;
 import PyLinuxDiagnosticToolkit;
 from ldtk import ToolKitInterface
-% pycat
-PyLinuxDiagnosticToolkit / __init__.py
+% pycat PyLinuxDiagnosticToolkit/__init__.py
 ```
 
 > Notes: Explain that when you import a package from any Py* package and PyLinuxDiagnosticToolkit the __init__ file 
@@ -35,10 +34,10 @@ Step 3) Load modules:
 
 ```python
 cat = tki.getModules('cat')
-cat.__str__
+id(cat)
 cat, ps, kill = tki.getModules('cat', 'ps', 'kill')
-cat.__str__
-tki.modules.cat.__str__
+id(cat)
+id(tki.modules.cat)
 ```
 
 
@@ -70,7 +69,7 @@ Step 5) More using modules:
 ps = tki.modules.ps
 ps?
 %pycat PyLinuxDiagnosticToolkit/LinuxModules/CommandModules/processModules/psmodule.py
-%time ps()
+%time output = ps()
 ps[0]
 ps['PID']
 ps[('USER', 'rye')]

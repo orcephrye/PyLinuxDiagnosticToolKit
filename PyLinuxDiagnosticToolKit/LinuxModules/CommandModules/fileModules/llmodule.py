@@ -35,8 +35,6 @@ class llModule(GenericCmdModule, BashParser):
     def __init__(self, tki, *args, **kwargs):
         log.info("Creating ll module.")
         super(llModule, self).__init__(tki=tki, columns=self._llcolumns, header=self._llheader)
-        # log.info('Creating BashParser')
-        # super(GenericCmdModule, self).__init__(columns=self._llcolumns, header=self._llheader)
         log.info('Finished creating BashParser')
         self.defaultCmd = 'ls '
         self.defaultKey = "ls%s"

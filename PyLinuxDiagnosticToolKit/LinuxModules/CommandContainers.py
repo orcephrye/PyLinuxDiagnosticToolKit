@@ -369,7 +369,6 @@ class CommandParsers(CommandData):
         if isinstance(command, dict) and CommandData._needsKwargs(command) and not commandKey:
             commandKey, command = self._findCmdAndKey(command)
         self.commandKey = (command, commandKey)
-        print(f'command/type = {command} / {type(command)}')
         self.command = command
 
     @staticmethod
@@ -432,7 +431,6 @@ class CommandParsers(CommandData):
             It determines if the command is a single command or a queue or batch of commands.
             This is based on the command datatype and structure.
         """
-        print(f'command/type: {command} / {type(command)}')
         if isinstance(command, str):
             return CommandData._createTags(command, noParsing, ignoreAlias)
         if len(command) == 1:

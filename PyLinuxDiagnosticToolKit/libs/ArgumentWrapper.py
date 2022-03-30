@@ -12,7 +12,7 @@
 # NOTE: This can take a tuple in the dest field of add_argument for compatibility purposes
 # The result will be a single space joined string added as the parent attribute to the argparse namespace
 # Each tuple element will be added individually to the argparse namespace as well and have the same initial value as
-# the parent. These children will not be permanently synced with the parent or eachother so any change to one will only
+# the parent. These children will not be permanently synced with the parent or each other so any change to one will only
 # change that one
 
 
@@ -21,190 +21,8 @@ import re
 import argparse
 from copy import copy
 from json import loads
-from ast import Num, Name, BinOp, Add, Sub, Expression, PyCF_ONLY_AST
-from ast import Str as astStr
-from ast import Tuple as astTuple
-from ast import List as astList
-from ast import Dict as astDict
-from typing import AnyStr, Hashable, Any, Union, Dict, Optional, List
-
-
-# NOTE: This includes copy/pasta code due to the fact that is should be self contained and able to be called anywhere
-# without dependencies
-
-
-# see ExternalParsers for more information about this parser
-def jsonHook(jsonInput: Dict) -> Dict:
-    """ Decode properly formatted json in a robust way. Meant to be used as an object_hook for the Python json lib.
-        Usage:  json.loads(json_string, object_hook=jsonHook)
-
-    - :param jsonInput: Valid json object
-    - :return: dict object
-    """
-
-    def _decode_str(data):
-        tmpStr = data.lower()
-        if tmpStr == 'true':
-            return True
-        elif tmpStr == 'false':
-            return False
-        elif tmpStr == 'none' or tmpStr == 'null':
-            return None
-        return data
-
-    def _decode_list(data):
-        rv = []
-        for item in data:
-            if isinstance(item, bytes):
-                try:
-                    item = _decode_str(item.decode())
-                except:
-                    item = item.decode(errors='ignore')
-            elif isinstance(item, list):
-                item = _decode_list(item)
-            elif isinstance(item, dict):
-                item = _decode_dict(item)
-            rv.append(item)
-        return rv
-
-    def _decode_dict(data):
-        rv = {}
-        for key, value in data.items():
-            if isinstance(key, bytes):
-                key = key.decode()
-            if isinstance(value, bytes):
-                try:
-                    value = _decode_str(value.decode())
-                except:
-                    value = value.decode(errors='ignore')
-            elif isinstance(value, list):
-                value = _decode_list(value)
-            elif isinstance(value, dict):
-                value = _decode_dict(value)
-            rv[key] = value
-        return rv
-
-    return _decode_dict(jsonInput)
-
-
-# see ExternalParsers for more information about this parser
-def literal_eval_include(node_or_string: Any) -> Any:
-    """ Safely evaluate an expression node or a string containing a Python expression.  The string or node provided may
-        only consist of the following Python literal structures: strings, numbers, tuples, lists, dicts, booleans,
-        and None. Includes json values and adapted directly out of the ast source.
-
-    - :param node_or_string: (string/ast node) Python expression or data
-    - :return: (Any) evaluated expression
-    """
-
-    def _parse(source):
-        return compile(source, '<unknown>', 'eval', PyCF_ONLY_AST)
-
-    def _convert(node):
-        if isinstance(node, astStr):
-            return node.s
-        elif isinstance(node, Num):
-            return node.n
-        elif isinstance(node, astTuple):
-            return tuple(map(_convert, node.elts))
-        elif isinstance(node, astList):
-            return list(map(_convert, node.elts))
-        elif isinstance(node, astDict):
-            return dict((_convert(k), _convert(v)) for k, v
-                        in zip(node.keys, node.values))
-        elif isinstance(node, Name):
-            if node.id in _safe_names:
-                return _safe_names[node.id]
-        elif isinstance(node, BinOp) and \
-                isinstance(node.op, (Add, Sub)) and \
-                isinstance(node.right, Num) and \
-                isinstance(node.right.n, complex) and \
-                isinstance(node.left, Num) and \
-                isinstance(node.left.n, (int, float)):
-            left = node.left.n
-            right = node.right.n
-            if isinstance(node.op, Add):
-                return left + right
-            else:
-                return left - right
-        raise ValueError('malformed string')
-
-    _safe_names = {'None': None, 'True': True, 'False': False,
-                   'null': None, 'true': True, 'false': False}
-
-    if isinstance(node_or_string, str):
-        node_or_string = _parse(node_or_string)
-    if isinstance(node_or_string, Expression):
-        node_or_string = node_or_string.body
-
-    return _convert(node_or_string)
-
-
-# see CustomDataTypes for more info on this data structure
-class NamespaceDict(argparse.Namespace, dict):
-    def __init__(self, *args, **kwargs):
-        super().__init__(**kwargs)
-        self.update(*args, **kwargs)
-
-    def __itemgetter__(self, item):
-        try:
-            return super(NamespaceDict, self).__getitem__(item)
-        except:
-            pass
-        return super(NamespaceDict, self).__getattribute__(item)
-
-    def __setattr__(self, key, value):
-        try:
-            super(NamespaceDict, self).__setattr__(key, value)
-        except:
-            pass
-        try:
-            super(NamespaceDict, self).__setitem__(key, value)
-        except:
-            pass
-
-    def __delattr__(self, item):
-        try:
-            super(NamespaceDict, self).__delattr__(item)
-        except:
-            pass
-        try:
-            super(NamespaceDict, self).__delitem__(item)
-        except:
-            pass
-
-    def get(self, k, d=None):
-        try:
-            return self.__itemgetter__(k)
-        except:
-            return d or None
-
-    def update(self, E=None, **F):
-        if E:
-            if hasattr(E, 'keys'):
-                for k in E:
-                    self.__setattr__(k, E[k])
-            else:
-                for k, v in E:
-                    self.__setattr__(k, v)
-        for k in F:
-            self.__setattr__(k, F[k])
-
-    def setdefault(self, k, d=None):
-        self.__setattr__(k, self.get(k, d) or d)
-
-    def pop(self, k, d=None):
-        if not (k in self or hasattr(self, k)):
-            if not d:
-                raise KeyError(k)
-            return d
-        savevalue = self.__itemgetter__(k)
-        self.__delattr__(k)
-        return savevalue
-
-    __getitem__ = __getattribute__ = __itemgetter__
-    __setitem__ = __setattr__
-    __delitem__ = __delattr__
+from PyCustomCollections import NamespaceDict
+from PyCustomParsers.CustomParsers import jsonHook, literal_eval_include
 
 
 # customized argument parser to allow tuples to be set in dest
@@ -221,9 +39,6 @@ class ArgumentParsers(argparse.ArgumentParser):
     # probably do not need this override but exists to draw attention to these changes and effects
     def parse_args(self, args=None, namespace=None):
         args, argv = self.parse_known_args(args, namespace)
-        # if argv:
-        #     msg = argparse._(f'unrecognized arguments: {argv}')
-        #     self.error(msg % ' '.join(argv))
         return args
 
     # allow dest=tuple() and add each item in the tuple to the args namespace, sync values, sync keys

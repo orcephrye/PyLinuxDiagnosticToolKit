@@ -330,7 +330,7 @@ class sshEnvironmentControl(sshBufferControl):
         - :param reCapturePrompt: (bool) default True -
         - :return: Either 'sshEnvironment' (success) or False (Failure)
         """
-
+        
         environment = environment or self.mainEnvironment
 
         if not self.checkConnection(environment):

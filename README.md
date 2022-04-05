@@ -22,6 +22,8 @@ pip install .
 
 **The Linux Diagnostic Tool Kit:**
 
+---
+
 This is a set of Modules (python packages) themed after linux commands or programs, packaged together with some tools to
 interact with a remote machine. Currently, the only 'connector' is the 'sshConnector' which provides connectivity too 
 Linux machines. The tools, connectors, and modules are tied together by the ToolKitInterface class in the ldtk.py 

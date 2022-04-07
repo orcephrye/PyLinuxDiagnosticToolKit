@@ -853,6 +853,26 @@ class TestEFileModules(unittest.TestCase):
 
         tki.modules.rm(testfilePath)
 
+    def test_aak_ll(self):
+        global tki
+        global testfilePath
+        standard_check(self)
+
+        ll = tki.modules.ll
+        if not tki.modules.touch(testfilePath):
+            self.skipTest(f'Touch failed to make test file for ll test: {testfilePath}')
+
+        output = ll('/tmp')
+        self.assertIsInstance(output, BashParser)
+
+        results = ll.fileExist(testfilePath)
+        self.assertTrue(results)
+
+        results = ll.isFileEmpty(testfilePath)
+        self.assertTrue(results)
+
+        tki.modules.rm(testfilePath)
+
     def test_zzz_disconnect(self):
         global tki
         standard_check(self)

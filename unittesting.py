@@ -579,6 +579,15 @@ class TestENetworkModules(unittest.TestCase):
         self.assertIsInstance(allRoutes, Routes)
         self.assertGreaterEqual(len(allRoutes.routes), 1)
 
+    def test_aae_hosts(self):
+        global tki
+        standard_check(self)
+
+        hosts = tki.modules.hosts
+        hosts()
+        self.assertIsInstance(hosts, BashParser)
+        self.assertGreaterEqual(len(hosts), 1)
+
     def test_zzz_disconnect(self):
         global tki
         standard_check(self)
@@ -872,6 +881,38 @@ class TestEFileModules(unittest.TestCase):
         self.assertTrue(results)
 
         tki.modules.rm(testfilePath)
+
+    def test_zzz_disconnect(self):
+        global tki
+        standard_check(self)
+        tki.disconnect()
+        self.assertFalse(tki.checkConnection())
+
+
+# noinspection PyUnresolvedReferences
+class TestEModules(unittest.TestCase):
+    """
+        These are CommandModules that either require flags or have special methods that should be tested. Modules that
+        do require flags simply confirm they can be created.
+    """
+
+    def test_aaa_login(self):
+        global tki
+
+        with open('unittesting.json') as f:
+            config = json.load(f)
+        args = ArgumentWrapper.arguments().parse_known_args()[0]
+        args.host = config.get('host')
+        args.username = config.get('username')
+        args.password = config.get('password')
+        args.root = True if config.get('root') else False
+        args.rootpwd = config.get('rootpwd')
+
+        tki = ldtk.ToolKitInterface(arguments=args, auto_login=False)
+        self.assertIsInstance(tki, ldtk.ToolKitInterface)
+        conn = tki.createConnection()
+        self.assertIsInstance(conn, threadedSSH)
+        self.assertTrue(tki.checkConnection())
 
     def test_zzz_disconnect(self):
         global tki

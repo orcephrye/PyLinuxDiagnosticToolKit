@@ -15,6 +15,8 @@ import logging
 log = logging.getLogger('hostsModule')
 
 
+# TODO: Host module should either not be a bashparser or it needs work
+
 class hostsModule(GenericCmdModule, BashParser):
     """ hostModule class. This class uses 'catModule' to get the '/etc/hosts' file. This is converted into an IndexList
         using BashParser.

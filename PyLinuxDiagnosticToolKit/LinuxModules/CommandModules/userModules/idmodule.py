@@ -11,7 +11,10 @@
 import logging
 import re
 from LinuxModules.genericCmdModule import GenericCmdModule
-from PyCustomCollections import NamespaceDict
+try:
+    from PyCustomCollections import NamespaceDict
+except:
+    from PyCustomCollections.PyCustomCollections.CustomDataStructures import NamespaceDict
 
 
 log = logging.getLogger('idModule')

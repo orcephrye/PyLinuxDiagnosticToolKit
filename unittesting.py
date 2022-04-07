@@ -483,6 +483,15 @@ class TestEProcessModules(unittest.TestCase):
         convertToBytes = lsof.lsofConvertResultsToBytes(output)
         self.assertIsNotNone(convertToBytes)
 
+    def test_aad_which(self):
+        global tki
+        standard_check(self)
+
+        which = tki.modules.which
+
+        results = which.doesCommandExist('cat')
+        self.assertTrue(results)
+
     def test_zzz_disconnect(self):
         global tki
         standard_check(self)
@@ -890,7 +899,7 @@ class TestEFileModules(unittest.TestCase):
 
 
 # noinspection PyUnresolvedReferences
-class TestEModules(unittest.TestCase):
+class TestEUserModules(unittest.TestCase):
     """
         These are CommandModules that either require flags or have special methods that should be tested. Modules that
         do require flags simply confirm they can be created.
@@ -913,6 +922,15 @@ class TestEModules(unittest.TestCase):
         conn = tki.createConnection()
         self.assertIsInstance(conn, threadedSSH)
         self.assertTrue(tki.checkConnection())
+
+    def test_aab_id(self):
+        global tki
+        standard_check(self)
+
+        idM = tki.modules.id
+
+        myUserID = idM()
+        self.assertTrue(hasattr(myUserID, 'uuid'))
 
     def test_zzz_disconnect(self):
         global tki

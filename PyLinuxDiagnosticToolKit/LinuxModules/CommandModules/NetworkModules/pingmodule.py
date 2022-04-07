@@ -57,10 +57,8 @@ class pingModule(GenericCmdModule):
                 )
         return super(pingModule, self).run(pingCmdDict, *args, **self.mergeKwargs(kwargs, self.defaultKwargs))
 
-    def pingCmd(self, hubIp, *args, **kwargs):  # retained for backward compatibility
-        return self.run(hubIp, *args, **kwargs)
-
     def canPing(self, hostIp, *args, **kwargs):
+        kwargs['wait'] = kwargs.get('wait', 120)
 
         def _canPingStrFilter(results=None, *args, **kwargs):
             return ' 0% packet loss' in results

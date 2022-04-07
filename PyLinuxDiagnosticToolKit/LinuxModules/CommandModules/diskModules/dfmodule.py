@@ -34,7 +34,7 @@ class dfModule(GenericCmdModule, BashParser):
     def __init__(self, tki, *args, **kwargsdf):
         log.info("Creating df module.")
         super(dfModule, self).__init__(tki=tki)
-        super(GenericCmdModule, self).__init__(template=self._dfTemplate, header=self._dfHeader)
+        super(GenericCmdModule, self).__init__(columns=self._dfTemplate, header=self._dfHeader)
         self.defaultCmd = 'df '
         self.defaultKey = "dfCmd"
         self.defaultFlags = ""

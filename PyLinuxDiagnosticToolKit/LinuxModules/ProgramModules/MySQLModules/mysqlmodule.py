@@ -99,7 +99,7 @@ class mysqlModule(GenericCmdModule):
         if not self.cmdI:
             return None
         if self._mysqlVariables is None or rerun:
-            self._mysqlVariables = IndexList(template={'Name': 0, 'Value': 1})
+            self._mysqlVariables = IndexList(columns={'Name': 0, 'Value': 1})
 
         def _mysqlVarPostParser(results, *args, **kwargs):
             self._mysqlVariables.extend([[item for item in line.split()] for line in results.splitlines()])
@@ -143,9 +143,9 @@ class mysqlModule(GenericCmdModule):
         requirements = [{'running': self.isMySQLRunning}, {'mysqlCmd': self.isMySQLClientInstalled}]
 
         if self._mysqlStatus is None or rerun:
-            self._mysqlStatus = IndexList(template={'Name': 0, 'Value': 1})
+            self._mysqlStatus = IndexList(columns={'Name': 0, 'Value': 1})
         if self._mysqlSummary is None or rerun:
-            self._mysqlSummary = IndexList(template={'Name': 0, 'Value': 1})
+            self._mysqlSummary = IndexList(columns={'Name': 0, 'Value': 1})
         self.simpleExecute(command={'mysqlShowStatus': "%s -N -B -e 'show status'"},
                            preparser=mysqlModule._MySQLStatusPreParser, postparser=_parseShowStatus, rerun=rerun,
                            requirements=requirements, **kwargs)
@@ -187,7 +187,7 @@ class mysqlModule(GenericCmdModule):
                     if len(processitem) > 8:
                         processitem = processitem[:8]
                     processResults.append(processitem)
-            self._mysqlProcessList = GIP(source=processResults, template=processTemplate, header=processHeader)
+            self._mysqlProcessList = GIP(source=processResults, columns=processTemplate, header=processHeader)
             return self._mysqlProcessList
 
         requirements = [{'running': self.isMySQLRunning}, {'mysqlCmd': self.isMySQLClientInstalled}]

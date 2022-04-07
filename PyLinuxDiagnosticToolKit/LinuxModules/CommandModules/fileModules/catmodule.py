@@ -47,7 +47,8 @@ class catModule(GenericCmdModule):
 
         requirements = {'fileBackup': self.buildFuncWithArgs(self.cp.makeBackup,
                                                              *(filePathName, backupPathName),
-                                                             **{'preparser': kwargs.get('preparser'), 'wait': 60})}
+                                                             **{'preparser': kwargs.get('preparser'),
+                                                                'rerun': kwargs.get('backupRerun', True), 'wait': 30})}
         kwargs.update(self.updatekwargs('preparser', catModule._ExportFunction, **kwargs))
         kwargs.update(self.updatekwargs('completiontask', catModule._unsetFunction, **kwargs))
         kwargs.update(self.updatekwargs('requirements', requirements, **kwargs))
@@ -67,9 +68,8 @@ class catModule(GenericCmdModule):
         - :return:
         """
 
-        fileBackupKwargs = {}
-        fileBackupKwargs.update({'preparser': kwargs.get('preparser'), 'wait': 60,
-                                 'backupPath': kwargs.get('backupPath'), 'backupExt': kwargs.get('backupExt')})
+        fileBackupKwargs = {'preparser': kwargs.get('preparser'), 'wait': 60, 'rerun': kwargs.get('backupRerun', False),
+                            'backupPath': kwargs.get('backupPath'), 'backupExt': kwargs.get('backupExt')}
 
         requirements = {'fileBackup': self.buildFuncWithArgs(self.cp.makeBackup, *(filePathName,),
                                                              **fileBackupKwargs)}
@@ -106,12 +106,12 @@ class catModule(GenericCmdModule):
     def _ExportFunction(*args, **kwargs):
         this = kwargs.get("this")
         command = "export HISTSIZE=0"
-        sshCon = this.channelContainer
+        sshCon = this.EnvironmentObject
         sshCon.environmentChange(command)
 
     @staticmethod
     def _unsetFunction(*args, **kwargs):
         this = kwargs.get("this")
         command1 = "unset HISTSIZE"
-        sshCon = this.channelContainer
+        sshCon = this.EnvironmentObject
         sshCon.environmentChange(command1)

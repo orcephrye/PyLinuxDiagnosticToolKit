@@ -36,7 +36,7 @@ class mkdirModule(GenericCmdModule):
 
         options = self.defaultFlags
         if not makePath:
-            options = "%s"
+            options = "%s; echo $?"
 
         command = {self.defaultKey % flags: self.defaultCmd + options % flags}
         return super(mkdirModule, self).run(command, **kwargs)

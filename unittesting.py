@@ -23,6 +23,9 @@ echo 'this is a test'
 """
 
 
+testfilePath = "/tmp/testfile.out"
+
+
 # noinspection PyUnresolvedReferences
 def standard_check(testObj):
     global tki
@@ -696,6 +699,159 @@ class TestEFileModules(unittest.TestCase):
         conn = tki.createConnection()
         self.assertIsInstance(conn, threadedSSH)
         self.assertTrue(tki.checkConnection())
+
+    def test_aab_touch(self):
+        global tki
+        global testfilePath
+        standard_check(self)
+
+        touch = tki.modules.touch
+
+        results = touch.isWritable('/tmp/')
+        self.assertTrue(results)
+
+        results = touch(testfilePath)
+        self.assertTrue(results)
+
+    def test_aac_cp(self):
+        global tki
+        global testfilePath
+        standard_check(self)
+
+        cp = tki.modules.cp
+
+        if not tki.modules.touch(testfilePath):
+            self.skipTest(f'Touch failed to make test file for cp tset: {testfilePath}')
+
+        results = cp.makeBackup(testfilePath, '/tmp', '.bck', wait=10)
+        self.assertTrue(results)
+
+    def test_aad_cat(self):
+        global tki
+        global testfilePath
+        standard_check(self)
+
+        cat = tki.modules.cat
+        rm = tki.modules.rm
+
+        results = cat.makeFile(testfilePath)
+        self.assertTrue(results)
+
+        results = cat.appendFile(testfilePath, 'test test test', testfilePath+'.bck')
+        self.assertTrue(results)
+
+        results = cat(testfilePath, rerun=True)
+        self.assertEqual(results, 'test test test')
+
+        results = cat.replaceFile(testfilePath, 'another test', backupRerun=True, backupPath=testfilePath+'.bck2')
+        self.assertTrue(results)
+
+        results = cat(testfilePath, rerun=True)
+        self.assertEqual(results, 'another test')
+
+        results = cat(testfilePath+'.bck2', rerun=True)
+        self.assertEqual(results, 'test test test')
+
+        rm(testfilePath)
+        rm(testfilePath+'.bck')
+        rm(testfilePath+'.bck2')
+
+    def test_aae_echo(self):
+        global tki
+        global testfilePath
+        standard_check(self)
+
+        echo = tki.modules.echo
+        cat = tki.modules.cat
+        rm = tki.modules.rm
+
+        results = echo.makeFile(testfilePath)
+        self.assertTrue(results)
+
+        results = echo.appendFile(testfilePath, 'test test test', testfilePath+'.bck')
+        self.assertTrue(results)
+
+        results = cat(testfilePath, rerun=True)
+        self.assertEqual(results, 'test test test')
+
+        results = echo.replaceFile(testfilePath, 'another test', backupRerun=True, backupPath=testfilePath+'.bck2')
+        self.assertTrue(results)
+
+        results = cat(testfilePath, rerun=True)
+        self.assertEqual(results, 'another test')
+
+        results = cat(testfilePath+'.bck2', rerun=True)
+        self.assertEqual(results, 'test test test')
+
+        rm(testfilePath)
+        rm(testfilePath + '.bck')
+        rm(testfilePath + '.bck2')
+
+    def test_aaf_chmod_chown(self):
+        global tki
+        global testfilePath
+        standard_check(self)
+
+        chmod = tki.modules.chmod
+        chown = tki.modules.chown
+
+        if not tki.modules.touch(testfilePath):
+            self.skipTest(f'Touch failed to make test file for chmod/chown test: {testfilePath}')
+
+        results = chmod(f'664 {testfilePath}')
+        self.assertTrue(results)
+
+        results = chown(f'root:root {testfilePath}')
+        self.assertTrue(results)
+
+    def test_aag_find(self):
+        global tki
+        standard_check(self)
+
+        find = tki.modules.find
+
+        results = find.listLargestFilesOnFilesystem('/tmp', head=10, sort=True, wait=30)
+        self.assertIsInstance(results, BashParser)
+        self.assertGreaterEqual(len(results), 1)
+
+    def test_aah_getfalc(self):
+        global tki
+        global testfilePath
+        standard_check(self)
+
+        getfacl = tki.modules.getfacl
+        if not tki.modules.touch(testfilePath):
+            self.skipTest(f'Touch failed to make test file for getfalc test: {testfilePath}')
+
+        results = getfacl.isFacl(testfilePath)
+        self.assertFalse(results)
+
+        tki.modules.rm(testfilePath)
+
+    def test_aaj_stat(self):
+        global tki
+        global testfilePath
+        standard_check(self)
+
+        stat = tki.modules.stat
+        chmod = tki.modules.chmod
+        chown = tki.modules.chown
+        if not tki.modules.touch(testfilePath):
+            self.skipTest(f'Touch failed to make test file for stat test: {testfilePath}')
+
+        if not chmod(f'664 {testfilePath}'):
+            self.skipTest(f'chmod failed to change test file for stat test: {testfilePath}')
+
+        if not chown(f'root:root {testfilePath}'):
+            self.skipTest(f'chown failed to change test file for stat test: {testfilePath}')
+
+        results = stat.getOwner(testfilePath)
+        self.assertEqual(results, 'root')
+
+        results = stat.getPermission(testfilePath)
+        self.assertEqual(results, '664')
+
+        tki.modules.rm(testfilePath)
 
     def test_zzz_disconnect(self):
         global tki

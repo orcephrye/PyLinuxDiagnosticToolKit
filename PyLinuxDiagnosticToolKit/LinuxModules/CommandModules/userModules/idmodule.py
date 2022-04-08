@@ -11,7 +11,10 @@
 import logging
 import re
 from LinuxModules.genericCmdModule import GenericCmdModule
-from PyCustomCollections import NamespaceDict
+try:
+    from PyCustomCollections import NamespaceDict
+except:
+    from PyCustomCollections.PyCustomCollections.CustomDataStructures import NamespaceDict
 
 
 log = logging.getLogger('idModule')
@@ -59,8 +62,8 @@ class idModule(GenericCmdModule):
             output['uid'] = re.sub(r'\([^)]*\)', '', output['uid'])
             gidUsernames = re.findall(r'\([^)]*\)', output['gid'])
             groupsUsernames = re.findall(r'\([^)]*\)', output['groups'])
-            gidIds = re.findall('\d+', output['gid'])
-            groupsIds = re.findall('\d+', output['groups'])
+            gidIds = re.findall(r'\d+', output['gid'])
+            groupsIds = re.findall(r'\d+', output['groups'])
             if not gidUsernames or not groupsUsernames or not gidIds or not groupsIds:
                 return False
             if len(gidUsernames) != len(gidIds) or len(groupsUsernames) != len(groupsIds):

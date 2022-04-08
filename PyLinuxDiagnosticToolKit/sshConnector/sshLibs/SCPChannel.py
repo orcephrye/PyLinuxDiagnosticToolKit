@@ -100,10 +100,12 @@ class SCPChannel(object):
 
     @expDec(returnOnExcept=False)
     def put(self, files: Any, remotepath: AnyStr, autoLogin: bool = None) -> bool:
-        """ Take a local file or multiple files and upload it to a remote location.
+        """ Take a local file or multiple files and upload it to a remote location. If files parameter is an IO object
+            the remotepath must be a full name and not a directory.
 
         - :param files: single or list of files to upload
-        - :param remotepath: a full path to a remote directory
+        - :param remotepath: a full path to a remote directory or filename. (If files is IO then this MUST be fullpath
+                filename.)
         - :param autoLogin: (bool) - Controls if this will attempt a connection if one isn't present.
         - :return: (True)
         """
@@ -120,4 +122,4 @@ class SCPChannel(object):
         - :return: (True)
         """
 
-        return self.openSCP(autoLogin).put(remotefile, localpath)
+        return self.openSCP(autoLogin).get(remotefile, localpath)

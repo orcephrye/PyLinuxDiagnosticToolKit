@@ -34,6 +34,7 @@ class uptimeModule(GenericCmdModule):
         self.requireFlags = False
 
     def getUptimeViaProc(self, parse=True, wait=60, **kwargs):
+        kwargs['rerun'] = kwargs.get('rerun', True)
         kwargs.update({"command": "awk '{print $1}' /proc/uptime", 'wait': wait})
         if parse:
             kwargs.update({'postparser': uptimeModule._parseUptime})

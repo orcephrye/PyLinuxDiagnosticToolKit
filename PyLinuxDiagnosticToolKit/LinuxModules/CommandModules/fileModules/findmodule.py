@@ -17,7 +17,7 @@ import re
 log = logging.getLogger('findModule')
 
 
-class findModule(GenericCmdModule, BashParser):
+class findModule(GenericCmdModule):
     """
          findModule class. This class inherits from the GenericCmdModule. It is used to execute the Linux command 'find'
          on remote machines.
@@ -25,9 +25,9 @@ class findModule(GenericCmdModule, BashParser):
          defaultFlags =
      """
 
-    checkString = re.compile('^\s*[0-9]')
+    checkString = re.compile(r'^\s*[0-9]')
     _findStrFormat = '{0:<[0]}{1:<[1]}'
-    _findTemplate = {'SIZE': 0, 'FILE': 1}
+    _findColumns = {'SIZE': 0, 'FILE': 1}
     _findHeader = ['SIZE', 'FILE']
 
     def __init__(self, tki, *args, **kwargs):
@@ -41,27 +41,25 @@ class findModule(GenericCmdModule, BashParser):
         self.__NAME__ = "find"
         self.requireFlags = True
 
-    def run(self, flags=None, parseOutput=False, maxLines=0, **kwargs):
-        def parseFilesystemOutput(results, **kwargs):
+    def listLargestFilesOnFilesystem(self, filesystem, head=30, sort=True, **kwargs):
+        def parseFindOutput(results, **kwargs):
             def _filterResults(line):
                 if self.checkString.search(line):
                     return line
+
             results = "\n".join(filter(_filterResults, results.strip().splitlines()))
 
-            def _parseFilesystemOutput(parserObject):
-                if parseOutput:
-                    parserObject.parseInput(source=results, strFormat=self._findStrFormat, columns=self._findTemplate,
-                                            header=self._findHeader, refreshData=refreshData)
-                    parserObject.sort(key='SIZE', keyType=int, reverse=True)
-                    if maxLines and maxLines < len(parserObject) + 1:
-                        parserObject.parseInput(source=parserObject[:maxLines + 1], refreshData=True)
-                    return self.convertResultsToBytes(parserObject, columnList=['SIZE'], _baseSize='K')
-                parserObject.parseInput(source=results, refreshData=refreshData)
-                return parserObject
-            if flags:
-                return _parseFilesystemOutput(BashParser())
-            return _parseFilesystemOutput(self)
-        refreshData = True if self else None
-        self.defaultKwargs = {'postparser': parseFilesystemOutput}
-        kwargs.setdefault('useDefaultParsing', kwargs.pop('useDefaultParsing', parseOutput) or parseOutput)
-        return super(findModule, self).run(flags, **kwargs)
+            obj = BashParser(strFormat=self._findStrFormat, columns=self._findColumns, header=self._findHeader)
+            obj.parseInput(source=results, refreshData=True)
+            if sort:
+                obj.sort(key='SIZE', keyType=int, reverse=True)
+            if head and head < len(obj) + 1:
+                obj.parseInput(source=results[:head + 1], refreshData=True)
+            return obj.convertResultsToBytes(obj, columnList=['SIZE'], _baseSize='B')
+
+        kwargs.update({'postparser': parseFindOutput})
+
+        return super(findModule, self).run(f'{filesystem} ' + "-mount -type f -ls | awk '{print $7,$NF}'", **kwargs)
+
+
+

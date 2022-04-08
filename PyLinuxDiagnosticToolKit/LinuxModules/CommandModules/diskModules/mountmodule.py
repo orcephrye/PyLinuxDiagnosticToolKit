@@ -29,7 +29,7 @@ class mountModule(GenericCmdModule, BashParser):
     def __init__(self, tki, *args, **kwargs):
         log.info("Creating mount module")
         super(mountModule, self).__init__(tki=tki)
-        super(GenericCmdModule, self).__init__(template=self._mountTemplate)
+        super(GenericCmdModule, self).__init__(columns=self._mountTemplate)
         self.defaultCmd = 'mount '
         self.defaultKey = "mountCmd"
         self.defaultFlags = ""

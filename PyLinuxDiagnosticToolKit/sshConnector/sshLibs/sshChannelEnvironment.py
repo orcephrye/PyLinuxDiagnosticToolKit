@@ -144,14 +144,9 @@ class sshEnvironment(sshChannelWrapper):
         :return: (tuple) The escalation information formated as a tuple
         """
 
-        item = tuple()
-        while len(self.consoleStack) >= 1:
-            item = self.consoleStack.pop()
-            if item[0] != self.__CONSOLE_ESCALATION__ and item[0] != self.__USER_ESCALATION__:
-                continue
-            break
-
-        return item
+        if len(self.consoleStack) >= 1:
+            return self.consoleStack.pop()
+        return tuple()
 
     def peak(self) -> tuple:
         """ Just like a peak it simply returns the last console change without removing it. """
@@ -166,6 +161,12 @@ class sshEnvironment(sshChannelWrapper):
             return self.consoleStack[num]
         except:
             return ()
+
+    def getPreviousEscalation(self) -> tuple:
+        return self.peak()
+
+    def getPreviousEscalationType(self) -> int:
+        return self.peak()[0]
 
     def getUserList(self) -> list:
         """ This returns a list of users that are currently logged into this environment in order of there login. """
@@ -182,8 +183,8 @@ class sshEnvironment(sshChannelWrapper):
         if not self.consoleStack:
             return []
 
-        itemList = list(filter(_filterUsers, self.consoleStack))
-        return _userGenerator(itemList)
+        # itemList = list(filter(_filterUsers, self.consoleStack))
+        return _userGenerator(filter(_filterUsers, self.consoleStack))
 
     def getCurrentUser(self) -> str:
         """ Returns a string that is the name of the current user authenticated on this environment. """
@@ -191,6 +192,7 @@ class sshEnvironment(sshChannelWrapper):
         currentUsers = self.getUserList()
         if currentUsers:
             return currentUsers[-1]
+        return ''
 
     def getConsoleList(self) -> list:
         """ LIke 'getUserList' but returns a list of the console escalations in order that they happened. """
@@ -204,8 +206,8 @@ class sshEnvironment(sshChannelWrapper):
                 output.append(item[1])
             return output
 
-        itemList = list(filter(_filterConsoles, self.consoleStack))
-        return _consoleGenerator(itemList)
+        # itemList = list(filter(_filterConsoles, self.consoleStack))
+        return _consoleGenerator(filter(_filterConsoles, self.consoleStack))
 
     def getCurrentConsole(self) -> str:
         """ Like 'getCurrentUser' but gets what the current console type is. """
@@ -229,11 +231,6 @@ class sshEnvironment(sshChannelWrapper):
             if item[-1] is not None:
                 return item[-1]
         return ""
-
-    # def close(self) -> None:
-    #     """ Deletes the current console stack. """
-    #     del self.consoleStack
-    #     super(sshEnvironment, self).close()
 
     def resetEnvironment(self) -> None:
         """ Resets the environment console stack """
@@ -282,6 +279,10 @@ class sshEnvironment(sshChannelWrapper):
         if not self.consoleStack:
             return 0
         return len(list(filter(_filterUsers, self.consoleStack)))
+
+    @property
+    def numUsers(self):
+        return len(self.getUserList())
 
     @property
     def userList(self):

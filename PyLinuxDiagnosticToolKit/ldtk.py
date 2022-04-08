@@ -49,9 +49,8 @@ class _ToolKitModules(dict):
 
 class ToolKitInterface:
 
-    __KNOWNMODULES__ = {'sophos': {'from': 'sophosModule', 'import': 'SophosModule'},
-                        'oracle': {'from': 'OracleModule', 'import': 'oracleAllTheThings'},
-                        'mysql': {'from': 'mysqlModule', 'import': 'mysqlModule'}}
+    __KNOWNMODULES__ = {'oracle': {'from': 'Oraclemodule', 'import': 'oracleModule'},
+                        'mysql': {'from': 'mysqlmodule', 'import': 'mysqlModule'}}
 
     def __init__(self, arguments: ArgumentParsers, auto_login: bool = True, *args, **kwargs):
         """ This acts differently depending on what is passed to it. More explained below.

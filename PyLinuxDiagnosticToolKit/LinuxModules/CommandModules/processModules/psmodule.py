@@ -69,7 +69,7 @@ class psModule(GenericCmdModule, BashParser):
         - :return: IndexList
         """
 
-        self._verifyNeedForRun(**kwargs)
+        self.verifyNeedForRun(**kwargs)
         return self.getCorrelation(('PID', str(pid)), **kwargs)
 
     def searchProcesses(self, search, **kwargs):
@@ -80,7 +80,7 @@ class psModule(GenericCmdModule, BashParser):
         - :return: list
         """
 
-        self._verifyNeedForRun(**kwargs)
+        self.verifyNeedForRun(**kwargs)
         return self.getSearch(search, **kwargs)
 
     def findCMD(self, name, **kwargs):
@@ -91,7 +91,7 @@ class psModule(GenericCmdModule, BashParser):
         - :return: list
         """
 
-        self._verifyNeedForRun(**kwargs)
+        self.verifyNeedForRun(**kwargs)
         return self.getCorrelation(('CMD', name), **kwargs)
 
     def searchCommandString(self, name, **kwargs):
@@ -102,7 +102,7 @@ class psModule(GenericCmdModule, BashParser):
         - :return: list
         """
 
-        self._verifyNeedForRun(**kwargs)
+        self.verifyNeedForRun(**kwargs)
         return self.getCorrelation(('COMMAND', name), **kwargs)
 
     def getPIDListByName(self, name, explicit=False, caseSensitive=False, **kwargs):
@@ -115,7 +115,7 @@ class psModule(GenericCmdModule, BashParser):
         - :return: list
         """
 
-        self._verifyNeedForRun(**kwargs)
+        self.verifyNeedForRun(**kwargs)
         return self.getSearch('COMMAND', name, explicit=explicit, caseSensitive=caseSensitive)['PID']
 
     def getTopCPU(self, top=10, **kwargs):
@@ -126,7 +126,7 @@ class psModule(GenericCmdModule, BashParser):
         - :return: list
         """
 
-        self._verifyNeedForRun(**kwargs)
+        self.verifyNeedForRun(**kwargs)
         self.sort(key='CPU', reverse=True, keyType=float)
         return self[0:top]
 
@@ -139,7 +139,7 @@ class psModule(GenericCmdModule, BashParser):
         - :return: list
         """
 
-        self._verifyNeedForRun(**kwargs)
+        self.verifyNeedForRun(**kwargs)
         if memType == self.MEM or memType == self.MEM_RSS or memType == self.MEM_VSZ:
             self.sort(key=memType, reverse=True, keyType=float)
             return self[0:top]
@@ -151,7 +151,7 @@ class psModule(GenericCmdModule, BashParser):
         - :return: list
         """
 
-        self._verifyNeedForRun(**kwargs)
+        self.verifyNeedForRun(**kwargs)
         return self.getSearch(('STAT', 'R'), explicit=False)
 
     def getProcQueue(self, rerun=True):

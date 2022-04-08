@@ -10,9 +10,8 @@
 
 import logging
 import re
-import pytz
-import pytz.reference
 from datetime import datetime, timedelta
+from dateutil import tz
 from LinuxModules.genericCmdModule import GenericCmdModule
 from PyCustomParsers.dateparseline import DateParseLine as DPL
 
@@ -33,21 +32,23 @@ class messagesModule(GenericCmdModule):
         log.info("Creating messages module.")
         super(messagesModule, self).__init__(tki=tki)
         self.tail = tki.getModules('tail')
+        self.ll = tki.getModules('ll')
+        self.timedatectl = tki.getModules('timedatectl')
         self.defaultCmd = ' '
         self.defaultKey = "messages%s"
         self.defaultFlags = " "
+        self.defaultKwargs = {'requirements': self._messageRequirement, 'requirementsCondition': False}
         self.messageDate = None
         self.__NAME__ = 'messages'
         try:
-            self.remoteTZ = self.tki.getModules('os').getTimeZone()
-            if isinstance(self.remoteTZ, str):
-                self.remoteTZ = pytz.timezone(self.remoteTZ)
+            self.remoteTZ = self.timedatectl.getTimezone(wait=10)
+            if self.remoteTZ != '':
+                self.remoteTZ = tz.gettz(self.remoteTZ)
             else:
-                log.warning("Failed to get remote timezone defaulting to local timezone.")
-                self.remoteTZ = pytz.reference.LocalTimezone()
+                self.remoteTZ = tz.gettz('/etc/localtime') or tz.gettz('UTC')
         except:
             log.warning("Failed to get parse timezone defaulting to local timezone.")
-            self.remoteTZ = pytz.reference.LocalTimezone()
+            self.remoteTZ = tz.gettz('/etc/localtime') or tz.gettz('UTC')
         self.requireFlags = False
 
     def run(self, *args, **kwargs):
@@ -60,6 +61,7 @@ class messagesModule(GenericCmdModule):
         """
 
         kwargs.update({'postparser': self._getTimeStamp, 'wait': 180})
+        kwargs.update(self.defaultKwargs)
         return self.tail('-n 15000 /var/log/messages', **kwargs)
 
     def makeLogEntry(self, logMessage, options=""):
@@ -70,7 +72,7 @@ class messagesModule(GenericCmdModule):
         - :return: None
         """
 
-        self.tki.execute('logger %s %s' % (options, logMessage))
+        self.tki.execute('logger %s %s' % (options, logMessage), preparser=self.doesCommandExistPreParser)
 
     def getLogsWithinTimeRange(self, trange='25 minutes ago', targetTime=None):
         """
@@ -98,6 +100,9 @@ class messagesModule(GenericCmdModule):
             if not continueCondition:
                 break
         return logsWithinTime
+
+    def _messageRequirement(self, *args, **kwargs):
+        return self.doesFileExistRequirement('/var/log/messages')
 
     def _parseMessageLines(self, lines, start, end):
         """
@@ -139,7 +144,7 @@ class messagesModule(GenericCmdModule):
         command = "awk 'NR==%s, NR==%s; NR==%s {print; exit}' /var/log/messages"
         if numberOfLines <= 1000:
             numberOfLines = 0
-            yield self.tail('-n 1000 /var/log/messages', wait=120)
+            yield self.tail('-n 1000 /var/log/messages', wait=120, rerun=True)
         numberOfLines -= x
         while numberOfLines >= 0:
             tmpCommand = command % (numberOfLines, numberOfLines+999, numberOfLines+1000)
@@ -198,9 +203,8 @@ class messagesModule(GenericCmdModule):
         - :return: datetime object
         """
 
-        if not isinstance(self.messageDate, DPL):
-            return None
-        return self.messageDate.parseOtherLine(line)
+        if self.messageDate:
+            return self.messageDate.parseOtherLine(line, tzinfos=self.remoteTZ)
 
     @staticmethod
     def _parseTimeRange(trange, targetTime):
@@ -259,7 +263,6 @@ class messagesModule(GenericCmdModule):
         """
             Return true if timestamp is in the range [start, end]
         """
-
         if start <= end:
             return start <= timestamp <= end
         else:

@@ -21,7 +21,7 @@ from typing import Union, AnyStr, IO, Optional, Any, List, Type
 log = logging.getLogger('SFTP Client')
 
 
-def put(ssh, files: Union[AnyStr, IO[bytes]], remotepath: AnyStr) -> None:
+def put(ssh, files: IO[bytes], remotepath: AnyStr) -> None:
     """ This uses the 'putfo' method from SFTPClient in the Paramiko package.
 
     - :param ssh: (Paramiko ssh object)
@@ -35,7 +35,7 @@ def put(ssh, files: Union[AnyStr, IO[bytes]], remotepath: AnyStr) -> None:
         sftp.putfo(files, remotepath)
 
 
-def get(ssh, remotefile: AnyStr, localpath: Union[AnyStr, IO[bytes]]) -> None:
+def get(ssh, remotefile: AnyStr, localpath: IO[bytes]) -> None:
     """ This uses the 'getfo' method from SFTPClient in the Paramiko package.
 
     - :param ssh: (Paramiko ssh object)
@@ -103,28 +103,30 @@ class SFTPChannel(object):
         del self.sftp
 
     @expDec(returnOnExcept=False)
-    def put(self, files: Union[AnyStr, IO[bytes]], remotepath: AnyStr, autoLogin: bool = None) -> Any:
+    def put(self, localfile: Union[AnyStr, IO[bytes]], remotefile: AnyStr, autoLogin: bool = None) -> Any:
         """ Take a local file or multiple files and upload it to a remote location.
 
-        - :param files: single or list of files to upload for a file like object
+        - :param localFile: A full or relative path a file for upload or a file like object
         - :param remotepath: a full path to a remote directory
         - :param autoLogin: (bool) - Controls if this will attempt a connection if one isn't present.
-        - :return: (True)
+        - :return: None
         """
-
-        return self.openSFTP(autoLogin).putfo(files, remotepath)
+        if isinstance(localfile, str):
+            return self.openSFTP(autoLogin).put(localfile, remotefile)
+        return self.openSFTP(autoLogin).putfo(localfile, remotefile)
 
     @expDec(returnOnExcept=False)
-    def get(self, remotefile: AnyStr, localpath: Union[AnyStr, IO[bytes]], autoLogin: bool = None) -> Any:
+    def get(self, remotefile: AnyStr, localfile: Union[AnyStr, IO[bytes]], autoLogin: bool = None) -> Any:
         """ Takes a file from a remote server and place it directly on the local machine.
 
-        - :param remotefile: A full path to a file located on a remote machine
+        - :param remotefiles: A full path to a file or files located on a remote machine
         - :param localpath: A full path to a local directory or file like object
         - :param autoLogin: (bool) - Controls if this will attempt a connection if one isn't present.
-        - :return: (True)
+        - :return: None
         """
-
-        return self.openSFTP(autoLogin).getfo(remotefile, localpath)
+        if isinstance(localfile, str):
+            return self.openSFTP(autoLogin).get(remotefile, localfile)
+        return self.openSFTP(autoLogin).getfo(remotefile, localfile)
 
     @expDec(returnOnExcept=False)
     def chdir(self, path: AnyStr, autoLogin: bool = None) -> Optional[bool]:

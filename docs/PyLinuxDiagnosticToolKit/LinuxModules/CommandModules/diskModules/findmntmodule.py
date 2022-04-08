@@ -32,7 +32,7 @@ class findmntModule(GenericCmdModule, BashParser):
     def __init__(self, tki, *args, **kwargs):
         log.info("Creating findmnt module.")
         super(findmntModule, self).__init__(tki=tki)
-        super(GenericCmdModule, self).__init__(template=self._findmntTemplate,
+        super(GenericCmdModule, self).__init__(columns=self._findmntTemplate,
                                                header=self._findmntHeader,
                                                strFormat=self._findmntStrFormat)
         self.defaultCmd = 'findmnt '
@@ -48,7 +48,7 @@ class findmntModule(GenericCmdModule, BashParser):
     def _findmntFormatOutput(self, results, *args, **kwargs):
         if not results:
             return None
-        results = filter(findmntModule.cmdFilter, [x.split() for x in results.splitlines() if x != ''])
+        results = list(filter(findmntModule.cmdFilter, [x.split() for x in results.splitlines() if x != '']))
         self.parseInput(source=results)
         return self
 

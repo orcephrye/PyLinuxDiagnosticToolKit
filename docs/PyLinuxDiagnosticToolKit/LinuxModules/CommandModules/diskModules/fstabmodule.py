@@ -35,7 +35,7 @@ class fstabModule(GenericCmdModule, BashParser):
     def __init__(self, tki, *args, **kwargs):
         log.info("Creating fstab module.")
         super(fstabModule, self).__init__(tki=tki)
-        super(GenericCmdModule, self).__init__(template=self._fstabTemplate, header=self._fstabHeader)
+        super(GenericCmdModule, self).__init__(columns=self._fstabTemplate, header=self._fstabHeader)
         self.tki.getModules('cat', 'findfs')
         self.__NAME__ = "fstab"
 

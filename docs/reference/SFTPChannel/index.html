@@ -1389,7 +1389,15 @@
 <span class="normal">460</span>
 <span class="normal">461</span>
 <span class="normal">462</span>
-<span class="normal">463</span></pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code><span class="ch">#!/usr/bin/env python</span>
+<span class="normal">463</span>
+<span class="normal">464</span>
+<span class="normal">465</span>
+<span class="normal">466</span>
+<span class="normal">467</span>
+<span class="normal">468</span>
+<span class="normal">469</span>
+<span class="normal">470</span>
+<span class="normal">471</span></pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code><span class="ch">#!/usr/bin/env python</span>
 
 <span class="c1"># -*- coding=utf-8 -*-</span>
 
@@ -1421,7 +1429,7 @@
 
 <span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;SFTP Client&#39;</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="n">ssh</span><span class="p">,</span> <span class="n">files</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">AnyStr</span><span class="p">,</span> <span class="n">IO</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]],</span> <span class="n">remotepath</span><span class="p">:</span> <span class="n">AnyStr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="n">ssh</span><span class="p">,</span> <span class="n">files</span><span class="p">:</span> <span class="n">IO</span><span class="p">[</span><span class="nb">bytes</span><span class="p">],</span> <span class="n">remotepath</span><span class="p">:</span> <span class="n">AnyStr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
     <span class="sd">&quot;&quot;&quot; This uses the &#39;putfo&#39; method from SFTPClient in the Paramiko package.</span>
 
@@ -1441,7 +1449,7 @@
 
         <span class="n">sftp</span><span class="o">.</span><span class="n">putfo</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">remotepath</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="n">ssh</span><span class="p">,</span> <span class="n">remotefile</span><span class="p">:</span> <span class="n">AnyStr</span><span class="p">,</span> <span class="n">localpath</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">AnyStr</span><span class="p">,</span> <span class="n">IO</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="n">ssh</span><span class="p">,</span> <span class="n">remotefile</span><span class="p">:</span> <span class="n">AnyStr</span><span class="p">,</span> <span class="n">localpath</span><span class="p">:</span> <span class="n">IO</span><span class="p">[</span><span class="nb">bytes</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
     <span class="sd">&quot;&quot;&quot; This uses the &#39;getfo&#39; method from SFTPClient in the Paramiko package.</span>
 
@@ -1545,39 +1553,47 @@
 
     <span class="nd">@expDec</span><span class="p">(</span><span class="n">returnOnExcept</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">files</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">AnyStr</span><span class="p">,</span> <span class="n">IO</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]],</span> <span class="n">remotepath</span><span class="p">:</span> <span class="n">AnyStr</span><span class="p">,</span> <span class="n">autoLogin</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">localfile</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">AnyStr</span><span class="p">,</span> <span class="n">IO</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]],</span> <span class="n">remotefile</span><span class="p">:</span> <span class="n">AnyStr</span><span class="p">,</span> <span class="n">autoLogin</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 
         <span class="sd">&quot;&quot;&quot; Take a local file or multiple files and upload it to a remote location.</span>
 
-<span class="sd">        - :param files: single or list of files to upload for a file like object</span>
+<span class="sd">        - :param localFile: A full or relative path a file for upload or a file like object</span>
 
 <span class="sd">        - :param remotepath: a full path to a remote directory</span>
 
 <span class="sd">        - :param autoLogin: (bool) - Controls if this will attempt a connection if one isn&#39;t present.</span>
 
-<span class="sd">        - :return: (True)</span>
+<span class="sd">        - :return: None</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">openSFTP</span><span class="p">(</span><span class="n">autoLogin</span><span class="p">)</span><span class="o">.</span><span class="n">putfo</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">remotepath</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">localfile</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">openSFTP</span><span class="p">(</span><span class="n">autoLogin</span><span class="p">)</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">localfile</span><span class="p">,</span> <span class="n">remotefile</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">openSFTP</span><span class="p">(</span><span class="n">autoLogin</span><span class="p">)</span><span class="o">.</span><span class="n">putfo</span><span class="p">(</span><span class="n">localfile</span><span class="p">,</span> <span class="n">remotefile</span><span class="p">)</span>
 
     <span class="nd">@expDec</span><span class="p">(</span><span class="n">returnOnExcept</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">remotefile</span><span class="p">:</span> <span class="n">AnyStr</span><span class="p">,</span> <span class="n">localpath</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">AnyStr</span><span class="p">,</span> <span class="n">IO</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]],</span> <span class="n">autoLogin</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">remotefile</span><span class="p">:</span> <span class="n">AnyStr</span><span class="p">,</span> <span class="n">localfile</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">AnyStr</span><span class="p">,</span> <span class="n">IO</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]],</span> <span class="n">autoLogin</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 
         <span class="sd">&quot;&quot;&quot; Takes a file from a remote server and place it directly on the local machine.</span>
 
-<span class="sd">        - :param remotefile: A full path to a file located on a remote machine</span>
+<span class="sd">        - :param remotefiles: A full path to a file or files located on a remote machine</span>
 
 <span class="sd">        - :param localpath: A full path to a local directory or file like object</span>
 
 <span class="sd">        - :param autoLogin: (bool) - Controls if this will attempt a connection if one isn&#39;t present.</span>
 
-<span class="sd">        - :return: (True)</span>
+<span class="sd">        - :return: None</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">openSFTP</span><span class="p">(</span><span class="n">autoLogin</span><span class="p">)</span><span class="o">.</span><span class="n">getfo</span><span class="p">(</span><span class="n">remotefile</span><span class="p">,</span> <span class="n">localpath</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">localfile</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">openSFTP</span><span class="p">(</span><span class="n">autoLogin</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">remotefile</span><span class="p">,</span> <span class="n">localfile</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">openSFTP</span><span class="p">(</span><span class="n">autoLogin</span><span class="p">)</span><span class="o">.</span><span class="n">getfo</span><span class="p">(</span><span class="n">remotefile</span><span class="p">,</span> <span class="n">localfile</span><span class="p">)</span>
 
     <span class="nd">@expDec</span><span class="p">(</span><span class="n">returnOnExcept</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
@@ -1864,7 +1880,7 @@
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">get</span><span class="p">(</span>
     <span class="n">ssh</span><span class="p">,</span>
     <span class="n">remotefile</span><span class="p">:</span> <span class="o">~</span><span class="n">AnyStr</span><span class="p">,</span>
-    <span class="n">localpath</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="o">~</span><span class="n">AnyStr</span><span class="p">,</span> <span class="n">IO</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]]</span>
+    <span class="n">localpath</span><span class="p">:</span> <span class="n">IO</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
 
@@ -1875,7 +1891,7 @@
 <li>:param localpath: (AnyStr/File/IO Object)</li>
 <li>:return: None</li>
 </ul>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="n">def</span><span class="w"> </span><span class="k">get</span><span class="p">(</span><span class="n">ssh</span><span class="p">,</span><span class="w"> </span><span class="nl">remotefile</span><span class="p">:</span><span class="w"> </span><span class="n">AnyStr</span><span class="p">,</span><span class="w"> </span><span class="nl">localpath</span><span class="p">:</span><span class="w"> </span><span class="ow">Union</span><span class="o">[</span><span class="n">AnyStr, IO[bytes</span><span class="o">]</span><span class="err">]</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="k">None</span><span class="err">:</span><span class="w"></span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="n">def</span><span class="w"> </span><span class="k">get</span><span class="p">(</span><span class="n">ssh</span><span class="p">,</span><span class="w"> </span><span class="nl">remotefile</span><span class="p">:</span><span class="w"> </span><span class="n">AnyStr</span><span class="p">,</span><span class="w"> </span><span class="nl">localpath</span><span class="p">:</span><span class="w"> </span><span class="n">IO</span><span class="o">[</span><span class="n">bytes</span><span class="o">]</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="k">None</span><span class="err">:</span><span class="w"></span>
 
 <span class="w">    </span><span class="ss">&quot;&quot;&quot; This uses the &#39;getfo&#39; method from SFTPClient in the Paramiko package.</span>
 
@@ -1900,7 +1916,7 @@
 <h3 id="put">put</h3>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">put</span><span class="p">(</span>
     <span class="n">ssh</span><span class="p">,</span>
-    <span class="n">files</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="o">~</span><span class="n">AnyStr</span><span class="p">,</span> <span class="n">IO</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]],</span>
+    <span class="n">files</span><span class="p">:</span> <span class="n">IO</span><span class="p">[</span><span class="nb">bytes</span><span class="p">],</span>
     <span class="n">remotepath</span><span class="p">:</span> <span class="o">~</span><span class="n">AnyStr</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
@@ -1912,7 +1928,7 @@
 <li>:param remotepath: (AnyStr)</li>
 <li>:return: None</li>
 </ul>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="n">def</span><span class="w"> </span><span class="n">put</span><span class="p">(</span><span class="n">ssh</span><span class="p">,</span><span class="w"> </span><span class="nl">files</span><span class="p">:</span><span class="w"> </span><span class="ow">Union</span><span class="o">[</span><span class="n">AnyStr, IO[bytes</span><span class="o">]</span><span class="err">]</span><span class="p">,</span><span class="w"> </span><span class="nl">remotepath</span><span class="p">:</span><span class="w"> </span><span class="n">AnyStr</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="k">None</span><span class="err">:</span><span class="w"></span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="n">def</span><span class="w"> </span><span class="n">put</span><span class="p">(</span><span class="n">ssh</span><span class="p">,</span><span class="w"> </span><span class="nl">files</span><span class="p">:</span><span class="w"> </span><span class="n">IO</span><span class="o">[</span><span class="n">bytes</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="nl">remotepath</span><span class="p">:</span><span class="w"> </span><span class="n">AnyStr</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="k">None</span><span class="err">:</span><span class="w"></span>
 
 <span class="w">    </span><span class="ss">&quot;&quot;&quot; This uses the &#39;putfo&#39; method from SFTPClient in the Paramiko package.</span>
 
@@ -2090,35 +2106,39 @@
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">get</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">remotefile</span><span class="p">:</span> <span class="o">~</span><span class="n">AnyStr</span><span class="p">,</span>
-    <span class="n">localpath</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="o">~</span><span class="n">AnyStr</span><span class="p">,</span> <span class="n">IO</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]],</span>
+    <span class="n">localfile</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="o">~</span><span class="n">AnyStr</span><span class="p">,</span> <span class="n">IO</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]],</span>
     <span class="n">autoLogin</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span>
 </code></pre></div>
 
 <p>Takes a file from a remote server and place it directly on the local machine.</p>
 <ul>
-<li>:param remotefile: A full path to a file located on a remote machine</li>
+<li>:param remotefiles: A full path to a file or files located on a remote machine</li>
 <li>:param localpath: A full path to a local directory or file like object</li>
 <li>:param autoLogin: (bool) - Controls if this will attempt a connection if one isn't present.</li>
-<li>:return: (True)</li>
+<li>:return: None</li>
 </ul>
 <details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@expDec</span><span class="p">(</span><span class="n">returnOnExcept</span><span class="o">=</span><span class="k">False</span><span class="p">)</span><span class="w"></span>
 
-<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="k">get</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">remotefile</span><span class="p">:</span><span class="w"> </span><span class="n">AnyStr</span><span class="p">,</span><span class="w"> </span><span class="nl">localpath</span><span class="p">:</span><span class="w"> </span><span class="ow">Union</span><span class="o">[</span><span class="n">AnyStr, IO[bytes</span><span class="o">]</span><span class="err">]</span><span class="p">,</span><span class="w"> </span><span class="nl">autoLogin</span><span class="p">:</span><span class="w"> </span><span class="n">bool</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">None</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="ow">Any</span><span class="err">:</span><span class="w"></span>
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="k">get</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">remotefile</span><span class="p">:</span><span class="w"> </span><span class="n">AnyStr</span><span class="p">,</span><span class="w"> </span><span class="nl">localfile</span><span class="p">:</span><span class="w"> </span><span class="ow">Union</span><span class="o">[</span><span class="n">AnyStr, IO[bytes</span><span class="o">]</span><span class="err">]</span><span class="p">,</span><span class="w"> </span><span class="nl">autoLogin</span><span class="p">:</span><span class="w"> </span><span class="n">bool</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">None</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="ow">Any</span><span class="err">:</span><span class="w"></span>
 
 <span class="w">        </span><span class="ss">&quot;&quot;&quot; Takes a file from a remote server and place it directly on the local machine.</span>
 
-<span class="ss">        - :param remotefile: A full path to a file located on a remote machine</span>
+<span class="ss">        - :param remotefiles: A full path to a file or files located on a remote machine</span>
 
 <span class="ss">        - :param localpath: A full path to a local directory or file like object</span>
 
 <span class="ss">        - :param autoLogin: (bool) - Controls if this will attempt a connection if one isn&#39;t present.</span>
 
-<span class="ss">        - :return: (True)</span>
+<span class="ss">        - :return: None</span>
 
 <span class="ss">        &quot;&quot;&quot;</span><span class="w"></span>
 
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">openSFTP</span><span class="p">(</span><span class="n">autoLogin</span><span class="p">).</span><span class="n">getfo</span><span class="p">(</span><span class="n">remotefile</span><span class="p">,</span><span class="w"> </span><span class="n">localpath</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">isinstance</span><span class="p">(</span><span class="n">localfile</span><span class="p">,</span><span class="w"> </span><span class="nf">str</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">openSFTP</span><span class="p">(</span><span class="n">autoLogin</span><span class="p">).</span><span class="k">get</span><span class="p">(</span><span class="n">remotefile</span><span class="p">,</span><span class="w"> </span><span class="n">localfile</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">openSFTP</span><span class="p">(</span><span class="n">autoLogin</span><span class="p">).</span><span class="n">getfo</span><span class="p">(</span><span class="n">remotefile</span><span class="p">,</span><span class="w"> </span><span class="n">localfile</span><span class="p">)</span><span class="w"></span>
 </code></pre></div>
 
 </details>
@@ -2369,36 +2389,40 @@
 <h4 id="put_1">put</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">put</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
-    <span class="n">files</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="o">~</span><span class="n">AnyStr</span><span class="p">,</span> <span class="n">IO</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]],</span>
-    <span class="n">remotepath</span><span class="p">:</span> <span class="o">~</span><span class="n">AnyStr</span><span class="p">,</span>
+    <span class="n">localfile</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="o">~</span><span class="n">AnyStr</span><span class="p">,</span> <span class="n">IO</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]],</span>
+    <span class="n">remotefile</span><span class="p">:</span> <span class="o">~</span><span class="n">AnyStr</span><span class="p">,</span>
     <span class="n">autoLogin</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span>
 </code></pre></div>
 
 <p>Take a local file or multiple files and upload it to a remote location.</p>
 <ul>
-<li>:param files: single or list of files to upload for a file like object</li>
+<li>:param localFile: A full or relative path a file for upload or a file like object</li>
 <li>:param remotepath: a full path to a remote directory</li>
 <li>:param autoLogin: (bool) - Controls if this will attempt a connection if one isn't present.</li>
-<li>:return: (True)</li>
+<li>:return: None</li>
 </ul>
 <details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@expDec</span><span class="p">(</span><span class="n">returnOnExcept</span><span class="o">=</span><span class="k">False</span><span class="p">)</span><span class="w"></span>
 
-<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">put</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">files</span><span class="p">:</span><span class="w"> </span><span class="ow">Union</span><span class="o">[</span><span class="n">AnyStr, IO[bytes</span><span class="o">]</span><span class="err">]</span><span class="p">,</span><span class="w"> </span><span class="nl">remotepath</span><span class="p">:</span><span class="w"> </span><span class="n">AnyStr</span><span class="p">,</span><span class="w"> </span><span class="nl">autoLogin</span><span class="p">:</span><span class="w"> </span><span class="n">bool</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">None</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="ow">Any</span><span class="err">:</span><span class="w"></span>
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">put</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">localfile</span><span class="p">:</span><span class="w"> </span><span class="ow">Union</span><span class="o">[</span><span class="n">AnyStr, IO[bytes</span><span class="o">]</span><span class="err">]</span><span class="p">,</span><span class="w"> </span><span class="nl">remotefile</span><span class="p">:</span><span class="w"> </span><span class="n">AnyStr</span><span class="p">,</span><span class="w"> </span><span class="nl">autoLogin</span><span class="p">:</span><span class="w"> </span><span class="n">bool</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">None</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="ow">Any</span><span class="err">:</span><span class="w"></span>
 
 <span class="w">        </span><span class="ss">&quot;&quot;&quot; Take a local file or multiple files and upload it to a remote location.</span>
 
-<span class="ss">        - :param files: single or list of files to upload for a file like object</span>
+<span class="ss">        - :param localFile: A full or relative path a file for upload or a file like object</span>
 
 <span class="ss">        - :param remotepath: a full path to a remote directory</span>
 
 <span class="ss">        - :param autoLogin: (bool) - Controls if this will attempt a connection if one isn&#39;t present.</span>
 
-<span class="ss">        - :return: (True)</span>
+<span class="ss">        - :return: None</span>
 
 <span class="ss">        &quot;&quot;&quot;</span><span class="w"></span>
 
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">openSFTP</span><span class="p">(</span><span class="n">autoLogin</span><span class="p">).</span><span class="n">putfo</span><span class="p">(</span><span class="n">files</span><span class="p">,</span><span class="w"> </span><span class="n">remotepath</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">isinstance</span><span class="p">(</span><span class="n">localfile</span><span class="p">,</span><span class="w"> </span><span class="nf">str</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">openSFTP</span><span class="p">(</span><span class="n">autoLogin</span><span class="p">).</span><span class="n">put</span><span class="p">(</span><span class="n">localfile</span><span class="p">,</span><span class="w"> </span><span class="n">remotefile</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">openSFTP</span><span class="p">(</span><span class="n">autoLogin</span><span class="p">).</span><span class="n">putfo</span><span class="p">(</span><span class="n">localfile</span><span class="p">,</span><span class="w"> </span><span class="n">remotefile</span><span class="p">)</span><span class="w"></span>
 </code></pre></div>
 
 </details>

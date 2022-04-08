@@ -29,5 +29,5 @@ class netstatModule(GenericCmdModule):
         self.defaultKwargs = {'preparser': self.doesCommandExistPreParser}
         self.defaultCmd = 'netstat '
         self.defaultKey = "netstat%s"
-        self.defaultFlags = ""
+        self.defaultFlags = "-ntlp"
         self.__NAME__ = 'netstat'

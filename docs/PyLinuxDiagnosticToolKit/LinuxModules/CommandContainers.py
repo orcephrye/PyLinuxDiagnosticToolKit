@@ -20,7 +20,7 @@ import re
 import traceback
 import time
 import uuid
-from collections import OrderedDict
+from collections import OrderedDict  # TODO remove OrderedDict
 from threading import RLock, Event
 from functools import partial
 from sshConnector.sshLibs.sshChannelEnvironment import EnvironmentControls
@@ -44,7 +44,8 @@ matchRe = re.compile(r'(?<=^CMDSTART).+', flags=re.MULTILINE | re.DOTALL)
 startSubRe = re.compile(r'.*?(?=^CMDSTART)', flags=re.MULTILINE | re.DOTALL)
 # clean up all data after the end tag
 endSubRe = re.compile(r'CMDEND.*', flags=re.MULTILINE | re.DOTALL)
-
+#Unparse the command string
+unParseCmd = re.compile(r'echo CMDSTART &&(.*)&& echo CMDEND')
 
 class CommandData(object):
     """
@@ -198,7 +199,7 @@ class CommandData(object):
             return
         self._event = MultiEvent(len(self.children))
         for child in self.children:
-            child.add_event(self._event)
+            child.addEvent(self._event)
             child.parent = self
             if tki:
                 child.tki = tki
@@ -362,15 +363,15 @@ class CommandParsers(CommandData):
         - :param commandKey: The name of the command object.
                  This object might be bound to a class if created through the 'simpleExecute' method.
                  In that case, this is also the variable name that gets bound.
-                 This also helps determine its __hash__ and __str__ and __repr__.
+                 This also helps determine its __hash__ and __str__.
         """
 
         super(CommandParsers, self).__init__(**kwargs)
         if isinstance(command, dict) and CommandData._needsKwargs(command) and not commandKey:
             commandKey, command = self._findCmdAndKey(command)
         self.commandKey = (command, commandKey)
-        print(f'command/type = {command} / {type(command)}')
-        self.command = command
+        # print(f'command/type = {command} / {type(command)}')
+        self.commandRaw = self.command = command
 
     @staticmethod
     def _findCmdAndKey(command: dict) -> tuple:
@@ -432,7 +433,7 @@ class CommandParsers(CommandData):
             It determines if the command is a single command or a queue or batch of commands.
             This is based on the command datatype and structure.
         """
-        print(f'command/type: {command} / {type(command)}')
+        # print(f'command/type: {command} / {type(command)}')
         if isinstance(command, str):
             return CommandData._createTags(command, noParsing, ignoreAlias)
         if len(command) == 1:
@@ -535,6 +536,14 @@ class CommandParsers(CommandData):
         except RuntimeError as e:
             log.error(f'ERROR: for command.deleter property: {e}')
             log.debug(f'[DEBUG] for command.deleter property: {traceback.format_exc()}')
+
+    @property
+    def commandUnparsed(self):
+        command = self.command
+        if '&&' in command and 'CMDSTART' in command:
+            for cmd in unParseCmd.findall(command):
+                return cmd
+        return command
 
     @property
     def commandKey(self):

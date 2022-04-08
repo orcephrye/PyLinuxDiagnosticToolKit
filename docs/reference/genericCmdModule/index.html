@@ -518,6 +518,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#doesfileexistrequirement" class="md-nav__link">
+    doesFileExistRequirement
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#run" class="md-nav__link">
     run
   </a>
@@ -828,6 +835,13 @@
           <li class="md-nav__item">
   <a href="#doescommandexistpreparser" class="md-nav__link">
     doesCommandExistPreParser
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#doesfileexistrequirement" class="md-nav__link">
+    doesFileExistRequirement
   </a>
   
 </li>
@@ -1447,7 +1461,17 @@
 <span class="normal">562</span>
 <span class="normal">563</span>
 <span class="normal">564</span>
-<span class="normal">565</span></pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code><span class="ch">#!/usr/bin/env python</span>
+<span class="normal">565</span>
+<span class="normal">566</span>
+<span class="normal">567</span>
+<span class="normal">568</span>
+<span class="normal">569</span>
+<span class="normal">570</span>
+<span class="normal">571</span>
+<span class="normal">572</span>
+<span class="normal">573</span>
+<span class="normal">574</span>
+<span class="normal">575</span></pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code><span class="ch">#!/usr/bin/env python</span>
 
 <span class="c1"># -*- coding=utf-8 -*-</span>
 
@@ -1723,9 +1747,19 @@
 
                        <span class="s1">&#39;doesCommandExist&#39;</span><span class="p">,</span> <span class="n">dummy_func</span><span class="p">)(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;executable&#39;</span><span class="p">,</span>
 
-                                                                  <span class="nb">getattr</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;this&quot;</span><span class="p">),</span> <span class="s1">&#39;command&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+                                                                  <span class="nb">getattr</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;this&quot;</span><span class="p">),</span> <span class="s1">&#39;commandUnparsed&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
 
                                                                   <span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]))</span>
+
+    <span class="k">def</span> <span class="nf">doesFileExistRequirement</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;tki&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+
+                                       <span class="s1">&#39;modules&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+
+                               <span class="s1">&#39;ll&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+
+                       <span class="s1">&#39;fileExist&#39;</span><span class="p">,</span> <span class="n">dummy_func</span><span class="p">)(</span><span class="n">filename</span><span class="p">,</span> <span class="n">rerun</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">verifyNeedForRun</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
@@ -2342,9 +2376,30 @@ also a dict</p>
 
 <span class="w">                       </span><span class="s1">&#39;doesCommandExist&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">dummy_func</span><span class="p">)(</span><span class="n">kwargs</span><span class="p">.</span><span class="k">get</span><span class="p">(</span><span class="s1">&#39;executable&#39;</span><span class="p">,</span><span class="w"></span>
 
-<span class="w">                                                                  </span><span class="n">getattr</span><span class="p">(</span><span class="n">kwargs</span><span class="p">.</span><span class="k">get</span><span class="p">(</span><span class="ss">&quot;this&quot;</span><span class="p">),</span><span class="w"> </span><span class="s1">&#39;command&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">                                                                  </span><span class="n">getattr</span><span class="p">(</span><span class="n">kwargs</span><span class="p">.</span><span class="k">get</span><span class="p">(</span><span class="ss">&quot;this&quot;</span><span class="p">),</span><span class="w"> </span><span class="s1">&#39;commandUnparsed&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="w"></span>
 
 <span class="w">                                                                  </span><span class="p">.</span><span class="n">strip</span><span class="p">().</span><span class="n">split</span><span class="p">()</span><span class="o">[</span><span class="n">0</span><span class="o">]</span><span class="p">))</span><span class="w"></span>
+</code></pre></div>
+
+</details>
+<h4 id="doesfileexistrequirement">doesFileExistRequirement</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">doesFileExistRequirement</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">filename</span><span class="p">,</span>
+    <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">doesFileExistRequirement</span><span class="p">(</span><span class="kr">self</span><span class="p">,</span><span class="w"> </span><span class="n">filename</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="w"> </span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">bool</span><span class="o">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="kr">return</span><span class="w"> </span><span class="n">getattr</span><span class="p">(</span><span class="n">getattr</span><span class="p">(</span><span class="n">getattr</span><span class="p">(</span><span class="n">getattr</span><span class="p">(</span><span class="kr">self</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;tki&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">None</span><span class="p">),</span><span class="w"></span>
+
+<span class="w">                                       </span><span class="s">&#39;modules&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">None</span><span class="p">),</span><span class="w"></span>
+
+<span class="w">                               </span><span class="s">&#39;ll&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">None</span><span class="p">),</span><span class="w"></span>
+
+<span class="w">                       </span><span class="s">&#39;fileExist&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">dummy_func</span><span class="p">)(</span><span class="n">filename</span><span class="p">,</span><span class="w"> </span><span class="n">rerun</span><span class="o">=</span><span class="kr">True</span><span class="p">,</span><span class="w"> </span><span class="kr">wait</span><span class="o">=</span><span class="kr">True</span><span class="p">)</span><span class="w"></span>
 </code></pre></div>
 
 </details>

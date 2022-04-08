@@ -28,16 +28,17 @@ class lsofModule(GenericCmdModule, BashParser):
         defaultFlags = -w -S 2
     """
 
-    _lsofStrFormat = '{0:<[0]}{1:<[1]}{2:<[2]}{3:<[3]}{4:<[4]}{5:<[5]}{6:<[6]}{7:<[7]}{8:<[8]}{9:<}'
-    _lsofTemplate = {'COMMAND': 0, 'PID': 1, 'TID': 2, 'USER': 3, 'FD': 4, 'TYPE': 5, 'DEVICE': 6,
-                     'SIZE/OFF': 7, 'NODE': 8, 'NAME': 9}
-    _lsofHeader = ['COMMAND', 'PID', 'TID', 'USER', 'FD', 'TYPE', 'DEVICE', 'SIZE/OFF', 'NODE', 'NAME']
+    _lsofStrFormat = '{0:<[0]}{1:<[1]}{2:<[2]}{3:<[3]}{4:<[4]}{5:<[5]}{6:<[6]}{7:<[7]}{8:<[8]}{9:<[9]}{10:<}'
+    _lsofColumns = {'COMMAND': 0, 'PID': 1, 'TID': 2, 'TASKCMD': 3, 'USER': 4, 'FD': 5, 'TYPE': 6, 'DEVICE': 7,
+                     'SIZE/OFF': 8, 'NODE': 9, 'NAME': 10}
+    _lsofHeader = ['COMMAND', 'PID', 'TID', 'TASKCMD', 'USER', 'FD', 'TYPE', 'DEVICE', 'SIZE/OFF', 'NODE', 'NAME']
 
     def __init__(self, tki, *args, **kwargs):
         log.info("Creating lsof module.")
         super(lsofModule, self).__init__(tki=tki)
-        super(GenericCmdModule, self).__init__(template=self._lsofTemplate, header=self._lsofHeader,
+        super(GenericCmdModule, self).__init__(columns=self._lsofColumns, header=self._lsofHeader, head=1,
                                                strFormat=self._lsofStrFormat)
+        # super(GenericCmdModule, self).__init__(header=0)
         self.defaultCmd = 'lsof '
         self.defaultKey = "lsofwS3"
         self.defaultFlags = "-w -S 2"
@@ -53,15 +54,6 @@ class lsofModule(GenericCmdModule, BashParser):
             kwargs['postparser'] = _formatOutput
 
         return self.simpleExecute(command=command, rerun=rerun, **kwargs)
-
-    def getLSOFOutput(self, rerun=False):
-        """ Backwards compatibility method with older 'processModule'.
-
-        - :param rerun: (bool) default True
-        - :return:
-        """
-
-        return self.run(rerun=rerun)
 
     def getOpenFilesByPID(self, pid=None, rerun=False, **kwargs):
         """ Returns a list of files open by a particular PID.
@@ -82,6 +74,8 @@ class lsofModule(GenericCmdModule, BashParser):
                 return saveResults
             return None
 
+        kwargs['wait'] = kwargs.get('wait', 120)
+
         return self.simpleExecute(commandKey=f'lsofwfp{pid}', command=f'lsof -wFn -p {pid}',
                                   postparser=openFilesByPIDParser, rerun=rerun, **kwargs)
 
@@ -95,9 +89,11 @@ class lsofModule(GenericCmdModule, BashParser):
         """
 
         def parseDeletedFiles(results, *args, **kwargs):
-            self.parseInput(source=self._lsofBasicFormatter(re.sub('\s+(?=\(deleted\))', '', results,
-                                                                   flags=re.MULTILINE | re.DOTALL)), **kwargs)
-            return self
+            return BashParser(source=self._lsofBasicFormatter(re.sub(r'\s+(?=\(deleted\))', '', results,
+                                                                     flags=re.MULTILINE | re.DOTALL)),
+                              header=1, head=1)
+
+        kwargs['wait'] = kwargs.get('wait', 120)
 
         return self.simpleExecute(commandKey=f'lsofsf{filesystem}', command=f'lsof -s +f -- {filesystem}',
                                   postparser=parseDeletedFiles, rerun=rerun, **kwargs)
@@ -119,6 +115,8 @@ class lsofModule(GenericCmdModule, BashParser):
 
         if results is None:
             results = self
+        print(f'lsofConvertResultsToBytes - Shortest Line: {results.shortestLine}')
+        print(f'lsofConvertResultsToBytes - Shortest Line: {results._getShortestLine(results)}')
         return self.convertResultsToBytes(results, ['SIZE/OFF'])
 
     def formatOpenDeletedFiles(self, maxLines=None, formatColumns=None):
@@ -150,20 +148,48 @@ class lsofModule(GenericCmdModule, BashParser):
             Expects either a string or a list of lists as input
         """
 
-        def _formatHelper(rowList):
-            row = str(rowList)
-            if len(rowList) == 9 or 'deleted' in rowList[-1] or \
-               'IPv' in row and ('TCP' or 'UDP' or 'RPC') in row and len(rowList) == 10:
-                rowList.insert(2, '')
-            if 'raw6' in row and '->' in row and len(rowList) == 10:
-                rowList.insert(5, '')
-            return rowList
+        def calc_seperaters(line):
+            cSep = []
+            num = 1
+            activeCol = ""
+            for col in line:
+                if not col:
+                    num += 1
+                    continue
+                cSep.append((activeCol, num + len(activeCol)))
+                activeCol = col
+                num = 1
+            else:
+                if activeCol:
+                    cSep.append((activeCol, num + len(activeCol)))
+            return cSep
 
-        def _formatFilter(row):
-            if len(row) != 10:
-                return False
-            return True
+        def buildNewLine(line, sSep):
+            activeSepIndex = 0
+            activeNum = sSep[activeSepIndex][1]
+            num = 0
+            newLine = []
+            for word in line:
+                if not word:
+                    num += 1
+                    if num > activeNum:
+                        newLine.append('--')
+                        activeSepIndex += 1
+                        if activeSepIndex >= len(sSep):
+                            break
+                        activeNum = sSep[activeSepIndex][1]
+                        num = 0
+                    continue
+                if word:
+                    newLine.append(word)
+                    num = 0
+                    activeSepIndex += 1
+                    if activeSepIndex >= len(sSep):
+                        break
+                    activeNum = sSep[activeSepIndex][1]
+            return newLine
 
-        if type(results) is list:
-            return list(filter(_formatFilter, map(_formatHelper, results)))
-        return list(filter(_formatFilter, map(_formatHelper, map(str.split, results.splitlines()))))
+        results = [line.strip().split(' ') for line in results.splitlines()]
+        cSep = calc_seperaters(results[0])
+
+        return [buildNewLine(line, cSep) for line in results]

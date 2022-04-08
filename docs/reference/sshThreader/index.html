@@ -639,6 +639,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#logoutcurrentescalation" class="md-nav__link">
+    logoutCurrentEscalation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#logoutcurrentuser" class="md-nav__link">
     logoutCurrentUser
   </a>
@@ -923,6 +930,13 @@
           <li class="md-nav__item">
   <a href="#logoutconsole" class="md-nav__link">
     logoutConsole
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logoutcurrentescalation" class="md-nav__link">
+    logoutCurrentEscalation
   </a>
   
 </li>
@@ -1455,7 +1469,7 @@
 
             <span class="k">with</span> <span class="n">CC</span><span class="p">:</span>
 
-                <span class="k">return</span> <span class="n">CC</span><span class="o">.</span><span class="n">executor</span><span class="p">(</span><span class="n">channelObject</span><span class="o">=</span><span class="n">EnvObj</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">CC</span><span class="o">.</span><span class="n">executor</span><span class="p">(</span><span class="n">EnvironmentObject</span><span class="o">=</span><span class="n">EnvObj</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">threadedDisconnect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">90</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
@@ -2359,6 +2373,8 @@
 
 <span class="w">                        </span><span class="n">look_for_keys</span><span class="o">=</span><span class="k">False</span><span class="p">,</span><span class="w"></span>
 
+<span class="w">                        </span><span class="n">allow_agent</span><span class="o">=</span><span class="k">False</span><span class="p">,</span><span class="w"></span>
+
 <span class="w">                        </span><span class="n">banner_timeout</span><span class="o">=</span><span class="mf">60.0</span><span class="p">,</span><span class="w"></span>
 
 <span class="w">                        </span><span class="n">sock</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">_makeSockProxy</span><span class="p">())</span><span class="w"></span>
@@ -2510,7 +2526,7 @@
 
 <span class="w">        </span><span class="n">environment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">environment</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">mainEnvironment</span><span class="w"></span>
 
-<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="k">range</span><span class="p">(</span><span class="n">environment</span><span class="p">.</span><span class="n">numEscalations</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="k">range</span><span class="p">(</span><span class="n">environment</span><span class="p">.</span><span class="n">numUsers</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
 <span class="w">            </span><span class="n">self</span><span class="p">.</span><span class="n">logoutCurrentUser</span><span class="p">(</span><span class="n">environment</span><span class="p">,</span><span class="w"> </span><span class="n">reCapturePrompt</span><span class="o">=</span><span class="k">False</span><span class="p">)</span><span class="w"></span>
 
@@ -2720,7 +2736,7 @@
 
 <span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="n">super</span><span class="p">(</span><span class="n">sshBufferControl</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">).</span><span class="n">checkConnection</span><span class="p">(</span><span class="n">sshChannel</span><span class="o">=</span><span class="n">environment</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-<span class="w">            </span><span class="nf">log</span><span class="p">.</span><span class="n">error</span><span class="p">(</span><span class="ss">&quot;There is not valid connection.&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="nf">log</span><span class="p">.</span><span class="n">error</span><span class="p">(</span><span class="ss">&quot;There is not a valid connection.&quot;</span><span class="p">)</span><span class="w"></span>
 
 <span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="w"></span>
 
@@ -2847,7 +2863,7 @@
 
 <span class="w">            </span><span class="k">with</span><span class="w"> </span><span class="nl">CC</span><span class="p">:</span><span class="w"></span>
 
-<span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="n">CC</span><span class="p">.</span><span class="n">executor</span><span class="p">(</span><span class="n">channelObject</span><span class="o">=</span><span class="n">EnvObj</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="n">CC</span><span class="p">.</span><span class="n">executor</span><span class="p">(</span><span class="n">EnvironmentObject</span><span class="o">=</span><span class="n">EnvObj</span><span class="p">)</span><span class="w"></span>
 </code></pre></div>
 
 </details>
@@ -3124,21 +3140,63 @@
 
 <span class="ss">        &quot;&quot;&quot;</span><span class="w"></span>
 
+<span class="w">        </span><span class="n">environment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">logoutCurrentEscalation</span><span class="p">(</span><span class="n">environment</span><span class="o">=</span><span class="n">environment</span><span class="p">,</span><span class="w"> </span><span class="n">logoutCmd</span><span class="o">=</span><span class="n">logoutCmd</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">environment</span><span class="p">.</span><span class="n">checkConnection</span><span class="p">()</span><span class="w"></span>
+</code></pre></div>
+
+</details>
+<h4 id="logoutcurrentescalation">logoutCurrentEscalation</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">logoutCurrentEscalation</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">environment</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">sshConnector</span><span class="o">.</span><span class="n">sshLibs</span><span class="o">.</span><span class="n">sshChannelEnvironment</span><span class="o">.</span><span class="n">sshEnvironment</span><span class="p">,</span> <span class="n">NoneType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">junkOut</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">_io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">,</span> <span class="n">NoneType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">reCapturePrompt</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">logoutCmd</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">NoneType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">sshConnector</span><span class="o">.</span><span class="n">sshLibs</span><span class="o">.</span><span class="n">sshChannelEnvironment</span><span class="o">.</span><span class="n">sshEnvironment</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">logoutCurrentEscalation</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">environment</span><span class="p">:</span><span class="w"> </span><span class="n">Optional</span><span class="o">[</span><span class="n">sshEnvironment</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">None</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                                </span><span class="nl">junkOut</span><span class="p">:</span><span class="w"> </span><span class="n">Optional</span><span class="o">[</span><span class="n">StringIO</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">None</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                                </span><span class="nl">reCapturePrompt</span><span class="p">:</span><span class="w"> </span><span class="n">bool</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">True</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                                </span><span class="nl">logoutCmd</span><span class="p">:</span><span class="w"> </span><span class="n">Optional</span><span class="o">[</span><span class="n">str</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">None</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="ow">Union</span><span class="o">[</span><span class="n">sshEnvironment, bool</span><span class="o">]</span><span class="err">:</span><span class="w"></span>
+
 <span class="w">        </span><span class="n">environment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">environment</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">mainEnvironment</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">checkConnection</span><span class="p">(</span><span class="n">environment</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">environment</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="nl">junkOut</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="nl">junkOut</span><span class="p">:</span><span class="w"> </span><span class="n">StringIO</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">StringIO</span><span class="p">()</span><span class="w"></span>
 
 <span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="nl">logoutCmd</span><span class="p">:</span><span class="w"></span>
 
 <span class="w">            </span><span class="n">logoutCmd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ss">&quot;exit&quot;</span><span class="w"></span>
 
-<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">_bufferControl</span><span class="p">(</span><span class="n">environment</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;exit&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">StringIO</span><span class="p">(),</span><span class="w"> </span><span class="n">unsafe</span><span class="o">=</span><span class="k">True</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">while</span><span class="w"> </span><span class="n">environment</span><span class="p">.</span><span class="n">getPreviousEscalationType</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">environment</span><span class="p">.</span><span class="nl">__ENVIRONMENT_CHANGE__</span><span class="p">:</span><span class="w"></span>
 
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">environment</span><span class="p">.</span><span class="n">pull</span><span class="p">()</span><span class="o">[</span><span class="n">0</span><span class="o">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">environment</span><span class="p">.</span><span class="nl">__CONSOLE_ESCALATION__</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="n">environment</span><span class="p">.</span><span class="n">pull</span><span class="p">()</span><span class="w"></span>
 
-<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">logoutConsole</span><span class="p">(</span><span class="n">logoutCmd</span><span class="p">,</span><span class="w"> </span><span class="n">environment</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">_bufferControl</span><span class="p">(</span><span class="n">environment</span><span class="p">,</span><span class="w"> </span><span class="n">logoutCmd</span><span class="p">,</span><span class="w"> </span><span class="n">junkOut</span><span class="p">,</span><span class="w"> </span><span class="n">unsafe</span><span class="o">=</span><span class="k">True</span><span class="p">)</span><span class="w"></span>
 
-<span class="w">        </span><span class="n">environment</span><span class="p">.</span><span class="n">getPrompt</span><span class="p">(</span><span class="n">reCapturePrompt</span><span class="o">=</span><span class="k">True</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="n">environment</span><span class="p">.</span><span class="n">pull</span><span class="p">()</span><span class="w"></span>
 
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">environment</span><span class="p">.</span><span class="n">checkConnection</span><span class="p">()</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">checkConnection</span><span class="p">(</span><span class="n">environment</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="nf">log</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="n">f</span><span class="ss">&quot;Connection still valid on: {environment._id} - Num Escalations: {environment.numEscalations}&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">self</span><span class="p">.</span><span class="n">getPrompt</span><span class="p">(</span><span class="n">environment</span><span class="o">=</span><span class="n">environment</span><span class="p">,</span><span class="w"> </span><span class="n">reCapturePrompt</span><span class="o">=</span><span class="n">reCapturePrompt</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">else</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="nf">log</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="n">f</span><span class="ss">&quot;Connection closed on: {environment._id}&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">environment</span><span class="w"></span>
 </code></pre></div>
 
 </details>
@@ -3187,23 +3245,19 @@
 
 <span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">environment</span><span class="w"></span>
 
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="nl">junkOut</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="n">userList</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">environment</span><span class="p">.</span><span class="n">getUserList</span><span class="p">()</span><span class="w"></span>
 
-<span class="w">            </span><span class="nl">junkOut</span><span class="p">:</span><span class="w"> </span><span class="n">StringIO</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">StringIO</span><span class="p">()</span><span class="w"></span>
+<span class="w">        </span><span class="n">userListLength</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">len</span><span class="p">(</span><span class="n">userList</span><span class="p">)</span><span class="w"></span>
 
-<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">_bufferControl</span><span class="p">(</span><span class="n">environment</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;exit&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">junkOut</span><span class="p">,</span><span class="w"> </span><span class="n">unsafe</span><span class="o">=</span><span class="k">True</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="n">expectedUser</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">userList</span><span class="o">[</span><span class="n">-2</span><span class="o">]</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">userListLength</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="w"></span>
 
-<span class="w">        </span><span class="n">environment</span><span class="p">.</span><span class="n">pull</span><span class="p">()</span><span class="w"></span>
+<span class="w">        </span><span class="k">while</span><span class="w"> </span><span class="n">environment</span><span class="p">.</span><span class="nl">consoleStack</span><span class="p">:</span><span class="w"></span>
 
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">checkConnection</span><span class="p">(</span><span class="n">environment</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+<span class="w">            </span><span class="n">self</span><span class="p">.</span><span class="n">logoutCurrentEscalation</span><span class="p">(</span><span class="n">environment</span><span class="o">=</span><span class="n">environment</span><span class="p">,</span><span class="w"> </span><span class="n">junkOut</span><span class="o">=</span><span class="n">junkOut</span><span class="p">,</span><span class="w"> </span><span class="n">reCapturePrompt</span><span class="o">=</span><span class="n">reCapturePrompt</span><span class="p">)</span><span class="w"></span>
 
-<span class="w">            </span><span class="nf">log</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="n">f</span><span class="ss">&quot;Connection still valid on: {environment._id} - Num Escalations: {environment.numEscalations}&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="n">userListLength</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="nf">len</span><span class="p">(</span><span class="n">environment</span><span class="p">.</span><span class="n">getUserList</span><span class="p">())</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">expectedUser</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">environment</span><span class="p">.</span><span class="n">getCurrentUser</span><span class="p">()</span><span class="err">:</span><span class="w"></span>
 
-<span class="w">            </span><span class="n">self</span><span class="p">.</span><span class="n">getPrompt</span><span class="p">(</span><span class="n">environment</span><span class="o">=</span><span class="n">environment</span><span class="p">,</span><span class="w"> </span><span class="n">reCapturePrompt</span><span class="o">=</span><span class="n">reCapturePrompt</span><span class="p">)</span><span class="w"></span>
-
-<span class="w">        </span><span class="k">else</span><span class="err">:</span><span class="w"></span>
-
-<span class="w">            </span><span class="nf">log</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="n">f</span><span class="ss">&quot;Connection closed on: {environment._id}&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="k">break</span><span class="w"></span>
 
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">environment</span><span class="w"></span>
 </code></pre></div>

@@ -27,12 +27,9 @@ class lspciModule(GenericCmdModule):
     def __init__(self, tki, *args, **kwargs):
         log.info("Creating lspci module.")
         super(lspciModule, self).__init__(tki=tki)
-        self.tki.getModules('lspci')
         self.defaultCmd = 'lspci '
         self.defaultKey = "lspci%s"
-        self.defaultFlags = "%s"
         self.__NAME__ = 'lspci'
-        self.requireFlags = True
 
     def hasDevice(self, deviceName, wait=60, **kwargs):
         kwargs.update(self.updatekwargs('postparser', GenericCmdModule._formatExitCode, **kwargs))

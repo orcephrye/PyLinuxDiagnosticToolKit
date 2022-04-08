@@ -1,6 +1,6 @@
 # scp.py
 # Copyright (C) 2008 James Bardin <j.bardin@gmail.com>
-# Edited by Ryan H. for use within the LST_LinuxDiagnosticToolKit
+# Edited by Ryan H. for use within the PyLinuxDiagnosticToolKit
 
 """
 Utilities for sending files over ssh using the scp1 protocol.
@@ -283,7 +283,7 @@ class SCPClient(object):
                 (mode, size, mtime, atime) = self._read_stats_IO(name)
                 if self.preserve_times:
                     self._send_time(mtime, atime)
-                self._send_file(fl, basename, mode, size)
+                self._send_file(name, basename, mode, size)
             elif zipfile.is_zipfile(sys.argv[0]):
                 with zipfile.ZipFile(sys.argv[0]) as zFile:
                     for tFile in zFile.namelist():

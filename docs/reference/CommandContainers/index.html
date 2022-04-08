@@ -3733,7 +3733,25 @@
 <span class="normal">2180</span>
 <span class="normal">2181</span>
 <span class="normal">2182</span>
-<span class="normal">2183</span></pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code><span class="ch">#!/usr/bin/env python</span>
+<span class="normal">2183</span>
+<span class="normal">2184</span>
+<span class="normal">2185</span>
+<span class="normal">2186</span>
+<span class="normal">2187</span>
+<span class="normal">2188</span>
+<span class="normal">2189</span>
+<span class="normal">2190</span>
+<span class="normal">2191</span>
+<span class="normal">2192</span>
+<span class="normal">2193</span>
+<span class="normal">2194</span>
+<span class="normal">2195</span>
+<span class="normal">2196</span>
+<span class="normal">2197</span>
+<span class="normal">2198</span>
+<span class="normal">2199</span>
+<span class="normal">2200</span>
+<span class="normal">2201</span></pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code><span class="ch">#!/usr/bin/env python</span>
 
 <span class="c1"># -*- coding=utf-8 -*-</span>
 
@@ -3767,7 +3785,7 @@
 
 <span class="kn">import</span> <span class="nn">uuid</span>
 
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>  <span class="c1"># TODO remove OrderedDict</span>
 
 <span class="kn">from</span> <span class="nn">threading</span> <span class="kn">import</span> <span class="n">RLock</span><span class="p">,</span> <span class="n">Event</span>
 
@@ -3808,6 +3826,10 @@
 <span class="c1"># clean up all data after the end tag</span>
 
 <span class="n">endSubRe</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;CMDEND.*&#39;</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span> <span class="o">|</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
+
+<span class="c1">#Unparse the command string</span>
+
+<span class="n">unParseCmd</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;echo CMDSTART &amp;&amp;(.*)&amp;&amp; echo CMDEND&#39;</span><span class="p">)</span>
 
 <span class="k">class</span> <span class="nc">CommandData</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
@@ -4081,7 +4103,7 @@
 
         <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
 
-            <span class="n">child</span><span class="o">.</span><span class="n">add_event</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_event</span><span class="p">)</span>
+            <span class="n">child</span><span class="o">.</span><span class="n">addEvent</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_event</span><span class="p">)</span>
 
             <span class="n">child</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span>
 
@@ -4357,7 +4379,7 @@
 
 <span class="sd">                 In that case, this is also the variable name that gets bound.</span>
 
-<span class="sd">                 This also helps determine its __hash__ and __str__ and __repr__.</span>
+<span class="sd">                 This also helps determine its __hash__ and __str__.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -4369,9 +4391,9 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">commandKey</span> <span class="o">=</span> <span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">commandKey</span><span class="p">)</span>
 
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;command/type = </span><span class="si">{</span><span class="n">command</span><span class="si">}</span><span class="s1"> / </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">command</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="c1"># print(f&#39;command/type = {command} / {type(command)}&#39;)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">command</span> <span class="o">=</span> <span class="n">command</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">commandRaw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">command</span> <span class="o">=</span> <span class="n">command</span>
 
     <span class="nd">@staticmethod</span>
 
@@ -4477,7 +4499,7 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;command/type: </span><span class="si">{</span><span class="n">command</span><span class="si">}</span><span class="s1"> / </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">command</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="c1"># print(f&#39;command/type: {command} / {type(command)}&#39;)</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
 
@@ -4666,6 +4688,20 @@
             <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;ERROR: for command.deleter property: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
             <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;[DEBUG] for command.deleter property: </span><span class="si">{</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+
+    <span class="k">def</span> <span class="nf">commandUnparsed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">command</span>
+
+        <span class="k">if</span> <span class="s1">&#39;&amp;&amp;&#39;</span> <span class="ow">in</span> <span class="n">command</span> <span class="ow">and</span> <span class="s1">&#39;CMDSTART&#39;</span> <span class="ow">in</span> <span class="n">command</span><span class="p">:</span>
+
+            <span class="k">for</span> <span class="n">cmd</span> <span class="ow">in</span> <span class="n">unParseCmd</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">command</span><span class="p">):</span>
+
+                <span class="k">return</span> <span class="n">cmd</span>
+
+        <span class="k">return</span> <span class="n">command</span>
 
     <span class="nd">@property</span>
 
@@ -5932,6 +5968,9 @@
 <div class="codehilite"><pre><span></span><code><span class="n">startSubRe</span>
 </code></pre></div>
 
+<div class="codehilite"><pre><span></span><code><span class="n">unParseCmd</span>
+</code></pre></div>
+
 <h2 id="classes">Classes</h2>
 <h3 id="commandcontainer">CommandContainer</h3>
 <div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">CommandContainer</span><span class="p">(</span>
@@ -6019,6 +6058,9 @@
 </code></pre></div>
 
 <div class="codehilite"><pre><span></span><code><span class="n">commandKey</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="n">commandUnparsed</span>
 </code></pre></div>
 
 <div class="codehilite"><pre><span></span><code><span class="n">executionLength</span>
@@ -6320,7 +6362,7 @@ lastResults is then cleared.</p>
 
 <span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">child</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="nl">children</span><span class="p">:</span><span class="w"></span>
 
-<span class="w">            </span><span class="n">child</span><span class="p">.</span><span class="n">add_event</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">_event</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="n">child</span><span class="p">.</span><span class="n">addEvent</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">_event</span><span class="p">)</span><span class="w"></span>
 
 <span class="w">            </span><span class="n">child</span><span class="p">.</span><span class="n">parent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="w"></span>
 
@@ -6908,7 +6950,7 @@ lastResults is then cleared.</p>
 
 <span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">child</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="nl">children</span><span class="p">:</span><span class="w"></span>
 
-<span class="w">            </span><span class="n">child</span><span class="p">.</span><span class="n">add_event</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">_event</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="n">child</span><span class="p">.</span><span class="n">addEvent</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">_event</span><span class="p">)</span><span class="w"></span>
 
 <span class="w">            </span><span class="n">child</span><span class="p">.</span><span class="n">parent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="w"></span>
 
@@ -7076,6 +7118,9 @@ lastResults is then cleared.</p>
 <div class="codehilite"><pre><span></span><code><span class="n">commandKey</span>
 </code></pre></div>
 
+<div class="codehilite"><pre><span></span><code><span class="n">commandUnparsed</span>
+</code></pre></div>
+
 <div class="codehilite"><pre><span></span><code><span class="n">lastResults</span>
 </code></pre></div>
 
@@ -7190,7 +7235,7 @@ lastResults is then cleared.</p>
 
 <span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">child</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="nl">children</span><span class="p">:</span><span class="w"></span>
 
-<span class="w">            </span><span class="n">child</span><span class="p">.</span><span class="n">add_event</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">_event</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="n">child</span><span class="p">.</span><span class="n">addEvent</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">_event</span><span class="p">)</span><span class="w"></span>
 
 <span class="w">            </span><span class="n">child</span><span class="p">.</span><span class="n">parent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="w"></span>
 
@@ -7372,6 +7417,9 @@ lastResults is then cleared.</p>
 <div class="codehilite"><pre><span></span><code><span class="n">commandKey</span>
 </code></pre></div>
 
+<div class="codehilite"><pre><span></span><code><span class="n">commandUnparsed</span>
+</code></pre></div>
+
 <div class="codehilite"><pre><span></span><code><span class="n">lastResults</span>
 </code></pre></div>
 
@@ -7490,7 +7538,7 @@ lastResults is then cleared.</p>
 
 <span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">child</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="nl">children</span><span class="p">:</span><span class="w"></span>
 
-<span class="w">            </span><span class="n">child</span><span class="p">.</span><span class="n">add_event</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">_event</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="n">child</span><span class="p">.</span><span class="n">addEvent</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">_event</span><span class="p">)</span><span class="w"></span>
 
 <span class="w">            </span><span class="n">child</span><span class="p">.</span><span class="n">parent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="w"></span>
 
@@ -7763,6 +7811,9 @@ lastResults is then cleared.</p>
 <div class="codehilite"><pre><span></span><code><span class="n">commandKey</span>
 </code></pre></div>
 
+<div class="codehilite"><pre><span></span><code><span class="n">commandUnparsed</span>
+</code></pre></div>
+
 <div class="codehilite"><pre><span></span><code><span class="n">lastResults</span>
 </code></pre></div>
 
@@ -7881,7 +7932,7 @@ lastResults is then cleared.</p>
 
 <span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">child</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="nl">children</span><span class="p">:</span><span class="w"></span>
 
-<span class="w">            </span><span class="n">child</span><span class="p">.</span><span class="n">add_event</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">_event</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="n">child</span><span class="p">.</span><span class="n">addEvent</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">_event</span><span class="p">)</span><span class="w"></span>
 
 <span class="w">            </span><span class="n">child</span><span class="p">.</span><span class="n">parent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="w"></span>
 

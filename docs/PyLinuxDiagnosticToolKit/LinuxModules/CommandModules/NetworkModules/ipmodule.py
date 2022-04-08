@@ -10,8 +10,8 @@
 
 import logging
 from LinuxModules.genericCmdModule import GenericCmdModule
-from OSNetworking.PyNIC import NetworkInterfaceCards
-from OSNetworking.PyRoute import Routes
+from PyLinuxDiagnosticToolKit.libs.OSNetworking.PyNIC import NetworkInterfaceCards
+from PyLinuxDiagnosticToolKit.libs.OSNetworking.PyRoute import Routes
 
 
 log = logging.getLogger('ipModule')
@@ -32,8 +32,11 @@ class ipModule(GenericCmdModule):
         self.defaultKey = "ip%s"
         self.defaultFlags = ""
         self.__NAME__ = 'ip'
+        self.requireFlags = True
 
     def getIPShowAllData(self, **kwargs):
+        kwargs['wait'] = kwargs.get('wait', 30)
+
         def _postParserHelper(results, *args, **kwargs):
             if not isinstance(results, str):
                 return False
@@ -41,9 +44,11 @@ class ipModule(GenericCmdModule):
 
         kwargs.update({'postparser': _postParserHelper})
 
-        return self.run('show all', **kwargs)
+        return self.run('addr show', **kwargs)
 
     def getIPRouteData(self, **kwargs):
+        kwargs['wait'] = kwargs.get('wait', 30)
+
         def _postParserHelper(results, *args, **kwargs):
             if not isinstance(results, str):
                 return False

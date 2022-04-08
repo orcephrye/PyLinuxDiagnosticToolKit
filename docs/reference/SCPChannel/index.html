@@ -887,7 +887,11 @@
 <span class="normal">182</span>
 <span class="normal">183</span>
 <span class="normal">184</span>
-<span class="normal">185</span></pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code><span class="ch">#!/usr/bin/env python</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span></pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code><span class="ch">#!/usr/bin/env python</span>
 
 <span class="c1"># -*- coding=utf-8 -*-</span>
 
@@ -1041,11 +1045,15 @@
 
     <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">files</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">remotepath</span><span class="p">:</span> <span class="n">AnyStr</span><span class="p">,</span> <span class="n">autoLogin</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 
-        <span class="sd">&quot;&quot;&quot; Take a local file or multiple files and upload it to a remote location.</span>
+        <span class="sd">&quot;&quot;&quot; Take a local file or multiple files and upload it to a remote location. If files parameter is an IO object</span>
+
+<span class="sd">            the remotepath must be a full name and not a directory.</span>
 
 <span class="sd">        - :param files: single or list of files to upload</span>
 
-<span class="sd">        - :param remotepath: a full path to a remote directory</span>
+<span class="sd">        - :param remotepath: a full path to a remote directory or filename. (If files is IO then this MUST be fullpath</span>
+
+<span class="sd">                filename.)</span>
 
 <span class="sd">        - :param autoLogin: (bool) - Controls if this will attempt a connection if one isn&#39;t present.</span>
 
@@ -1071,7 +1079,7 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">openSCP</span><span class="p">(</span><span class="n">autoLogin</span><span class="p">)</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">remotefile</span><span class="p">,</span> <span class="n">localpath</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">openSCP</span><span class="p">(</span><span class="n">autoLogin</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">remotefile</span><span class="p">,</span> <span class="n">localpath</span><span class="p">)</span>
 </code></pre></div>
 </td></tr></table>
 </details>
@@ -1240,7 +1248,7 @@
 
 <span class="ss">        &quot;&quot;&quot;</span><span class="w"></span>
 
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">openSCP</span><span class="p">(</span><span class="n">autoLogin</span><span class="p">).</span><span class="n">put</span><span class="p">(</span><span class="n">remotefile</span><span class="p">,</span><span class="w"> </span><span class="n">localpath</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">openSCP</span><span class="p">(</span><span class="n">autoLogin</span><span class="p">).</span><span class="k">get</span><span class="p">(</span><span class="n">remotefile</span><span class="p">,</span><span class="w"> </span><span class="n">localpath</span><span class="p">)</span><span class="w"></span>
 </code></pre></div>
 
 </details>
@@ -1283,10 +1291,12 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span>
 </code></pre></div>
 
-<p>Take a local file or multiple files and upload it to a remote location.</p>
+<p>Take a local file or multiple files and upload it to a remote location. If files parameter is an IO object</p>
+<p>the remotepath must be a full name and not a directory.</p>
 <ul>
 <li>:param files: single or list of files to upload</li>
-<li>:param remotepath: a full path to a remote directory</li>
+<li>:param remotepath: a full path to a remote directory or filename. (If files is IO then this MUST be fullpath
+        filename.)</li>
 <li>:param autoLogin: (bool) - Controls if this will attempt a connection if one isn't present.</li>
 <li>:return: (True)</li>
 </ul>
@@ -1294,11 +1304,15 @@
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">files</span><span class="p">:</span><span class="w"> </span><span class="n">Any</span><span class="p">,</span><span class="w"> </span><span class="n">remotepath</span><span class="p">:</span><span class="w"> </span><span class="n">AnyStr</span><span class="p">,</span><span class="w"> </span><span class="n">autoLogin</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">bool</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">None</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb nb-Type">bool</span><span class="p">:</span><span class="w"></span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Take a local file or multiple files and upload it to a remote location.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Take a local file or multiple files and upload it to a remote location. If files parameter is an IO object</span>
+
+<span class="sd">            the remotepath must be a full name and not a directory.</span>
 
 <span class="sd">        - :param files: single or list of files to upload</span>
 
-<span class="sd">        - :param remotepath: a full path to a remote directory</span>
+<span class="sd">        - :param remotepath: a full path to a remote directory or filename. (If files is IO then this MUST be fullpath</span>
+
+<span class="sd">                filename.)</span>
 
 <span class="sd">        - :param autoLogin: (bool) - Controls if this will attempt a connection if one isn&#39;t present.</span>
 

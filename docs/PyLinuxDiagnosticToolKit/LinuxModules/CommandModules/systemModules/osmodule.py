@@ -143,7 +143,7 @@ class osModule(GenericCmdModule):
         def supportedFilter(item):
             return item.lower() == osname.lower()
 
-        return len(filter(supportedFilter, supportedList)) > 0
+        return len(list(filter(supportedFilter, supportedList))) > 0
 
     def getCluster(self, **kwargs):
         """ The purpose is to determine if the server is a RHCS.

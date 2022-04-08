@@ -28,16 +28,16 @@ class journalctlModule(GenericCmdModule):
         super(journalctlModule, self).__init__(tki=tki)
         self.defaultCmd = 'journalctl '
         self.defaultKey = "journalctl%s"
-        self.defaultFlags = "-l --no-pager --utc "
+        self.defaultFlags = "-l --no-pager --utc --since yesterday"
         self.defaultKwargs = {'requirements': self.hasJournalctl,
                               'requirementsCondition': False}
         self.__NAME__ = 'journalctl'
         self.requireFlags = False
 
     def journalctlWithFlags(self, extraFlags, **kwargs):
-        flags = self.defaultFlags + str(extraFlags).strip()
+        flags = "--no-pager --utc " + str(extraFlags).strip()
         kwargs.update(self.defaultKwargs)
         return self.run(flags, **kwargs)
 
     def hasJournalctl(self, *args, **kwargs):
-        return self.tki.getModules('which').commandExist('journalctl')
+        return self.tki.getModules('which').doesCommandExist('journalctl')

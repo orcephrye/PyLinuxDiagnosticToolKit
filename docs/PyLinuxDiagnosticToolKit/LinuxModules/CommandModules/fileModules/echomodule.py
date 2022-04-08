@@ -49,7 +49,8 @@ class echoModule(GenericCmdModule):
 
         requirements = {'fileBackup': self.buildFuncWithArgs(self.cp.makeBackup,
                                                              *(filePathName, backupPathName),
-                                                             **{'preparser': kwargs.get('preparser'), 'wait': 60})}
+                                                             **{'preparser': kwargs.get('preparser'),
+                                                                'rerun': kwargs.get('backupRerun', True), 'wait': 30})}
         kwargs.update(self.updatekwargs('requirements', requirements, **kwargs))
         kwargs.update(self.updatekwargs('postparser', GenericCmdModule._formatExitCode, **kwargs))
         return self.simpleExecute(command=f'builtin echo "{fileUpdate}" >> {filePathName} 2>&1; echo $?',
@@ -65,9 +66,8 @@ class echoModule(GenericCmdModule):
         - :return:
         """
 
-        fileBackupKwargs = {}
-        fileBackupKwargs.update({'preparser': kwargs.get('preparser'), 'wait': 60,
-                                 'backupPath': kwargs.get('backupPath'), 'backupExt': kwargs.get('backupExt')})
+        fileBackupKwargs = {'preparser': kwargs.get('preparser'), 'wait': 60, 'rerun': kwargs.get('backupRerun', False),
+                            'backupPath': kwargs.get('backupPath'), 'backupExt': kwargs.get('backupExt')}
 
         requirements = {'fileBackup': self.buildFuncWithArgs(self.cp.makeBackup, *(filePathName,),
                                                              **fileBackupKwargs)}
@@ -91,5 +91,5 @@ class echoModule(GenericCmdModule):
         if fileContents:
             return self.simpleExecute(command=f'builtin echo "{fileContents}" > {filePathName} 2>&1; echo $?',
                                       rerun=rerun, wait=wait, **kwargs)
-        return self.simpleExecute(command=f'/bin/touch {filePathName} 2>&1; echo $?' % filePathName,
+        return self.simpleExecute(command=f'/bin/touch {filePathName} 2>&1; echo $?',
                                   rerun=rerun, wait=wait, **kwargs)

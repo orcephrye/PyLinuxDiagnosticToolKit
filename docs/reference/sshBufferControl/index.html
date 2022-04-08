@@ -1559,17 +1559,7 @@
 <span class="normal">852</span>
 <span class="normal">853</span>
 <span class="normal">854</span>
-<span class="normal">855</span>
-<span class="normal">856</span>
-<span class="normal">857</span>
-<span class="normal">858</span>
-<span class="normal">859</span>
-<span class="normal">860</span>
-<span class="normal">861</span>
-<span class="normal">862</span>
-<span class="normal">863</span>
-<span class="normal">864</span>
-<span class="normal">865</span></pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code><span class="ch">#!/usr/bin/env python</span>
+<span class="normal">855</span></pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code><span class="ch">#!/usr/bin/env python</span>
 
 <span class="c1"># -*- coding=utf-8 -*-</span>
 
@@ -1677,7 +1667,7 @@
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">super</span><span class="p">(</span><span class="n">sshBufferControl</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">checkConnection</span><span class="p">(</span><span class="n">sshChannel</span><span class="o">=</span><span class="n">environment</span><span class="p">):</span>
 
-            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;There is not valid connection.&quot;</span><span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;There is not a valid connection.&quot;</span><span class="p">)</span>
 
             <span class="k">return</span> <span class="s1">&#39;&#39;</span>
 
@@ -2239,19 +2229,9 @@
 
             <span class="k">if</span> <span class="n">endText</span> <span class="o">==</span> <span class="s1">&#39;CMDEND&#39;</span><span class="p">:</span>
 
-                <span class="c1"># outLines = outValue.splitlines()</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="p">(</span><span class="n">sshBufferControl</span><span class="o">.</span><span class="n">_processString</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
 
-                <span class="c1"># if len(outLines) == 1 and cmd not in outLines[-1]:</span>
-
-                <span class="c1">#     return endText not in outLines[-1]</span>
-
-                <span class="c1"># elif len(outLines) &gt;= 2 and cmd not in outLines[-2]:</span>
-
-                <span class="c1">#     return endText not in outLines[-2]</span>
-
-                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="p">[</span><span class="n">sshBufferControl</span><span class="o">.</span><span class="n">_processString</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
-
-                             <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">outValue</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span> <span class="k">if</span> <span class="n">cmd</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">line</span> <span class="ow">and</span> <span class="n">endText</span> <span class="ow">in</span> <span class="n">line</span><span class="p">]:</span>
+                             <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">outValue</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span> <span class="k">if</span> <span class="n">cmd</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">line</span> <span class="ow">and</span> <span class="n">endText</span> <span class="ow">in</span> <span class="n">line</span><span class="p">):</span>
 
                     <span class="k">if</span> <span class="n">line</span> <span class="o">==</span> <span class="n">endText</span><span class="p">:</span>
 
@@ -2616,6 +2596,8 @@
 
 <span class="w">                        </span><span class="n">look_for_keys</span><span class="o">=</span><span class="k">False</span><span class="p">,</span><span class="w"></span>
 
+<span class="w">                        </span><span class="n">allow_agent</span><span class="o">=</span><span class="k">False</span><span class="p">,</span><span class="w"></span>
+
 <span class="w">                        </span><span class="n">banner_timeout</span><span class="o">=</span><span class="mf">60.0</span><span class="p">,</span><span class="w"></span>
 
 <span class="w">                        </span><span class="n">sock</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">_makeSockProxy</span><span class="p">())</span><span class="w"></span>
@@ -2766,7 +2748,7 @@
 
 <span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="n">super</span><span class="p">(</span><span class="n">sshBufferControl</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">).</span><span class="n">checkConnection</span><span class="p">(</span><span class="n">sshChannel</span><span class="o">=</span><span class="n">environment</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-<span class="w">            </span><span class="nf">log</span><span class="p">.</span><span class="n">error</span><span class="p">(</span><span class="ss">&quot;There is not valid connection.&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="nf">log</span><span class="p">.</span><span class="n">error</span><span class="p">(</span><span class="ss">&quot;There is not a valid connection.&quot;</span><span class="p">)</span><span class="w"></span>
 
 <span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="w"></span>
 

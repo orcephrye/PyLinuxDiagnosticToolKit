@@ -65,7 +65,7 @@ class sshBufferControl(sshCon):
             return tmpOut.replace(tmpPrompt, '').replace(cmd, '').strip()
 
         if not super(sshBufferControl, self).checkConnection(sshChannel=environment):
-            log.error("There is not valid connection.")
+            log.error("There is not a valid connection.")
             return ''
 
         log.debug(f"Attempting to exec command[s]: {cmd}")
@@ -379,14 +379,8 @@ class sshBufferControl(sshCon):
             return True
         if endTextType is str:
             if endText == 'CMDEND':
-                # outLines = outValue.splitlines()
-                # if len(outLines) == 1 and cmd not in outLines[-1]:
-                #     return endText not in outLines[-1]
-                # elif len(outLines) >= 2 and cmd not in outLines[-2]:
-                #     return endText not in outLines[-2]
-
-                for line in [sshBufferControl._processString(line.strip())
-                             for line in outValue.splitlines() if cmd not in line and endText in line]:
+                for line in (sshBufferControl._processString(line.strip())
+                             for line in outValue.splitlines() if cmd not in line and endText in line):
                     if line == endText:
                         return False
             # print(f"\n=== Compare: {repr(endText)} - {repr(outValue.splitlines()[-1])}")

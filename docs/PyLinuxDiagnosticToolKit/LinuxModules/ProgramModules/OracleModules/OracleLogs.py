@@ -12,7 +12,7 @@
 
 import logging
 from findError import SearchLog as sLog
-from collections import OrderedDict
+from collections import OrderedDict  # TODO remove OrderedDict
 
 
 log = logging.getLogger('OracleLogs')

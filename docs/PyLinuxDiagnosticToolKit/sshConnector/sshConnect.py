@@ -108,6 +108,7 @@ class sshConnect(object):
                         password=self.password,
                         timeout=float(self.connTimeout),
                         look_for_keys=False,
+                        allow_agent=False,
                         banner_timeout=60.0,
                         sock=self._makeSockProxy())
         except socket.error as e:

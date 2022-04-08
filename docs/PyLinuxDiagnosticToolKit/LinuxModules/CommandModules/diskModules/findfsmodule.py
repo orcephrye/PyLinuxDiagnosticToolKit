@@ -39,6 +39,7 @@ class findfsModule(GenericCmdModule):
         - :return:
         """
 
+        kwargs['wait'] = kwargs.get('wait', 30)
         flags = f'UUID={uuid}'
         command = {self.defaultKey % flags: self.defaultCmd + self.defaultFlags % flags}
         return self.simpleExecute(command=command, **kwargs)
@@ -50,6 +51,7 @@ class findfsModule(GenericCmdModule):
         - :return:
         """
 
+        kwargs['wait'] = kwargs.get('wait', 30)
         flags = f'LABEL={label}'
         command = {self.defaultKey % flags: self.defaultCmd + self.defaultFlags % flags}
         return self.simpleExecute(command=command, **kwargs)

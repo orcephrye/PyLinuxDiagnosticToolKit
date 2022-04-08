@@ -556,6 +556,20 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#getpreviousescalation" class="md-nav__link">
+    getPreviousEscalation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getpreviousescalationtype" class="md-nav__link">
+    getPreviousEscalationType
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#getprompt" class="md-nav__link">
     getPrompt
   </a>
@@ -1277,6 +1291,20 @@
           <li class="md-nav__item">
   <a href="#getpasswordfor_1" class="md-nav__link">
     getPasswordFor
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getpreviousescalation_1" class="md-nav__link">
+    getPreviousEscalation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getpreviousescalationtype_1" class="md-nav__link">
+    getPreviousEscalationType
   </a>
   
 </li>
@@ -1829,6 +1857,20 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#getpreviousescalation" class="md-nav__link">
+    getPreviousEscalation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getpreviousescalationtype" class="md-nav__link">
+    getPreviousEscalationType
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#getprompt" class="md-nav__link">
     getPrompt
   </a>
@@ -2550,6 +2592,20 @@
           <li class="md-nav__item">
   <a href="#getpasswordfor_1" class="md-nav__link">
     getPasswordFor
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getpreviousescalation_1" class="md-nav__link">
+    getPreviousEscalation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getpreviousescalationtype_1" class="md-nav__link">
+    getPreviousEscalationType
   </a>
   
 </li>
@@ -3895,19 +3951,11 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">item</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">consoleStack</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
 
-        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">consoleStack</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">consoleStack</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
 
-            <span class="n">item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">consoleStack</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
-
-            <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__CONSOLE_ESCALATION__</span> <span class="ow">and</span> <span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__USER_ESCALATION__</span><span class="p">:</span>
-
-                <span class="k">continue</span>
-
-            <span class="k">break</span>
-
-        <span class="k">return</span> <span class="n">item</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">peak</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
 
@@ -3928,6 +3976,14 @@
         <span class="k">except</span><span class="p">:</span>
 
             <span class="k">return</span> <span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">getPreviousEscalation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">peak</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">getPreviousEscalationType</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">peak</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">getUserList</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
 
@@ -3951,9 +4007,9 @@
 
             <span class="k">return</span> <span class="p">[]</span>
 
-        <span class="n">itemList</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="n">_filterUsers</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">consoleStack</span><span class="p">))</span>
+        <span class="c1"># itemList = list(filter(_filterUsers, self.consoleStack))</span>
 
-        <span class="k">return</span> <span class="n">_userGenerator</span><span class="p">(</span><span class="n">itemList</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_userGenerator</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="n">_filterUsers</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">consoleStack</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">getCurrentUser</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 
@@ -3964,6 +4020,8 @@
         <span class="k">if</span> <span class="n">currentUsers</span><span class="p">:</span>
 
             <span class="k">return</span> <span class="n">currentUsers</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="s1">&#39;&#39;</span>
 
     <span class="k">def</span> <span class="nf">getConsoleList</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
 
@@ -3983,9 +4041,9 @@
 
             <span class="k">return</span> <span class="n">output</span>
 
-        <span class="n">itemList</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="n">_filterConsoles</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">consoleStack</span><span class="p">))</span>
+        <span class="c1"># itemList = list(filter(_filterConsoles, self.consoleStack))</span>
 
-        <span class="k">return</span> <span class="n">_consoleGenerator</span><span class="p">(</span><span class="n">itemList</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_consoleGenerator</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="n">_filterConsoles</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">consoleStack</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">getCurrentConsole</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 
@@ -4020,14 +4078,6 @@
                 <span class="k">return</span> <span class="n">item</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="s2">&quot;&quot;</span>
-
-    <span class="c1"># def close(self) -&gt; None:</span>
-
-    <span class="c1">#     &quot;&quot;&quot; Deletes the current console stack. &quot;&quot;&quot;</span>
-
-    <span class="c1">#     del self.consoleStack</span>
-
-    <span class="c1">#     super(sshEnvironment, self).close()</span>
 
     <span class="k">def</span> <span class="nf">resetEnvironment</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
@@ -4108,6 +4158,12 @@
             <span class="k">return</span> <span class="mi">0</span>
 
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="n">_filterUsers</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">consoleStack</span><span class="p">)))</span>
+
+    <span class="nd">@property</span>
+
+    <span class="k">def</span> <span class="nf">numUsers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getUserList</span><span class="p">())</span>
 
     <span class="nd">@property</span>
 
@@ -4550,6 +4606,9 @@
 </code></pre></div>
 
 <div class="codehilite"><pre><span></span><code><span class="n">numEscalations</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="n">numUsers</span>
 </code></pre></div>
 
 <div class="codehilite"><pre><span></span><code><span class="n">userCount</span>
@@ -5110,9 +5169,9 @@ open at the same time.)</p>
 
 <span class="w">            </span><span class="kr">return</span><span class="w"> </span><span class="kr">output</span><span class="w"></span>
 
-<span class="w">        </span><span class="n">itemList</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">list</span><span class="p">(</span><span class="n">filter</span><span class="p">(</span><span class="n">_filterConsoles</span><span class="p">,</span><span class="w"> </span><span class="kr">self</span><span class="p">.</span><span class="n">consoleStack</span><span class="p">))</span><span class="w"></span>
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="n">itemList</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">list</span><span class="p">(</span><span class="n">filter</span><span class="p">(</span><span class="n">_filterConsoles</span><span class="p">,</span><span class="w"> </span><span class="kr">self</span><span class="p">.</span><span class="n">consoleStack</span><span class="p">))</span><span class="w"></span>
 
-<span class="w">        </span><span class="kr">return</span><span class="w"> </span><span class="n">_consoleGenerator</span><span class="p">(</span><span class="n">itemList</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="kr">return</span><span class="w"> </span><span class="n">_consoleGenerator</span><span class="p">(</span><span class="n">filter</span><span class="p">(</span><span class="n">_filterConsoles</span><span class="p">,</span><span class="w"> </span><span class="kr">self</span><span class="p">.</span><span class="n">consoleStack</span><span class="p">))</span><span class="w"></span>
 </code></pre></div>
 
 </details>
@@ -5153,6 +5212,8 @@ open at the same time.)</p>
 <span class="w">        </span><span class="nf">if</span><span class="w"> </span><span class="n">currentUsers</span><span class="o">:</span><span class="w"></span>
 
 <span class="w">            </span><span class="kr">return</span><span class="w"> </span><span class="n">currentUsers</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="w"></span>
+
+<span class="w">        </span><span class="kr">return</span><span class="w"> </span><span class="s">&#39;&#39;</span><span class="w"></span>
 </code></pre></div>
 
 </details>
@@ -5222,6 +5283,30 @@ open at the same time.)</p>
 </code></pre></div>
 
 </details>
+<h4 id="getpreviousescalation">getPreviousEscalation</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">getPreviousEscalation</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">getPreviousEscalation</span><span class="p">(</span><span class="kr">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">tuple</span><span class="o">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="kr">return</span><span class="w"> </span><span class="kr">self</span><span class="p">.</span><span class="n">peak</span><span class="p">()</span><span class="w"></span>
+</code></pre></div>
+
+</details>
+<h4 id="getpreviousescalationtype">getPreviousEscalationType</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">getPreviousEscalationType</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">getPreviousEscalationType</span><span class="p">(</span><span class="kr">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">int</span><span class="o">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="kr">return</span><span class="w"> </span><span class="kr">self</span><span class="p">.</span><span class="n">peak</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="w"></span>
+</code></pre></div>
+
+</details>
 <h4 id="getprompt">getPrompt</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">getPrompt</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
@@ -5267,9 +5352,9 @@ open at the same time.)</p>
 
 <span class="w">            </span><span class="kr">return</span><span class="w"> </span><span class="p">[]</span><span class="w"></span>
 
-<span class="w">        </span><span class="n">itemList</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">list</span><span class="p">(</span><span class="n">filter</span><span class="p">(</span><span class="n">_filterUsers</span><span class="p">,</span><span class="w"> </span><span class="kr">self</span><span class="p">.</span><span class="n">consoleStack</span><span class="p">))</span><span class="w"></span>
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="n">itemList</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">list</span><span class="p">(</span><span class="n">filter</span><span class="p">(</span><span class="n">_filterUsers</span><span class="p">,</span><span class="w"> </span><span class="kr">self</span><span class="p">.</span><span class="n">consoleStack</span><span class="p">))</span><span class="w"></span>
 
-<span class="w">        </span><span class="kr">return</span><span class="w"> </span><span class="n">_userGenerator</span><span class="p">(</span><span class="n">itemList</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="kr">return</span><span class="w"> </span><span class="n">_userGenerator</span><span class="p">(</span><span class="n">filter</span><span class="p">(</span><span class="n">_filterUsers</span><span class="p">,</span><span class="w"> </span><span class="kr">self</span><span class="p">.</span><span class="n">consoleStack</span><span class="p">))</span><span class="w"></span>
 </code></pre></div>
 
 </details>
@@ -6048,19 +6133,11 @@ server, it only makes sense to open this file for reading.</p>
 
 <span class="s">        &quot;&quot;&quot;</span><span class="w"></span>
 
-<span class="w">        </span><span class="n">item</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tuple</span><span class="p">()</span><span class="w"></span>
+<span class="w">        </span><span class="nf">if</span><span class="w"> </span><span class="n">len</span><span class="p">(</span><span class="kr">self</span><span class="p">.</span><span class="n">consoleStack</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">1</span><span class="o">:</span><span class="w"></span>
 
-<span class="w">        </span><span class="n">while</span><span class="w"> </span><span class="n">len</span><span class="p">(</span><span class="kr">self</span><span class="p">.</span><span class="n">consoleStack</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">1</span><span class="o">:</span><span class="w"></span>
+<span class="w">            </span><span class="kr">return</span><span class="w"> </span><span class="kr">self</span><span class="p">.</span><span class="n">consoleStack</span><span class="p">.</span><span class="n">pop</span><span class="p">()</span><span class="w"></span>
 
-<span class="w">            </span><span class="n">item</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">self</span><span class="p">.</span><span class="n">consoleStack</span><span class="p">.</span><span class="n">pop</span><span class="p">()</span><span class="w"></span>
-
-<span class="w">            </span><span class="nf">if</span><span class="w"> </span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kr">self</span><span class="p">.</span><span class="n">__CONSOLE_ESCALATION__</span><span class="w"> </span><span class="kr">and</span><span class="w"> </span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kr">self</span><span class="p">.</span><span class="n">__USER_ESCALATION__</span><span class="o">:</span><span class="w"></span>
-
-<span class="w">                </span><span class="n">continue</span><span class="w"></span>
-
-<span class="w">            </span><span class="n">break</span><span class="w"></span>
-
-<span class="w">        </span><span class="kr">return</span><span class="w"> </span><span class="n">item</span><span class="w"></span>
+<span class="w">        </span><span class="kr">return</span><span class="w"> </span><span class="n">tuple</span><span class="p">()</span><span class="w"></span>
 </code></pre></div>
 
 </details>
@@ -11422,6 +11499,9 @@ memorize unix constants from the 1970s.</p>
 <div class="codehilite"><pre><span></span><code><span class="n">numEscalations</span>
 </code></pre></div>
 
+<div class="codehilite"><pre><span></span><code><span class="n">numUsers</span>
+</code></pre></div>
+
 <div class="codehilite"><pre><span></span><code><span class="n">userCount</span>
 </code></pre></div>
 
@@ -11763,9 +11843,9 @@ open at the same time.)</p>
 
 <span class="w">            </span><span class="kr">return</span><span class="w"> </span><span class="kr">output</span><span class="w"></span>
 
-<span class="w">        </span><span class="n">itemList</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">list</span><span class="p">(</span><span class="n">filter</span><span class="p">(</span><span class="n">_filterConsoles</span><span class="p">,</span><span class="w"> </span><span class="kr">self</span><span class="p">.</span><span class="n">consoleStack</span><span class="p">))</span><span class="w"></span>
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="n">itemList</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">list</span><span class="p">(</span><span class="n">filter</span><span class="p">(</span><span class="n">_filterConsoles</span><span class="p">,</span><span class="w"> </span><span class="kr">self</span><span class="p">.</span><span class="n">consoleStack</span><span class="p">))</span><span class="w"></span>
 
-<span class="w">        </span><span class="kr">return</span><span class="w"> </span><span class="n">_consoleGenerator</span><span class="p">(</span><span class="n">itemList</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="kr">return</span><span class="w"> </span><span class="n">_consoleGenerator</span><span class="p">(</span><span class="n">filter</span><span class="p">(</span><span class="n">_filterConsoles</span><span class="p">,</span><span class="w"> </span><span class="kr">self</span><span class="p">.</span><span class="n">consoleStack</span><span class="p">))</span><span class="w"></span>
 </code></pre></div>
 
 </details>
@@ -11806,6 +11886,8 @@ open at the same time.)</p>
 <span class="w">        </span><span class="nf">if</span><span class="w"> </span><span class="n">currentUsers</span><span class="o">:</span><span class="w"></span>
 
 <span class="w">            </span><span class="kr">return</span><span class="w"> </span><span class="n">currentUsers</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="w"></span>
+
+<span class="w">        </span><span class="kr">return</span><span class="w"> </span><span class="s">&#39;&#39;</span><span class="w"></span>
 </code></pre></div>
 
 </details>
@@ -11875,6 +11957,30 @@ open at the same time.)</p>
 </code></pre></div>
 
 </details>
+<h4 id="getpreviousescalation_1">getPreviousEscalation</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">getPreviousEscalation</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">getPreviousEscalation</span><span class="p">(</span><span class="kr">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">tuple</span><span class="o">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="kr">return</span><span class="w"> </span><span class="kr">self</span><span class="p">.</span><span class="n">peak</span><span class="p">()</span><span class="w"></span>
+</code></pre></div>
+
+</details>
+<h4 id="getpreviousescalationtype_1">getPreviousEscalationType</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">getPreviousEscalationType</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">getPreviousEscalationType</span><span class="p">(</span><span class="kr">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">int</span><span class="o">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="kr">return</span><span class="w"> </span><span class="kr">self</span><span class="p">.</span><span class="n">peak</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="w"></span>
+</code></pre></div>
+
+</details>
 <h4 id="getuserlist_1">getUserList</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">getUserList</span><span class="p">(</span>
     <span class="bp">self</span>
@@ -11904,9 +12010,9 @@ open at the same time.)</p>
 
 <span class="w">            </span><span class="kr">return</span><span class="w"> </span><span class="p">[]</span><span class="w"></span>
 
-<span class="w">        </span><span class="n">itemList</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">list</span><span class="p">(</span><span class="n">filter</span><span class="p">(</span><span class="n">_filterUsers</span><span class="p">,</span><span class="w"> </span><span class="kr">self</span><span class="p">.</span><span class="n">consoleStack</span><span class="p">))</span><span class="w"></span>
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="n">itemList</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">list</span><span class="p">(</span><span class="n">filter</span><span class="p">(</span><span class="n">_filterUsers</span><span class="p">,</span><span class="w"> </span><span class="kr">self</span><span class="p">.</span><span class="n">consoleStack</span><span class="p">))</span><span class="w"></span>
 
-<span class="w">        </span><span class="kr">return</span><span class="w"> </span><span class="n">_userGenerator</span><span class="p">(</span><span class="n">itemList</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="kr">return</span><span class="w"> </span><span class="n">_userGenerator</span><span class="p">(</span><span class="n">filter</span><span class="p">(</span><span class="n">_filterUsers</span><span class="p">,</span><span class="w"> </span><span class="kr">self</span><span class="p">.</span><span class="n">consoleStack</span><span class="p">))</span><span class="w"></span>
 </code></pre></div>
 
 </details>
@@ -12635,19 +12741,11 @@ server, it only makes sense to open this file for reading.</p>
 
 <span class="s">        &quot;&quot;&quot;</span><span class="w"></span>
 
-<span class="w">        </span><span class="n">item</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tuple</span><span class="p">()</span><span class="w"></span>
+<span class="w">        </span><span class="nf">if</span><span class="w"> </span><span class="n">len</span><span class="p">(</span><span class="kr">self</span><span class="p">.</span><span class="n">consoleStack</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">1</span><span class="o">:</span><span class="w"></span>
 
-<span class="w">        </span><span class="n">while</span><span class="w"> </span><span class="n">len</span><span class="p">(</span><span class="kr">self</span><span class="p">.</span><span class="n">consoleStack</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">1</span><span class="o">:</span><span class="w"></span>
+<span class="w">            </span><span class="kr">return</span><span class="w"> </span><span class="kr">self</span><span class="p">.</span><span class="n">consoleStack</span><span class="p">.</span><span class="n">pop</span><span class="p">()</span><span class="w"></span>
 
-<span class="w">            </span><span class="n">item</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">self</span><span class="p">.</span><span class="n">consoleStack</span><span class="p">.</span><span class="n">pop</span><span class="p">()</span><span class="w"></span>
-
-<span class="w">            </span><span class="nf">if</span><span class="w"> </span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kr">self</span><span class="p">.</span><span class="n">__CONSOLE_ESCALATION__</span><span class="w"> </span><span class="kr">and</span><span class="w"> </span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kr">self</span><span class="p">.</span><span class="n">__USER_ESCALATION__</span><span class="o">:</span><span class="w"></span>
-
-<span class="w">                </span><span class="n">continue</span><span class="w"></span>
-
-<span class="w">            </span><span class="n">break</span><span class="w"></span>
-
-<span class="w">        </span><span class="kr">return</span><span class="w"> </span><span class="n">item</span><span class="w"></span>
+<span class="w">        </span><span class="kr">return</span><span class="w"> </span><span class="n">tuple</span><span class="p">()</span><span class="w"></span>
 </code></pre></div>
 
 </details>

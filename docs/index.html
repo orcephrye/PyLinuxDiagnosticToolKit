@@ -464,17 +464,23 @@
                 
                 
                 <h1 id="lst_linuxdiagnostictoolkit">LST_LinuxDiagnosticToolKit</h1>
+<hr />
+<p><a href="https://choosealicense.com/licenses/gpl-3.0/"><img alt="License: GPL v3" src="https://img.shields.io/badge/License-GPLv3-blue.svg" /></a>
+<a href="https://orcephrye.github.io/PyLinuxDiagnosticToolKit/"><img alt="Docs" src="https://readthedocs.org/projects/ansicolortags/badge/?version=latest" /></a></p>
 <p>Wiki can be viewed on GitHub Pages. 
-URL: </p>
+URL: https://orcephrye.github.io/PyLinuxDiagnosticToolKit/</p>
 <p>These documentation pages are made by Portray: https://timothycrosley.github.io/portray/</p>
 <ul>
-<li>REQUIRES: Python 3.7+, PyMultiprocessTools, PyCustomParsers, PyCustomCollections and Paramiko</li>
+<li>REQUIRES: Python 3.7+, PyMultiTasking, PyCustomParsers, PyCustomCollections and Paramiko</li>
 </ul>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Install requirements (pip should point to a Python 3.7+ environment.)</span>
 pip install -r requirements.txt
+<span class="c1"># Install the whole package</span>
+pip install .
 </code></pre></div>
 
 <p><strong>The Linux Diagnostic Tool Kit:</strong></p>
+<hr />
 <p>This is a set of Modules (python packages) themed after linux commands or programs, packaged together with some tools to
 interact with a remote machine. Currently, the only 'connector' is the 'sshConnector' which provides connectivity too 
 Linux machines. The tools, connectors, and modules are tied together by the ToolKitInterface class in the ldtk.py 
@@ -505,25 +511,46 @@ you do not necessarily need to provide it the exact class with all arguments. Si
 </blockquote>
 <p>For more information on Argument Wrapper please review its readme file: <a href="../LST_LinuxDiagnosticToolKit/ArgumentWrapper" title="Arguments README">tutorial</a></p>
 <p><strong><em>Execute Commands:</em></strong></p>
+<hr />
 <p>From here if a dev wants to run a custom command it is as simple as:</p>
-<div class="codehilite"><pre><span></span><code><span class="n">cc</span> <span class="o">=</span> <span class="n">tki</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;whoami&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">cc</span><span class="o">.</span><span class="n">results</span><span class="p">)</span>
+<div class="codehilite"><pre><span></span><code><span class="n">results</span> <span class="o">=</span> <span class="n">tki</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;whoami&quot;</span><span class="p">,</span> <span class="n">threading</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
 </code></pre></div>
 
 <p>or</p>
-<div class="codehilite"><pre><span></span><code><span class="nb">print</span><span class="p">(</span><span class="n">tki</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;whoami&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">waitForResults</span><span class="p">())</span>
+<div class="codehilite"><pre><span></span><code><span class="n">cc</span> <span class="o">=</span> <span class="n">tki</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;whoami&quot;</span><span class="p">,</span> <span class="n">threading</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># Threading is True by default</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">cc</span><span class="o">.</span><span class="n">waitForResults</span><span class="p">()</span>  
+<span class="nb">print</span><span class="p">(</span><span class="n">cc</span><span class="o">.</span><span class="n">results</span><span class="p">)</span>  <span class="c1"># This demonstrates that the &#39;CommandContainer&#39; object also stores the results</span>
 </code></pre></div>
 
 <p>Execute returns a CommandContainer if threading is True. If Threading is false then it returns the output of the
 command as a string. We will get to how to use CommandContainer later.</p>
 <p>For a full explanation go to the <a href="../LST_LinuxDiagnosticToolKit/LinuxModules/" title="CommandContainer">CommandContainer</a> page.</p>
 <p><strong>Modules:</strong></p>
+<hr />
 <p>Currently, there are only 'LinuxModulse' which contain 'CommandModules', 'OtherModules', and 'ProgramModules'. 
-Eventually These will be reorganized once Windows is supported. </p>
+Eventually These will be reorganized once Windows is supported. 
+Currently, there are only 'LinuxModulse' which contain 'CommandModules' and 'ProgramModules'. Eventually These will be 
+reorganized once Windows is supported. </p>
 <ul>
 <li>Command Modules are common Linux specific commands (i.e: cat, ps, etc...)</li>
 <li>Program Modules are programs that run on the target remote OS. (i.e: MySQL, Oracle, etc...)</li>
 </ul>
+<p>To get a list of modules use the 'getAvailableModules' method. This returns a list of strings that represent the 
+supported commands.</p>
+<div class="codehilite"><pre><span></span><code><span class="go">from ldtk import ToolKitInterface</span>
+<span class="go">tki = ToolKitInterface()</span>
+<span class="go">tki.getAvailableModules()</span>
+</code></pre></div>
+
+<p>Any command regardless if it is present in the list of supported modules can be executed via the 'execute' method. 
+Modules are a more 'pythonic' or programmatic way of handling shell commands. They also can have special methods 
+specific to the nature of the command they represent. An example of this would be 'ps' command module having a method 
+'getTopCPU' or the 'll' module which has the method 'fileExist'. </p>
+<p>Also not all modules directly map too a single command. Some modules use multiple commands together when using a certain
+methods while others are a collection of commands following a particular theme. An example of this would be the 'touch'
+modules 'isWritable' method which determines if a filesystem can be written too. It also uses the 'rm' module. While
+the service module combines the commands service, chkconfig, and systemctl all in one.</p>
 <p><strong>The CommandModules:</strong></p>
 <p>These command modules are packages that all inherit from genericCmdModule and they are themed around certain bash
 commands. For example the psmodule uses the 'ps' command and has custom parsing tools to handle the output.</p>
@@ -552,16 +579,16 @@ This still means the results will be cached and the standard parameters are acce
 methods across a lot of the Modules. </p>
 <blockquote>
 <p>Note: Threading can be tricky and may cause unexpected behavior. For example if you run 'cat('/etc/hosts')' ten times 
-in a loop it will not spin up 10 cat commands but actually just one. The default wait is 60 so it will run the first 
-command to completion and then the remaining 9 will return the cache result. If you run it with 'wait=None' the cache 
-process is thread safe so the CommandObject will be stored and the remaining 9 threads will simply return cached results. 
+in a loop it will not spin up 10 cat commands but actually just one. It will run the first command to completion and 
+then the remaining 9 will return the cache result. If you run it with 'wait=None' the cache process is thread safe so 
+the first cat command will return the CommandObject which will be the same CommandObject for the remaining 9 runs.
 However, if you have that same loop run ten different cat commands (ie: cat /tmp/hosts, cat /etc/resolv.conf, etc...) 
-commands (with wait=None) it will run all 10 in as many threads as is allowed. (default is 8) If you want to run ten of 
-the same commands at the same time you will need to give each command a uniq 'commandKey' in kwargs. ie: 'commandKey=X'</p>
+commands (with wait=None) it will run all 10 in as many threads as is allowed. (default is 8). If you want the same 
+command to run over and over again the flag 'rerun' can be set to True. If 'wait' is set to anything other than None it
+is considering 'blocking' and will wait until either the command is finished or the wait time is reached.</p>
 </blockquote>
-<p><strong>The sshConnector:</strong></p>
-<p>This is more 'under the hood' stuff that is likely not necessary for most automation. The ssh Connector is a wrapper
-around Paramiko and adds extra functionality to make managing users and extra channels and sftp connections.</p>
+<p><strong>The SCP and SFTP:</strong></p>
+<hr />
 <blockquote>
 <p>Getting and using a SFTP connection</p>
 </blockquote>
@@ -576,6 +603,26 @@ around Paramiko and adds extra functionality to make managing users and extra ch
 <span class="n">scp</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;/path/too/file.out&#39;</span><span class="p">,</span> <span class="s1">&#39;/remote/path/too/new/filename&#39;</span><span class="p">)</span>
 </code></pre></div>
 
+<blockquote>
+<p>SCP and SFTP can use 'with'</p>
+</blockquote>
+<div class="codehilite"><pre><span></span><code><span class="k">with</span> <span class="n">tki</span><span class="o">.</span><span class="n">getSFTPClient</span><span class="p">()</span> <span class="k">as</span> <span class="n">sftp</span><span class="p">:</span>
+    <span class="n">sftp</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;/path/too/file.out&#39;</span><span class="p">,</span> <span class="s1">&#39;/remote/path/too/new/filename&#39;</span><span class="p">)</span>
+</code></pre></div>
+
+<blockquote>
+<p>Both SCP and SFTP can handle IO and file objects</p>
+</blockquote>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">StringIO</span>
+<span class="n">sIO</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">(</span><span class="s2">&quot;Some file saved in memory as a str&quot;</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">tki</span><span class="o">.</span><span class="n">getSFTPClient</span><span class="p">()</span> <span class="k">as</span> <span class="n">sftp</span><span class="p">:</span>
+    <span class="n">sftp</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">sIO</span><span class="p">,</span> <span class="s1">&#39;/remote/path/too/new/filename&#39;</span><span class="p">)</span>
+</code></pre></div>
+
+<p><strong>The sshConnector:</strong></p>
+<hr />
+<p>This is more 'under the hood' stuff that is likely not necessary for most automation. The ssh Connector is a wrapper
+around Paramiko and adds extra functionality to make managing users and extra channels and sftp connections.</p>
 <p>A few things to note is how to escalate too a specific user, change environment and how to make custom channels and run
 commands on them.</p>
 <p>Many methods have an optional parameter 'environment' that allows the programmer to specify a ssh channel to act on. 
@@ -590,8 +637,8 @@ By default environment=None and thus any are done to whatever SSH channel is ava
 <blockquote>
 <p>Escalate too root (with custom options, this also works for any other user)</p>
 </blockquote>
-<div class="codehilite"><pre><span></span><code><span class="n">tki</span><span class="o">.</span><span class="n">becomeuser</span><span class="p">(</span><span class="s1">&#39;root&#39;</span><span class="p">,</span> <span class="s1">&#39;abc123&#39;</span><span class="p">,</span> <span class="n">loginCmd</span><span class="o">=</span><span class="s1">&#39;sudo&#39;</span><span class="p">)</span>
-<span class="n">tki</span><span class="o">.</span><span class="n">becomeuser</span><span class="p">(</span><span class="s1">&#39;root&#39;</span><span class="p">,</span> <span class="s1">&#39;abc123&#39;</span><span class="p">,</span> <span class="n">loginCmd</span><span class="o">=</span><span class="s1">&#39;sudo&#39;</span><span class="p">,</span> <span class="n">environment</span><span class="o">=&lt;</span><span class="n">ChannelObject</span><span class="o">&gt;</span><span class="p">)</span>
+<div class="codehilite"><pre><span></span><code><span class="n">tki</span><span class="o">.</span><span class="n">becomeUser</span><span class="p">(</span><span class="s1">&#39;root&#39;</span><span class="p">,</span> <span class="s1">&#39;abc123&#39;</span><span class="p">,</span> <span class="n">loginCmd</span><span class="o">=</span><span class="s1">&#39;sudo&#39;</span><span class="p">)</span>
+<span class="n">tki</span><span class="o">.</span><span class="n">becomeUser</span><span class="p">(</span><span class="s1">&#39;root&#39;</span><span class="p">,</span> <span class="s1">&#39;abc123&#39;</span><span class="p">,</span> <span class="n">loginCmd</span><span class="o">=</span><span class="s1">&#39;sudo&#39;</span><span class="p">,</span> <span class="n">environment</span><span class="o">=&lt;</span><span class="n">ChannelObject</span><span class="o">&gt;</span><span class="p">)</span>
 </code></pre></div>
 
 <blockquote>
@@ -641,6 +688,7 @@ user. It can look at the password for the requested user. It will also attempt t
 channels with the same label. Each with an identical environment and then run possibly 100s of commands each one finding
 a thread/channel pair to execute on. </p>
 <p><strong>The CommandContainer:</strong></p>
+<hr />
 <p>This is where a lot of the heaving lifting for command execution happens. These objects are thread safe and
 customizable.</p>
 <p>So far we have only shown what it looks like to run a single command. However, TKI can run hundreds of commands all in
@@ -672,6 +720,7 @@ are unordered data types and imply a batch and run asynchronously. </p>
 <p>The CommandContainer is explained in more detail in the documentation for it. In most cases you will never need its more
 advanced features.</p>
 <p><strong>Threading:</strong></p>
+<hr />
 <p>The ToolKitInterface and specifically the sshConnector handles threading. This tool uses the 'threading' module within 
 Python. This means it doesn't handle multipleprocess nor does it work with asyncio modules. Threading is acceptable 
 because the CPU bound commands happen on a remote machine. This could technically benefit from asyncio however 

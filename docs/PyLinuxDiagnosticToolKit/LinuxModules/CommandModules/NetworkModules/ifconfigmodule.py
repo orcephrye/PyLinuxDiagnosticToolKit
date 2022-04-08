@@ -10,6 +10,7 @@
 
 import logging
 from LinuxModules.genericCmdModule import GenericCmdModule
+from PyLinuxDiagnosticToolKit.libs.OSNetworking.PyNIC import NetworkInterfaceCards
 
 
 log = logging.getLogger('ifconfigModule')
@@ -31,3 +32,16 @@ class ifconfigModule(GenericCmdModule):
         self.defaultKey = "ifconfig%s"
         self.defaultFlags = ""
         self.__NAME__ = 'ifconfig'
+
+    def getIfconfigAllData(self, **kwargs):
+        kwargs['wait'] = kwargs.get('wait', 30)
+        kwargs.update(self.defaultKwargs)
+
+        def _postParserHelper(results, *args, **kwargs):
+            if not isinstance(results, str):
+                return False
+            return NetworkInterfaceCards(results.strip(), dataType='ifconfig')
+
+        kwargs.update({'postparser': _postParserHelper})
+
+        return self.run('-a', **kwargs)

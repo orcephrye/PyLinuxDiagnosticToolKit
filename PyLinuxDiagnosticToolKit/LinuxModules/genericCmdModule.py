@@ -168,8 +168,14 @@ class GenericCmdModule(CommandModuleSettings):
                                        'modules', None),
                                'which', None),
                        'doesCommandExist', dummy_func)(kwargs.get('executable',
-                                                                  getattr(kwargs.get("this"), 'command', '')
+                                                                  getattr(kwargs.get("this"), 'commandUnparsed', '')
                                                                   .strip().split()[0]))
+
+    def doesFileExistRequirement(self, filename, *args, **kwargs) -> bool:
+        return getattr(getattr(getattr(getattr(self, 'tki', None),
+                                       'modules', None),
+                               'll', None),
+                       'fileExist', dummy_func)(filename, rerun=True, wait=True)
 
     def verifyNeedForRun(self, **kwargs) -> None:
         """ This is a helper method that can be used to see if the CommandModule needs to be ran again. It checks

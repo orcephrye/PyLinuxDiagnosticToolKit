@@ -29,10 +29,12 @@ class timedatectlModule(GenericCmdModule):
         self.defaultCmd = 'timedatectl '
         self.defaultKey = "timedatectl%s"
         self.defaultFlags = "status"
+        self.defaultKwargs = {'preparser': self.doesCommandExistPreParser}
         self.__NAME__ = 'timedatectl'
         self.requireFlags = False
 
     def getTimezone(self, *args, **kwargs):
+        kwargs['wait'] = kwargs.get('wait', 10)
         output = self.run(*args, **kwargs)
         if not isinstance(output, str):
             return ""

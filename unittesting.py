@@ -939,6 +939,162 @@ class TestEUserModules(unittest.TestCase):
         self.assertFalse(tki.checkConnection())
 
 
+# noinspection PyUnresolvedReferences
+class TestESystemModules(unittest.TestCase):
+    """
+        These are CommandModules that either require flags or have special methods that should be tested. Modules that
+        do require flags simply confirm they can be created.
+    """
+
+    def test_aaa_login(self):
+        global tki
+
+        with open('unittesting.json') as f:
+            config = json.load(f)
+        args = ArgumentWrapper.arguments().parse_known_args()[0]
+        args.host = config.get('host')
+        args.username = config.get('username')
+        args.password = config.get('password')
+        args.root = True if config.get('root') else False
+        args.rootpwd = config.get('rootpwd')
+
+        tki = ldtk.ToolKitInterface(arguments=args, auto_login=False)
+        self.assertIsInstance(tki, ldtk.ToolKitInterface)
+        conn = tki.createConnection()
+        self.assertIsInstance(conn, threadedSSH)
+        self.assertTrue(tki.checkConnection())
+
+    def test_aab_journalctl(self):
+        global tki
+        standard_check(self)
+
+        journalctl = tki.modules.journalctl
+
+        output = journalctl()
+        self.assertIsInstance(output, str)
+
+        output = journalctl.journalctlWithFlags('--list-boots', wait=60)
+        self.assertIsInstance(output, str)
+
+    def test_aac_lspci(self):
+        global tki
+        standard_check(self)
+
+        lspci = tki.modules.lspci
+
+        devices = lspci()
+        self.assertIsInstance(devices, str)
+        deviceList = [device.split() for device in devices.splitlines()]
+
+        results = lspci.hasDevice(deviceList[0][0])
+        self.assertTrue(results)
+
+    def test_aad_messages(self):
+        """ '/var/log/messages' log file needs to be present on target device """
+        global tki
+        standard_check(self)
+
+        messages = tki.modules.messages
+
+        if tki.modules.ll.fileExist('/var/log/messages', rerun=True) is False:
+            self.skipTest(f'/var/log/messages file not present on the target OS skipping messages test')
+
+        output = messages()
+        self.assertIsInstance(output, str)
+        self.assertGreaterEqual(len(output.splitlines()), 1)
+
+        messages.makeLogEntry('this is a test')
+
+        results = messages.getLogsWithinTimeRange()
+        self.assertIsInstance(results, str)
+        self.assertGreaterEqual(len(results.splitlines()), 1)
+        self.assertIn('this is a test', results)
+
+    def test_aae_os(self):
+        global tki
+        standard_check(self)
+
+        os = tki.modules.os
+
+        output = os()
+        self.assertIsInstance(output, tuple)
+
+        results = os.getOSInfo()
+        self.assertIsInstance(results, tuple)
+
+        results = os.isOSSupported()
+        self.assertIsInstance(results, bool)
+
+        results = os.getCluster()
+        self.assertIsInstance(results, bool)
+
+        results = os.getUptime()
+        self.assertIsInstance(results, str)
+
+    def test_aaf_uname(self):
+        global tki
+        standard_check(self)
+
+        uname = tki.modules.uname
+
+        results = uname()
+        self.assertIsInstance(results, str)
+
+        results = uname.getKernelVersion()
+        self.assertIsInstance(results, str)
+
+        results = uname.getHostName()
+        self.assertIsInstance(results, str)
+
+        results = uname.getArch()
+        self.assertIsInstance(results, str)
+
+    def test_aag_uptime(self):
+        global tki
+        standard_check(self)
+
+        uptime = tki.modules.uptime
+
+        output = uptime()
+        self.assertIsInstance(output, str)
+
+        results = uptime.getUptimeViaProc(parse=True)
+        self.assertIsInstance(results, str)
+
+        results = uptime.getUptimeViaProc(parse=False)
+        self.assertIsInstance(results, str)
+        float(results)
+
+    def test_aah_vmstat(self):
+        global tki
+        standard_check(self)
+
+        vmstat = tki.modules.vmstat
+
+        output = vmstat()
+        self.assertIsInstance(output, str)
+
+        self.assertIsNotNone(vmstat.totalMemory)
+
+    def test_aaj_timedatectl(self):
+        global tki
+        standard_check(self)
+
+        timedatectl = tki.modules.timedatectl
+
+        output = timedatectl()
+        self.assertIsInstance(output, str)
+
+        results = timedatectl.getTimezone()
+        self.assertIsInstance(results, str)
+
+    def test_zzz_disconnect(self):
+        global tki
+        standard_check(self)
+        tki.disconnect()
+        self.assertFalse(tki.checkConnection())
+
+
 if __name__ == '__main__':
     modules = find_modules(moduleSubDir='CommandModules')
     maxLength = 17572

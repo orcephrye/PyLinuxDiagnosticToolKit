@@ -29,9 +29,7 @@ class lspciModule(GenericCmdModule):
         super(lspciModule, self).__init__(tki=tki)
         self.defaultCmd = 'lspci '
         self.defaultKey = "lspci%s"
-        self.defaultFlags = "%s"
         self.__NAME__ = 'lspci'
-        self.requireFlags = True
 
     def hasDevice(self, deviceName, wait=60, **kwargs):
         kwargs.update(self.updatekwargs('postparser', GenericCmdModule._formatExitCode, **kwargs))

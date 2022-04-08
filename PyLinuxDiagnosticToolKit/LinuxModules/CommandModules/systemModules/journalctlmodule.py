@@ -35,7 +35,7 @@ class journalctlModule(GenericCmdModule):
         self.requireFlags = False
 
     def journalctlWithFlags(self, extraFlags, **kwargs):
-        flags = self.defaultFlags + str(extraFlags).strip()
+        flags = "--no-pager --utc " + str(extraFlags).strip()
         kwargs.update(self.defaultKwargs)
         return self.run(flags, **kwargs)
 

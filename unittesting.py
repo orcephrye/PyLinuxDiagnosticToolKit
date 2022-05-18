@@ -11,6 +11,7 @@ from LinuxModules.genericCmdModule import GenericCmdModule
 from PyLinuxDiagnosticToolKit.libs.OSNetworking.PyNIC import NetworkInterfaceCards
 from PyLinuxDiagnosticToolKit.libs.OSNetworking.PyRoute import Routes
 from PyCustomParsers.GenericParser import BashParser
+import pdb
 
 tki = None
 
@@ -877,19 +878,29 @@ class TestEFileModules(unittest.TestCase):
         standard_check(self)
 
         ll = tki.modules.ll
+        print('')
+        print('About to touch file')
         if not tki.modules.touch(testfilePath):
             self.skipTest(f'Touch failed to make test file for ll test: {testfilePath}')
+        print(f'Done touching file')
 
+        print('About to get /tmp listing')
         output = ll('/tmp')
         self.assertIsInstance(output, BashParser)
 
+        # pdb.set_trace()
+
+        print('About to check fileExists')
         results = ll.fileExist(testfilePath)
         self.assertTrue(results)
 
+        print('About to check isFileEmpty')
         results = ll.isFileEmpty(testfilePath)
         self.assertTrue(results)
 
+        print('About to rm')
         tki.modules.rm(testfilePath)
+        print('done!')
 
     def test_zzz_disconnect(self):
         global tki
@@ -930,7 +941,7 @@ class TestEUserModules(unittest.TestCase):
         idM = tki.modules.id
 
         myUserID = idM()
-        self.assertTrue(hasattr(myUserID, 'uuid'))
+        self.assertTrue(hasattr(myUserID, 'uid'))
 
     def test_zzz_disconnect(self):
         global tki

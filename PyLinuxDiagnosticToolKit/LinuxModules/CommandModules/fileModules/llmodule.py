@@ -12,8 +12,7 @@ import logging
 from LinuxModules.genericCmdModule import GenericCmdModule
 from PyCustomParsers.GenericParser import BashParser
 from PyCustomParsers.dateparseline import DateParseLine as DPL
-import pytz
-import pytz.reference
+from dateutil import tz
 
 
 log = logging.getLogger('llModule')
@@ -77,7 +76,7 @@ class llModule(GenericCmdModule, BashParser):
         output = ""
         lsOutList = [item.split() for item in lsOut.splitlines()]
         remoteTZ = self.tki.getModules('os').getTimeZone()
-        remoteTZ = remoteTZ if remoteTZ else pytz.reference.LocalTimezone()
+        remoteTZ = tz.gettz(remoteTZ) if remoteTZ else tz.gettz('/etc/localtime')
         dp = None
 
         def _parseHelper(dpItem, tmpList):

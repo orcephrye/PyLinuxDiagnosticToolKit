@@ -92,7 +92,7 @@ class psModule(GenericCmdModule, BashParser):
         """
 
         self.verifyNeedForRun(**kwargs)
-        return self.getCorrelation(('CMD', name), **kwargs)
+        return self.getCorrelation(('COMMAND', name), **kwargs)
 
     def searchCommandString(self, name, **kwargs):
         """ Returns processes with the name from the parameter 'name'.

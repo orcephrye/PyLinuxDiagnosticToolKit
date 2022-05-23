@@ -3,7 +3,7 @@
 #
 # Author: Ryan Henrichson, Timothy Nodine
 
-# Version: 0.2
+# Version: 0.3
 # Date: 05/08/15
 # Description:
 
@@ -12,7 +12,6 @@ import traceback
 import logging
 import re
 from genericCmdModule import GenericCmdModule
-from CommandContainers import CommandContainer
 from PyCustomCollections.CustomDataStructures import IndexList
 from PyCustomParsers.GenericParser import BashParser as GIP
 
@@ -22,16 +21,10 @@ log = logging.getLogger('MySQLModule')
 
 class mysqlModule(GenericCmdModule):
 
-    # __REQUIRES__ = ['system', 'ps']
-    __REQUIRE_ROOT__ = False
-    __PRIORITY__ = 10
     __NAME__ = "mysql"
-    __RESULTS__ = {}
-    __COMMAND__ = {'whichMysql': 'which mysql'}
     __CONFIGNAME__ = __NAME__+"Config.json"
     __LABEL__ = "MySQL"
     __UNBOUND = None
-    _mysqlCMD = None
     _mysqlRunning = None
     _mysqlServerInstalled = None
     _mysqlReplication = None
@@ -44,11 +37,11 @@ class mysqlModule(GenericCmdModule):
     _logFile = None
     _proc = None
     _channelObject = None
-    cmdI = None
 
-    def __init__(self, cmdI, *args, **kwargs):
+    def __init__(self, tki, *args, **kwargs):
         log.info("Creating MySQL Command Module")
-        super(mysqlModule, self).__init__(cmdI=cmdI)
+        super(mysqlModule, self).__init__(tki=tki)
+        self.mysqlClientCommand = ''
 
     def escalateToMySQL(self):
         if not self._channelObject:
@@ -57,19 +50,17 @@ class mysqlModule(GenericCmdModule):
             cO.escalate(escalationCmd='mysql', escalationArgs="", console=True)
         return
 
-    def exeCmd(self):
-        log.info("Executing MySQL Module!")
-        if not self.cmdI:
-            return False
+    def run(self, *args, **kwargs):
         return self.initCollection()
 
     def isMySQLClientInstalled(self, *args, **kwargs):
         def _mysqlClientInstalledParser(results=None, *args, **kwargs):
             if '/mysql' in results:
-                self.__RESULTS__ = results
-                self._mysqlCMD = results
-            return results
-        return self.simpleExecute(command=self.__COMMAND__, postparser=_mysqlClientInstalledParser, **kwargs)
+                self.mysqlClientCommand = results
+                return True
+            return False
+        return self.simpleExecute(command={'whichMysql': 'which mysql'},
+                                  postparser=_mysqlClientInstalledParser, **kwargs)
 
     def isMySQLServerInstalled(self, *args, **kwargs):
         def _isMySQLServerInstalled(results=None, *args, **kwargs):
@@ -86,8 +77,6 @@ class mysqlModule(GenericCmdModule):
         return self.simpleExecute(command=sql, labelReq=self.__LABEL__, noParsing=True, **kwargs)
 
     def getReplicationStatus(self, rerun=False, **kwargs):
-        if not self.cmdI:
-            return None
 
         requirements = [{'running': self.isMySQLRunning}, {'mysqlCmd': self.isMySQLClientInstalled}]
 
@@ -96,8 +85,7 @@ class mysqlModule(GenericCmdModule):
                                   requirements=requirements, rerun=rerun, **kwargs)
 
     def getMySQLVariables(self, rerun=False, wait=0, **kwargs):
-        if not self.cmdI:
-            return None
+
         if self._mysqlVariables is None or rerun:
             self._mysqlVariables = IndexList(columns={'Name': 0, 'Value': 1})
 
@@ -192,7 +180,7 @@ class mysqlModule(GenericCmdModule):
 
         requirements = [{'running': self.isMySQLRunning}, {'mysqlCmd': self.isMySQLClientInstalled}]
 
-        return self.simpleExecute(command="%s -N -e 'show processlist'", commandKey='mysqlProcessList',
+        return self.simpleExecute(command="%s -N -e 'show processlist'", commandKey='mysqlProcessListCC',
                                   preparser=mysqlModule._MySQLStatusPreParser, postparser=_ParseProcessList,
                                   requirements=requirements, rerun=rerun, wait=wait, **kwargs)
 
@@ -210,14 +198,12 @@ class mysqlModule(GenericCmdModule):
         process = self.getMySQLServerProcess(*args, **kwargs)
         if process is None:
             return None
-        if len(process) >= 1:
-            self._mysqlRunning = True
-        else:
-            self._mysqlRunning = False
-        return self._mysqlRunning
+        elif len(process) >= 1:
+            return True
+        return False
 
     def getLogFiles(self, wait=30):
-        if not self._mysqlCMD and self._mysqlRunning is not True:
+        if not self.isMySQLClientInstalled(wait=wait) and self.isMySQLRunning() is not True:
             return None
         self._slowQueryLogfile = self.getVariable('slow_query_log_file', wait=wait)
         self._logError = self.getVariable('log_error', wait=wait)
@@ -227,11 +213,7 @@ class mysqlModule(GenericCmdModule):
         return {'Slow': self._slowQueryLogfile, 'Error': self._logError, 'General': self._logFile}
 
     def getMySQLServerProcess(self, *args, **kwargs):
-        if self._proc is None:
-            self._proc = self.cmdI.getModules('ps')
-            if type(self._proc) is None:
-                return False
-        return self._proc.findCMD('mysqld', *args, **kwargs)
+        return self.tki.modules.ps.findCMD('mysqld', *args, **kwargs)
 
     def getTopRunningProcess(self, top=10, rerun=False, wait=0, **kwargs):
         try:
@@ -268,7 +250,7 @@ class mysqlModule(GenericCmdModule):
 
     def getMySQLProcess(self, rerun=False, wait=60, **kwargs):
         if self._proc is None:
-            self._proc = self.cmdI.getModules('ps')
+            self._proc = self.tki.getModules('ps')
             if type(self._proc) is None:
                 return False
         results = self._proc.findCMD(name=('CMD', 'mysqld'), explicit=True, caseSensitive=False, rerun=rerun,
@@ -302,7 +284,7 @@ class mysqlModule(GenericCmdModule):
     def _getCustomChannel(self):
         if self._channelObject:
             return self._channelObject
-        self._channelObject = self.cmdI.createCustomChannel(label=self.__LABEL__)
+        self._channelObject = self.tki.createCustomChannel(label=self.__LABEL__)
         return self._channelObject
 
     def _parseReplication(self, results, *args, **kwargs):

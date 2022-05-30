@@ -24,6 +24,7 @@ from PyLinuxDiagnosticToolKit.libs.LDTKExceptions import ClosedBufferException, 
     TimeToFirstBitException, SSHExceptionConn
 from typing import Any, AnyStr, Optional, Union, Tuple, Type
 
+
 log = logging.getLogger('sshBufferControl')
 warnings.filterwarnings("ignore", category=ResourceWarning)
 
@@ -62,7 +63,9 @@ class sshBufferControl(sshCon):
         def _parseOutput(tmpOut, tmpPrompt):
             try:
                 tmpOut = sshBufferControl._decodeStringEscape(tmpOut)
-            except UnicodeDecodeError:
+            except UnicodeDecodeError as e:
+                log.error(f'ERROR: for method _parseOutput: {e}')
+                log.debug(f"[DEBUG] for _parseOutput: {traceback.format_exc()}")
                 tmpOut = sshBufferControl._decodeStringEscape(tmpOut, encoding='latin1')
             tmpOut = sshBufferControl.escapeChars.sub('', tmpOut).strip()
             return tmpOut.replace(tmpPrompt, '').replace(cmd, '').strip()
@@ -114,6 +117,12 @@ class sshBufferControl(sshCon):
 
         # wait for remote shell to ready up to receive data
         try:
+
+            while channel.recv_ready():
+                log.debug(f'There is old data left in the Channel Buffer. Clearing...')
+                channel.recv(65536)
+                sleep(0.1)
+
             # log.debug(f'Waiting to send for channel: [{cmd}] : [{str(channel)[18:20]}]  Closed: {channel.closed}')
             while channel.send_ready() is not True:
                 # log.debug(f"Channel rec: {channel.recv(65536)}")
@@ -318,6 +327,9 @@ class sshBufferControl(sshCon):
             except socket.timeout as e:
                 if channel.closed:
                     raise ClosedBufferException("Channel closed while attempting to read from it!") from e
+            except Exception as e:
+                log.error(f'ERROR: for method _bufferBetweenBitWait: {e}')
+                log.debug(f'[DEBUG] for method _bufferBetweenBitWait: {traceback.format_exc()}')
             sleep(delay)
         raise BetweenBitException(f"IO Timeout: waited for {str(bbEnd)}")
 
@@ -333,7 +345,8 @@ class sshBufferControl(sshCon):
             sleep(delay)
         try:
             if channel.send_ready() is True:
-                channel.send('\n')
+                sent = channel.sendall('\n')
+                log.debug(f"The _bufferSendWait attempted to send newline... bytes sent: {sent}")
         except socket.timeout as e:
             if channel.isClosed:
                 raise ClosedBufferException('Channel closed while attempting to send data to it!') from e
@@ -427,7 +440,6 @@ class sshBufferControl(sshCon):
             outValue = sshBufferControl._bufferBetweenBitWait(channel, time.time() + betweenBitTimeout, delay)
             # print(f'outValue: {outValue}')
             out.write(outValue)
-        # print(f"\n=== Completed reading from buffer ===")
         if sshBufferControl._endTextAnalyzer(outValue, endText, endTextType,
                                              cmd=cmd) and not channel.closed and closeOnFailure:
             if time.time() > endTime:

@@ -435,9 +435,11 @@ class EnvironmentControls(sshEnvironment):
         """
 
         with self._LOCK:
-            if not self.checkConnection():
-                return False
             try:
+                if not self.checkConnection():
+                    log.debug(f'Connection already closed this will set "dead" variable to True and remove this from '
+                              f'the Environment list')
+                    return False
                 self.sshParent.disconnect(environment=self)
             except SSHExceptionConn:
                 log.debug("Failed to complete logout correctly! This could because of a corrupt userList!")

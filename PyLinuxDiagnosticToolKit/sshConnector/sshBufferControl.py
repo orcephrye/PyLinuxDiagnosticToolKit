@@ -121,7 +121,7 @@ class sshBufferControl(sshCon):
             while channel.recv_ready():
                 log.debug(f'There is old data left in the Channel Buffer. Clearing...')
                 channel.recv(65536)
-                sleep(0.1)
+                sleep(.1)
 
             # log.debug(f'Waiting to send for channel: [{cmd}] : [{str(channel)[18:20]}]  Closed: {channel.closed}')
             while channel.send_ready() is not True:
@@ -129,7 +129,7 @@ class sshBufferControl(sshCon):
                 if channel.isClosed:
                     log.debug(f'Channel closed while waiting to send command: [{cmd}] : [{str(channel)[18:20]}]')
                     return
-                sleep(.5)
+                sleep(.1)
             # log.debug(f'Send buffer ready to receive... '
             #           f'For channel: [{cmd}] : [{str(channel)[18:20]}]  Closed: {channel.isClosed}')
             self._bufferSendWait(data=f'{cmd}', channel=channel, delay=0.01)

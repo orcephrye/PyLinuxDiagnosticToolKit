@@ -41,7 +41,6 @@ class mysqlModule(GenericCmdModule):
     def __init__(self, tki, *args, **kwargs):
         log.info("Creating MySQL Command Module")
         super(mysqlModule, self).__init__(tki=tki)
-        self.mysqlClientCommand = ''
 
     def escalateToMySQL(self):
         if not self._channelObject:
@@ -51,13 +50,24 @@ class mysqlModule(GenericCmdModule):
         return
 
     def run(self, *args, **kwargs):
-        return self.initCollection()
+        return self.initCollection(*args, **kwargs)
+
+    def initCollection(self, *args, **kwargs):
+        self.isMySQLClientInstalled()
+        self.isMySQLServerInstalled()
+        self.isMySQLRunning()
+        self.getMySQLVariables()
+        self.getMySQLStatus()
+        self.getReplicationStatus()
+        self.getMySQLProcessList()
+        if 'wait' in kwargs:
+            return self.tki.waitForIdle(timeout=kwargs.get('wait', 60))
+        return None
 
     def isMySQLClientInstalled(self, *args, **kwargs):
         def _mysqlClientInstalledParser(results=None, *args, **kwargs):
             if '/mysql' in results:
-                self.mysqlClientCommand = results
-                return True
+                return results.strip()
             return False
         return self.simpleExecute(command={'whichMysql': 'which mysql'},
                                   postparser=_mysqlClientInstalledParser, **kwargs)
@@ -184,16 +194,6 @@ class mysqlModule(GenericCmdModule):
                                   preparser=mysqlModule._MySQLStatusPreParser, postparser=_ParseProcessList,
                                   requirements=requirements, rerun=rerun, wait=wait, **kwargs)
 
-    def initCollection(self):
-        self.isMySQLClientInstalled()
-        self.isMySQLServerInstalled()
-        self.isMySQLRunning()
-        self.getMySQLVariables()
-        self.getMySQLStatus()
-        self.getReplicationStatus()
-        self.getMySQLProcessList()
-        return None
-
     def isMySQLRunning(self, *args, **kwargs):
         process = self.getMySQLServerProcess(*args, **kwargs)
         if process is None:
@@ -309,15 +309,11 @@ class mysqlModule(GenericCmdModule):
     @staticmethod
     def _MySQLStatusPreParser(*args, **kwargs):
         this = kwargs.get("this")
-        # print "\n=== MySQL Status Pre Parser ==="
         if this is None:
-            # print "No this obj"
             return False
         elif not this.requirementResults:
-            # print "This has not requirementResults attr"
             return False
         else:
-            # print "About to append: %s too: %s" % (str(this.requirementResults.get('mysqlCmd')), this.command)
             this.command %= str(this.requirementResults.get('mysqlCmd'))
             return True
 

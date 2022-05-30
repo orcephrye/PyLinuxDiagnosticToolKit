@@ -132,9 +132,7 @@ class sshBufferControl(sshCon):
 
             # log.debug(f'Send buffer ready to receive... '
             #           f'For channel: [{cmd}] : [{str(channel)[18:20]}]  Closed: {channel.isClosed}')
-            self._bufferSendWait(data=f'{cmd}', channel=channel, delay=0.01)
-            # log.debug(f'Send complete. Now waiting for recv singal for channel: '
-            #           f'[{cmd}] : [{str(channel)[18:20]}]  Closed: {channel.isClosed}')
+            self._bufferSendWait(data=f'{cmd}', channel=channel)
 
             # loop through and record all data in recv buffer
             # log.debug(f'Receive buffer ready...  Fetching output data from receive buffer for '
@@ -324,22 +322,14 @@ class sshBufferControl(sshCon):
         raise BetweenBitException(f"IO Timeout: waited for {str(bbEnd)}")
 
     @staticmethod
-    def _bufferSendWait(data: AnyStr, channel: EnvironmentControls, delay: float) -> None:
-        while data:
-            try:
-                if channel.send_ready() is True:
-                    data = data[channel.send(data[:1024]):]
-            except socket.timeout as e:
-                if channel.isClosed:
-                    raise ClosedBufferException('Channel closed while attempting to send data to it!') from e
-            sleep(delay)
+    def _bufferSendWait(data: AnyStr, channel: EnvironmentControls) -> None:
         try:
-            if channel.send_ready() is True:
-                sent = channel.sendall('\n')
-                log.debug(f"The _bufferSendWait attempted to send newline... bytes sent: {sent}")
+            channel.sendall(data)
+            channel.sendall('\n')
         except socket.timeout as e:
             if channel.isClosed:
                 raise ClosedBufferException('Channel closed while attempting to send data to it!') from e
+
 
     @staticmethod
     def _endTextParser(endText: Union[Tuple, AnyStr]) -> Tuple[Type, Union[Tuple, AnyStr]]:

@@ -96,8 +96,11 @@ class sshBufferControl(sshCon):
             output = '[COMMAND_IO_LIMIT_TIMED_OUT]'
             environment.close()
         except Exception as e:
-            log.error(f'ERROR: for method executeOnEnvironment: {e}')
+            log.error(f'ERROR: generic Exception for method executeOnEnvironment: {e}')
+            log.info('This error will be passed onto the Command Container')
+            log.debug(f'This error occurred while executing: {cmd}  on: {environment}')
             log.debug(f'[DEBUG] for method executeOnEnvironment: {traceback.format_exc()}')
+            raise e
         finally:
             out.truncate(0)
             del out
@@ -112,10 +115,6 @@ class sshBufferControl(sshCon):
         """
         runTimeout, firstBitTimeout, betweenBitTimeout, delay = self._parseTimeouts(**kwargs)
 
-        # log.debug(f"Line in out buffer: {out.getvalue()} for Channel [{str(channel)[18:20]}]")
-        # log.debug(f'Current channel in buffer: [{cmd}] : [{str(channel)[18:20]}]  Closed: {channel.closed}')
-
-        # wait for remote shell to ready up to receive data
         try:
 
             while channel.recv_ready():
@@ -130,40 +129,31 @@ class sshBufferControl(sshCon):
                     log.debug(f'Channel closed while waiting to send command: [{cmd}] : [{str(channel)[18:20]}]')
                     return
                 sleep(.1)
+
             # log.debug(f'Send buffer ready to receive... '
             #           f'For channel: [{cmd}] : [{str(channel)[18:20]}]  Closed: {channel.isClosed}')
             self._bufferSendWait(data=f'{cmd}', channel=channel, delay=0.01)
             # log.debug(f'Send complete. Now waiting for recv singal for channel: '
             #           f'[{cmd}] : [{str(channel)[18:20]}]  Closed: {channel.isClosed}')
 
-            # wait for remote shell to fill receive buffer
-            while channel.recv_ready() is not True:
-                if channel.isClosed:
-                    log.debug(f'Channel closed after sending command: [{cmd}] : [{str(channel)[18:20]}]')
-                    return
-                sleep(.2)
             # loop through and record all data in recv buffer
             # log.debug(f'Receive buffer ready...  Fetching output data from receive buffer for '
             #           f'channel: [{cmd}] : [{str(channel)[18:20]}]  Closed: {channel.isClosed}')
-            # log.debug(f"Unsafe is: {unsafe}")
             if prompt:  # if prompt was captured use prompt as terminator
                 log.debug(f"Executing on {channel._id} cmd: {cmd} with prompt: {prompt}")
                 self._bufferGenerator(channel=channel, out=out, runTimeout=runTimeout,
                                       firstBitTimeout=firstBitTimeout, betweenBitTimeout=betweenBitTimeout,
                                       delay=delay, endText=prompt, cmd=cmd)
-                # log.debug(f"The out value is: {out.getvalue()}")
             elif unsafe:
                 log.debug(f"Executing on {channel._id} cmd: {cmd} with unsafe mode")
                 # log.debug(f'Fetching data in unsafe mode for channel: '
                 #           f'[{cmd}] : [{str(channel)[18:20]}]  Closed: {channel.closed}')
-                sleep(0.1)
+                sshBufferControl._bufferTimeToFirstBit(channel, time.time() + 1, delay)
                 while channel.recv_ready() is True:
                     if channel.isClosed:
                         return
                     out.write(channel.recv(65536).decode('utf-8'))
-                    sleep(.2)
-                # log.debug(f'Data fetch in unsafe complete for channel: '
-                #           f'[{cmd}] : [{str(channel)[18:20]}]  Closed: {channel.closed}')
+                    sleep(.1)
             else:
                 if 'echo CMDEND' in cmd:
                     endText = 'CMDEND'

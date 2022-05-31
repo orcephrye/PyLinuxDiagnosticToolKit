@@ -60,7 +60,10 @@ class sshBufferControl(sshCon):
         """
 
         def _parseOutput(tmpOut, tmpPrompt):
-            tmpOut = sshBufferControl._decodeStringEscape(tmpOut)
+            try:
+                tmpOut = sshBufferControl._decodeStringEscape(tmpOut)
+            except UnicodeDecodeError:
+                tmpOut = sshBufferControl._decodeStringEscape(tmpOut, encoding='latin1')
             tmpOut = sshBufferControl.escapeChars.sub('', tmpOut).strip()
             return tmpOut.replace(tmpPrompt, '').replace(cmd, '').strip()
 
@@ -89,6 +92,9 @@ class sshBufferControl(sshCon):
             log.error("Timeout exception found.")
             output = '[COMMAND_IO_LIMIT_TIMED_OUT]'
             environment.close()
+        except Exception as e:
+            log.error(f'ERROR: for method executeOnEnvironment: {e}')
+            log.debug(f'[DEBUG] for method executeOnEnvironment: {traceback.format_exc()}')
         finally:
             out.truncate(0)
             del out
@@ -270,6 +276,7 @@ class sshBufferControl(sshCon):
                     .encode('latin1')
                     .decode(encoding))
 
+
     @staticmethod
     def _processString(s: AnyStr, encoding: AnyStr = 'utf-8') -> AnyStr:
         return sshBufferControl.escapeChars.sub('', sshBufferControl._decodeStringEscape(s.strip(), encoding)).strip()
@@ -418,6 +425,7 @@ class sshBufferControl(sshCon):
         while time.time() <= endTime and not channel.closed and sshBufferControl._endTextAnalyzer(outValue, endText,
                                                                                                   endTextType, cmd=cmd):
             outValue = sshBufferControl._bufferBetweenBitWait(channel, time.time() + betweenBitTimeout, delay)
+            # print(f'outValue: {outValue}')
             out.write(outValue)
         # print(f"\n=== Completed reading from buffer ===")
         if sshBufferControl._endTextAnalyzer(outValue, endText, endTextType,

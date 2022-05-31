@@ -115,8 +115,8 @@ class lsofModule(GenericCmdModule, BashParser):
 
         if results is None:
             results = self
-        print(f'lsofConvertResultsToBytes - Shortest Line: {results.shortestLine}')
-        print(f'lsofConvertResultsToBytes - Shortest Line: {results._getShortestLine(results)}')
+        # print(f'lsofConvertResultsToBytes - Shortest Line: {results.shortestLine}')
+        # print(f'lsofConvertResultsToBytes - Shortest Line: {results._getShortestLine(results)}')
         return self.convertResultsToBytes(results, ['SIZE/OFF'])
 
     def formatOpenDeletedFiles(self, maxLines=None, formatColumns=None):

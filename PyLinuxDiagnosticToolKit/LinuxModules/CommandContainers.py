@@ -47,6 +47,7 @@ endSubRe = re.compile(r'CMDEND.*', flags=re.MULTILINE | re.DOTALL)
 #Unparse the command string
 unParseCmd = re.compile(r'echo CMDSTART &&(.*)&& echo CMDEND')
 
+
 class CommandData(object):
     """
         This is where all the data associated with the Command is located.

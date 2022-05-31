@@ -20,7 +20,7 @@ import re
 import traceback
 import time
 import uuid
-from collections import OrderedDict  # TODO remove OrderedDict
+from collections import OrderedDict
 from threading import RLock, Event
 from functools import partial
 from sshConnector.sshLibs.sshChannelEnvironment import EnvironmentControls

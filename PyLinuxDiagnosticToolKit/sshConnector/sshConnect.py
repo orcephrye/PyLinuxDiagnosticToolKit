@@ -54,6 +54,7 @@ class sshConnect(object):
         self.key = arguments.key
         self.username = arguments.username
         self.password = arguments.password
+        self.passphrase = arguments.passphrase if arguments.passphrase else None
         self.root = arguments.root
         self.rootLogin = sshConnect.processRootLogin(arguments.rootLogin)
         self.rootpwd = arguments.rootpwd
@@ -103,7 +104,7 @@ class sshConnect(object):
 
             ssh.connect(self.host,
                         port=int(self.port),
-                        pkey=self._handleSSHKey(self.key, self.password),
+                        pkey=self._handleSSHKey(self.key, self.passphrase),
                         username=self.username,
                         password=self.password,
                         timeout=float(self.connTimeout),

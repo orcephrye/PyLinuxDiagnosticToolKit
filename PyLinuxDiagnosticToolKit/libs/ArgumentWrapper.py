@@ -226,6 +226,8 @@ def arguments(explicit_option_match=True, option_sep='='):
                         help='ssh port')
     parser.add_argument('-k', '--sshkey', '--key', dest='key', nargs='?', type=str, default="",
                         help='private ssh key')
+    parser.add_argument('--passphrase', dest='passphrase', type=str, default="",
+                        help="This is the ssh keys passphrase")
     parser.add_argument('-u', '--username', '--user', '--uname', dest='username', default='server',
                         help='ssh login username')
     parser.add_argument('-p', '--password', '--pass', '--pasw', '--pw', dest='password',

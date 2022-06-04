@@ -1,6 +1,7 @@
 import unittest
 import os
 import json
+import warnings
 from time import sleep
 from functools import partialmethod
 from io import StringIO
@@ -12,6 +13,9 @@ from LinuxModules.genericCmdModule import GenericCmdModule
 from PyLinuxDiagnosticToolKit.libs.OSNetworking.PyNIC import NetworkInterfaceCards
 from PyLinuxDiagnosticToolKit.libs.OSNetworking.PyRoute import Routes
 from PyCustomParsers.GenericParser import BashParser
+
+
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 
 tki = None

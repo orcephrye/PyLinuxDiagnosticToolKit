@@ -50,9 +50,13 @@ def letters_generator():
                 yield f'{chr(s)}{chr(m)}{chr(e)}'
 
 
-def getArguments():
+def getConfig():
     with open(testConfigFile) as f:
         config = json.load(f)
+    return config
+
+def getArguments():
+    config = getConfig()
     args = ArgumentWrapper.arguments().parse_known_args()[0]
     for key, value in config.items():
         if hasattr(args, key):
@@ -611,17 +615,24 @@ class TestEDiskModules(unittest.TestCase):
         self.assertIsInstance(output, BashParser)
 
     def test_aac_findfs(self):
-        """ Assumes specific UUID [a8da7689-9994-4d6b-9bc7-2e69b536e5e3] and LABEL [ROOT] exist """
+        """ Requires *.json config file to include findfs_test_uuid, findfs_test_label, findfs_test_value keys  """
         global tki
         standard_check(self)
 
+        config = getConfig()
+        uuid_str = config.get('findfs_test_uuid', '')
+        label_str = config.get('findfs_test_label', '')
+        correct_value = config.get('findfs_test_value', 'error')
+
         findfs = tki.modules.findfs
 
-        results = findfs.convertUUID('a8da7689-9994-4d6b-9bc7-2e69b536e5e3')
+        results = findfs.convertUUID(uuid_str)
         self.assertIsInstance(results, str)
+        self.assertEqual(results.strip(), correct_value)
 
-        results = findfs.convertLABEL('ROOT')
+        results = findfs.convertLABEL(label_str)
         self.assertIsInstance(results, str)
+        self.assertEqual(results.strip(), correct_value)
 
     def test_aad_findmnt(self):
         global tki

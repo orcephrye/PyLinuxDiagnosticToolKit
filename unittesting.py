@@ -45,20 +45,23 @@ def letters_generator():
                 yield f'{chr(s)}{chr(m)}{chr(e)}'
 
 
+def getArguments():
+    with open(testConfigFile) as f:
+        config = json.load(f)
+    args = ArgumentWrapper.arguments().parse_known_args()[0]
+    for key, value in config.items():
+        if hasattr(args, key):
+            setattr(args, key, value)
+    args.root = True if config.get('root') else False
+    return args
+
+
 # noinspection PyUnresolvedReferences
 class TestAAuthentication(unittest.TestCase):
 
     def test_a_new_instance(self):
         global tki
-        with open(testConfigFile) as f:
-            config = json.load(f)
-        args = ArgumentWrapper.arguments().parse_known_args()[0]
-        args.host = config.get('host')
-        args.username = config.get('username')
-        args.password = config.get('password')
-        args.root = True if config.get('root') else False
-        args.rootpwd = config.get('rootpwd')
-        tki = ldtk.ToolKitInterface(arguments=args, auto_login=False)
+        tki = ldtk.ToolKitInterface(arguments=getArguments(), auto_login=False)
         self.assertIsInstance(tki, ldtk.ToolKitInterface)
 
     def test_b_ssh(self):
@@ -86,15 +89,7 @@ class TestBSimpleExecution(unittest.TestCase):
 
     def test_a_login(self):
         global tki
-        with open(testConfigFile) as f:
-            config = json.load(f)
-        args = ArgumentWrapper.arguments().parse_known_args()[0]
-        args.host = config.get('host')
-        args.username = config.get('username')
-        args.password = config.get('password')
-        args.root = True if config.get('root') else False
-        args.rootpwd = config.get('rootpwd')
-        tki = ldtk.ToolKitInterface(arguments=args, auto_login=False)
+        tki = ldtk.ToolKitInterface(arguments=getArguments(), auto_login=False)
         self.assertIsInstance(tki, ldtk.ToolKitInterface)
         conn = tki.createConnection()
         self.assertIsInstance(conn, threadedSSH)
@@ -129,16 +124,7 @@ class TestCUserEscalation(unittest.TestCase):
     def test_a_login(self):
         global tki
 
-        with open(testConfigFile) as f:
-            config = json.load(f)
-        args = ArgumentWrapper.arguments().parse_known_args()[0]
-        args.host = config.get('host')
-        args.username = config.get('username')
-        args.password = config.get('password')
-        args.root = True if config.get('root') else False
-        args.rootpwd = config.get('rootpwd')
-
-        tki = ldtk.ToolKitInterface(arguments=args, auto_login=False)
+        tki = ldtk.ToolKitInterface(arguments=getArguments(), auto_login=False)
         self.assertIsInstance(tki, ldtk.ToolKitInterface)
         conn = tki.createConnection()
         self.assertIsInstance(conn, threadedSSH)
@@ -198,7 +184,7 @@ class TestCUserEscalation(unittest.TestCase):
 
     def test_e_sudo_escalation_in_channel(self):
         """
-            This assumes that sudo will ask for the root password!
+            This assumes testerOne and testerTwo exist on target
         """
         global tki
         standard_check(self)
@@ -262,16 +248,7 @@ class TestDCommandModulesNoFlags(unittest.TestCase):
     def test_aaa_login(self):
         global tki
 
-        with open(testConfigFile) as f:
-            config = json.load(f)
-        args = ArgumentWrapper.arguments().parse_known_args()[0]
-        args.host = config.get('host')
-        args.username = config.get('username')
-        args.password = config.get('password')
-        args.root = True if config.get('root') else False
-        args.rootpwd = config.get('rootpwd')
-
-        tki = ldtk.ToolKitInterface(arguments=args, auto_login=False)
+        tki = ldtk.ToolKitInterface(arguments=getArguments(), auto_login=False)
         self.assertIsInstance(tki, ldtk.ToolKitInterface)
         conn = tki.createConnection()
         self.assertIsInstance(conn, threadedSSH)
@@ -319,16 +296,7 @@ class TestESFTPandSCP(unittest.TestCase):
     def test_a_login(self):
         global tki
 
-        with open(testConfigFile) as f:
-            config = json.load(f)
-        args = ArgumentWrapper.arguments().parse_known_args()[0]
-        args.host = config.get('host')
-        args.username = config.get('username')
-        args.password = config.get('password')
-        args.root = True if config.get('root') else False
-        args.rootpwd = config.get('rootpwd')
-
-        tki = ldtk.ToolKitInterface(arguments=args, auto_login=False)
+        tki = ldtk.ToolKitInterface(arguments=getArguments(), auto_login=False)
         self.assertIsInstance(tki, ldtk.ToolKitInterface)
         conn = tki.createConnection()
         self.assertIsInstance(conn, threadedSSH)
@@ -433,16 +401,7 @@ class TestEProcessModules(unittest.TestCase):
     def test_aaa_login(self):
         global tki
 
-        with open(testConfigFile) as f:
-            config = json.load(f)
-        args = ArgumentWrapper.arguments().parse_known_args()[0]
-        args.host = config.get('host')
-        args.username = config.get('username')
-        args.password = config.get('password')
-        args.root = True if config.get('root') else False
-        args.rootpwd = config.get('rootpwd')
-
-        tki = ldtk.ToolKitInterface(arguments=args, auto_login=False)
+        tki = ldtk.ToolKitInterface(arguments=getArguments(), auto_login=False)
         self.assertIsInstance(tki, ldtk.ToolKitInterface)
         conn = tki.createConnection()
         self.assertIsInstance(conn, threadedSSH)
@@ -512,16 +471,7 @@ class TestENetworkModules(unittest.TestCase):
     def test_aaa_login(self):
         global tki
 
-        with open(testConfigFile) as f:
-            config = json.load(f)
-        args = ArgumentWrapper.arguments().parse_known_args()[0]
-        args.host = config.get('host')
-        args.username = config.get('username')
-        args.password = config.get('password')
-        args.root = True if config.get('root') else False
-        args.rootpwd = config.get('rootpwd')
-
-        tki = ldtk.ToolKitInterface(arguments=args, auto_login=False)
+        tki = ldtk.ToolKitInterface(arguments=getArguments(), auto_login=False)
         self.assertIsInstance(tki, ldtk.ToolKitInterface)
         conn = tki.createConnection()
         self.assertIsInstance(conn, threadedSSH)
@@ -617,16 +567,7 @@ class TestEDiskModules(unittest.TestCase):
     def test_aaa_login(self):
         global tki
 
-        with open(testConfigFile) as f:
-            config = json.load(f)
-        args = ArgumentWrapper.arguments().parse_known_args()[0]
-        args.host = config.get('host')
-        args.username = config.get('username')
-        args.password = config.get('password')
-        args.root = True if config.get('root') else False
-        args.rootpwd = config.get('rootpwd')
-
-        tki = ldtk.ToolKitInterface(arguments=args, auto_login=False)
+        tki = ldtk.ToolKitInterface(arguments=getArguments(), auto_login=False)
         self.assertIsInstance(tki, ldtk.ToolKitInterface)
         conn = tki.createConnection()
         self.assertIsInstance(conn, threadedSSH)
@@ -706,16 +647,7 @@ class TestEFileModules(unittest.TestCase):
     def test_aaa_login(self):
         global tki
 
-        with open(testConfigFile) as f:
-            config = json.load(f)
-        args = ArgumentWrapper.arguments().parse_known_args()[0]
-        args.host = config.get('host')
-        args.username = config.get('username')
-        args.password = config.get('password')
-        args.root = True if config.get('root') else False
-        args.rootpwd = config.get('rootpwd')
-
-        tki = ldtk.ToolKitInterface(arguments=args, auto_login=False)
+        tki = ldtk.ToolKitInterface(arguments=getArguments(), auto_login=False)
         self.assertIsInstance(tki, ldtk.ToolKitInterface)
         conn = tki.createConnection()
         self.assertIsInstance(conn, threadedSSH)
@@ -912,16 +844,7 @@ class TestEUserModules(unittest.TestCase):
     def test_aaa_login(self):
         global tki
 
-        with open(testConfigFile) as f:
-            config = json.load(f)
-        args = ArgumentWrapper.arguments().parse_known_args()[0]
-        args.host = config.get('host')
-        args.username = config.get('username')
-        args.password = config.get('password')
-        args.root = True if config.get('root') else False
-        args.rootpwd = config.get('rootpwd')
-
-        tki = ldtk.ToolKitInterface(arguments=args, auto_login=False)
+        tki = ldtk.ToolKitInterface(arguments=getArguments(), auto_login=False)
         self.assertIsInstance(tki, ldtk.ToolKitInterface)
         conn = tki.createConnection()
         self.assertIsInstance(conn, threadedSSH)
@@ -953,16 +876,7 @@ class TestESystemModules(unittest.TestCase):
     def test_aaa_login(self):
         global tki
 
-        with open(testConfigFile) as f:
-            config = json.load(f)
-        args = ArgumentWrapper.arguments().parse_known_args()[0]
-        args.host = config.get('host')
-        args.username = config.get('username')
-        args.password = config.get('password')
-        args.root = True if config.get('root') else False
-        args.rootpwd = config.get('rootpwd')
-
-        tki = ldtk.ToolKitInterface(arguments=args, auto_login=False)
+        tki = ldtk.ToolKitInterface(arguments=getArguments(), auto_login=False)
         self.assertIsInstance(tki, ldtk.ToolKitInterface)
         conn = tki.createConnection()
         self.assertIsInstance(conn, threadedSSH)

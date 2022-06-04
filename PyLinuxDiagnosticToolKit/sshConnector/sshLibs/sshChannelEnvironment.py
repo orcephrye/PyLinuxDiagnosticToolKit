@@ -217,21 +217,6 @@ class sshEnvironment(sshChannelWrapper):
             return consoles[-1]
         return "BASH"
 
-    def getPasswordFor(self, name: str) -> str:
-        """ Gets the current recorded password for the user specified by the 'name' parameter.
-
-        :param name: (str) the name of the user that you are getting a password for.
-        :return: (str)
-        """
-
-        def _filterUserByName(x):
-            return name.lower() in str(x[1]).lower()
-
-        for item in filter(_filterUserByName, self.consoleStack):
-            if item[-1] is not None:
-                return item[-1]
-        return ""
-
     def resetEnvironment(self) -> None:
         """ Resets the environment console stack """
 
@@ -461,6 +446,24 @@ class EnvironmentControls(sshEnvironment):
 
         kwargs.update({'environment': self})
         return self.sshParent.logoutConsole(*args, **kwargs)
+
+    def getPasswordFor(self, name: str) -> str:
+        """ Gets the current recorded password for the user specified by the 'name' parameter.
+
+        :param name: (str) the name of the user that you are getting a password for.
+        :return: (str)
+        """
+
+        def _filterUserByName(x):
+            return name.lower() in str(x[1]).lower()
+
+        if name in self.sshParent.usermap:
+            return self.sshParent.usermap.get(name, "")
+
+        for item in filter(_filterUserByName, self.consoleStack):
+            if item[-1] is not None:
+                return item[-1]
+        return ""
 
     # noinspection PyProtectedMember
     def _becomePreviousUser(self, *args, **kwargs) -> sshEnvironment:

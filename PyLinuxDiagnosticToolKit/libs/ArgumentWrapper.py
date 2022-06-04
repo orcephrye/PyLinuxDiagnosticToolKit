@@ -21,6 +21,7 @@ import re
 import argparse
 from copy import copy
 from json import loads
+from yaml import safe_load
 from PyCustomCollections import NamespaceDict
 from PyCustomParsers.CustomParsers import jsonHook, literal_eval_include
 
@@ -240,6 +241,10 @@ def arguments(explicit_option_match=True, option_sep='='):
                         help='The login command for escalating to root')
     parser.add_argument('--rootLoginExplicit', dest='rootLoginExplicit', action='store_true', default=False,
                         help='Determines if the script should retry to escalate to root with another method.')
+    parser.add_argument('--user-map', '--umap', dest='usermap', type=safe_load, default={},
+                        help='This is a map of additional users and there passwords. This is used if the script needs'
+                             'to escalate in an unprivileged environment to a different user then the one provided at'
+                             'login. Or if sudo requires a password of a different user.')
     parser.add_argument('--bash-norc', dest='useBashnorc', action='store_true', default=True,
                         help='Determines if the script should open bash with the -norc flag to avoid custom prompts')
     parser.add_argument('--runtimeout', dest='runTimeout', type=int, default=300,

@@ -11,7 +11,7 @@ from LinuxModules.genericCmdModule import GenericCmdModule
 from PyLinuxDiagnosticToolKit.libs.OSNetworking.PyNIC import NetworkInterfaceCards
 from PyLinuxDiagnosticToolKit.libs.OSNetworking.PyRoute import Routes
 from PyCustomParsers.GenericParser import BashParser
-import pdb
+
 
 tki = None
 
@@ -25,6 +25,8 @@ echo 'this is a test'
 
 
 testfilePath = "/tmp/testfile.out"
+
+testConfigFile = "unittesting.json"
 
 
 # noinspection PyUnresolvedReferences
@@ -48,7 +50,7 @@ class TestAAuthentication(unittest.TestCase):
 
     def test_a_new_instance(self):
         global tki
-        with open('unittesting.json') as f:
+        with open(testConfigFile) as f:
             config = json.load(f)
         args = ArgumentWrapper.arguments().parse_known_args()[0]
         args.host = config.get('host')
@@ -84,7 +86,7 @@ class TestBSimpleExecution(unittest.TestCase):
 
     def test_a_login(self):
         global tki
-        with open('unittesting.json') as f:
+        with open(testConfigFile) as f:
             config = json.load(f)
         args = ArgumentWrapper.arguments().parse_known_args()[0]
         args.host = config.get('host')
@@ -127,7 +129,7 @@ class TestCUserEscalation(unittest.TestCase):
     def test_a_login(self):
         global tki
 
-        with open('unittesting.json') as f:
+        with open(testConfigFile) as f:
             config = json.load(f)
         args = ArgumentWrapper.arguments().parse_known_args()[0]
         args.host = config.get('host')
@@ -146,7 +148,7 @@ class TestCUserEscalation(unittest.TestCase):
         global tki
         standard_check(self)
 
-        with open('unittesting.json') as f:
+        with open(testConfigFile) as f:
             config = json.load(f)
         args = ArgumentWrapper.arguments().parse_known_args()[0]
         args.username = config.get('username')
@@ -260,7 +262,7 @@ class TestDCommandModulesNoFlags(unittest.TestCase):
     def test_aaa_login(self):
         global tki
 
-        with open('unittesting.json') as f:
+        with open(testConfigFile) as f:
             config = json.load(f)
         args = ArgumentWrapper.arguments().parse_known_args()[0]
         args.host = config.get('host')
@@ -317,7 +319,7 @@ class TestESFTPandSCP(unittest.TestCase):
     def test_a_login(self):
         global tki
 
-        with open('unittesting.json') as f:
+        with open(testConfigFile) as f:
             config = json.load(f)
         args = ArgumentWrapper.arguments().parse_known_args()[0]
         args.host = config.get('host')
@@ -431,7 +433,7 @@ class TestEProcessModules(unittest.TestCase):
     def test_aaa_login(self):
         global tki
 
-        with open('unittesting.json') as f:
+        with open(testConfigFile) as f:
             config = json.load(f)
         args = ArgumentWrapper.arguments().parse_known_args()[0]
         args.host = config.get('host')
@@ -510,7 +512,7 @@ class TestENetworkModules(unittest.TestCase):
     def test_aaa_login(self):
         global tki
 
-        with open('unittesting.json') as f:
+        with open(testConfigFile) as f:
             config = json.load(f)
         args = ArgumentWrapper.arguments().parse_known_args()[0]
         args.host = config.get('host')
@@ -615,7 +617,7 @@ class TestEDiskModules(unittest.TestCase):
     def test_aaa_login(self):
         global tki
 
-        with open('unittesting.json') as f:
+        with open(testConfigFile) as f:
             config = json.load(f)
         args = ArgumentWrapper.arguments().parse_known_args()[0]
         args.host = config.get('host')
@@ -704,7 +706,7 @@ class TestEFileModules(unittest.TestCase):
     def test_aaa_login(self):
         global tki
 
-        with open('unittesting.json') as f:
+        with open(testConfigFile) as f:
             config = json.load(f)
         args = ArgumentWrapper.arguments().parse_known_args()[0]
         args.host = config.get('host')
@@ -878,29 +880,20 @@ class TestEFileModules(unittest.TestCase):
         standard_check(self)
 
         ll = tki.modules.ll
-        print('')
-        print('About to touch file')
+
         if not tki.modules.touch(testfilePath):
             self.skipTest(f'Touch failed to make test file for ll test: {testfilePath}')
-        print(f'Done touching file')
 
-        print('About to get /tmp listing')
         output = ll('/tmp')
         self.assertIsInstance(output, BashParser)
 
-        # pdb.set_trace()
-
-        print('About to check fileExists')
         results = ll.fileExist(testfilePath)
         self.assertTrue(results)
 
-        print('About to check isFileEmpty')
         results = ll.isFileEmpty(testfilePath)
         self.assertTrue(results)
 
-        print('About to rm')
         tki.modules.rm(testfilePath)
-        print('done!')
 
     def test_zzz_disconnect(self):
         global tki
@@ -919,7 +912,7 @@ class TestEUserModules(unittest.TestCase):
     def test_aaa_login(self):
         global tki
 
-        with open('unittesting.json') as f:
+        with open(testConfigFile) as f:
             config = json.load(f)
         args = ArgumentWrapper.arguments().parse_known_args()[0]
         args.host = config.get('host')
@@ -960,7 +953,7 @@ class TestESystemModules(unittest.TestCase):
     def test_aaa_login(self):
         global tki
 
-        with open('unittesting.json') as f:
+        with open(testConfigFile) as f:
             config = json.load(f)
         args = ArgumentWrapper.arguments().parse_known_args()[0]
         args.host = config.get('host')
@@ -1107,6 +1100,9 @@ class TestESystemModules(unittest.TestCase):
 
 
 if __name__ == '__main__':
+    # use 'export UnitTestingConfigFile="unittesting_centos.json"; python3 unittesting.py' to change the config file
+    # to unittesting_centos.json or whatever desired file
+    testConfigFile = os.getenv('UnitTestingConfigFile', 'unittesting.json')
     modules = find_modules(moduleSubDir='CommandModules')
     maxLength = 17572
     letterGen = letters_generator()

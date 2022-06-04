@@ -1,6 +1,7 @@
 import unittest
 import os
 import json
+from time import sleep
 from functools import partialmethod
 from io import StringIO
 from PyLinuxDiagnosticToolKit import ldtk, find_modules
@@ -923,7 +924,9 @@ class TestESystemModules(unittest.TestCase):
 
         messages.makeLogEntry('this is a test')
 
-        results = messages.getLogsWithinTimeRange()
+        sleep(2)
+
+        results = messages.getLogsWithinTimeRange(trange='1 minute ago')
         self.assertIsInstance(results, str)
         self.assertGreaterEqual(len(results.splitlines()), 1)
         self.assertIn('this is a test', results)

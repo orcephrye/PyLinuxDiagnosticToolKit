@@ -64,15 +64,18 @@ class messagesModule(GenericCmdModule):
         kwargs.update(self.defaultKwargs)
         return self.tail('-n 15000 /var/log/messages', **kwargs)
 
-    def makeLogEntry(self, logMessage, options=""):
+    def makeLogEntry(self, logMessage, options="", wait=10, **kwargs):
         """
             This is use to add log entries via the 'logger' system log.
         - :param logMessage: The message passed to the syslog.
         - :param options: flags for the 'logger' command
         - :return: None
         """
-
-        self.tki.execute('logger %s %s' % (options, logMessage), preparser=self.doesCommandExistPreParser)
+        if wait:
+            self.tki.execute('logger %s %s' % (options, logMessage),
+                             preparser=self.doesCommandExistPreParser).waitForResults(wait=wait)
+        else:
+            self.tki.execute('logger %s %s' % (options, logMessage), preparser=self.doesCommandExistPreParser)
 
     def getLogsWithinTimeRange(self, trange='25 minutes ago', targetTime=None):
         """
@@ -148,7 +151,7 @@ class messagesModule(GenericCmdModule):
         numberOfLines -= x
         while numberOfLines >= 0:
             tmpCommand = command % (numberOfLines, numberOfLines+999, numberOfLines+1000)
-            yield self.simpleExecute(tmpCommand, commandKey='awk%s' % numberOfLines, wait=180)
+            yield self.simpleExecute(tmpCommand, commandKey='awk%s' % numberOfLines, wait=180, rerun=True)
             if numberOfLines == 0:
                 break
             elif numberOfLines < 1000:
@@ -164,7 +167,7 @@ class messagesModule(GenericCmdModule):
         - :return: int
         """
 
-        numberOfLines = self.tki.getModules('wc').getNumberofLines(file='/var/log/messages')
+        numberOfLines = self.tki.getModules('wc').getNumberofLines(file='/var/log/messages', rerun=True)
         if not isinstance(numberOfLines, int):
             raise Exception("Unable to get the total number of lines of the /var/log/messages")
         return numberOfLines

@@ -14,12 +14,9 @@ from PyLinuxDiagnosticToolKit.libs.OSNetworking.PyNIC import NetworkInterfaceCar
 from PyLinuxDiagnosticToolKit.libs.OSNetworking.PyRoute import Routes
 from PyCustomParsers.GenericParser import BashParser, IndexList
 
-
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-
 tki = None
-
 
 testFile = """#!/bin/bash
 
@@ -27,7 +24,6 @@ sleep 1
 
 echo 'this is a test'
 """
-
 
 testfilePath = "/tmp/testfile.out"
 
@@ -421,6 +417,7 @@ class TestEProcessModules(unittest.TestCase):
         self.assertTrue(tki.checkConnection())
 
     def test_aab_ps(self):
+        """ Assumes system has systemd """
         global tki
         standard_check(self)
 
@@ -531,7 +528,6 @@ class TestENetworkModules(unittest.TestCase):
         localIPStr = '127.0.0.1'
         localIPDict = {'localhost': '127.0.0.1', 'GoogleDNS': '8.8.8.8'}
         localIPList = ['127.0.0.1', '8.8.8.8']
-
 
         results = ping(localIPStr)
         self.assertIsInstance(results, str)
@@ -716,24 +712,24 @@ class TestEFileModules(unittest.TestCase):
         results = cat.makeFile(testfilePath)
         self.assertTrue(results)
 
-        results = cat.appendFile(testfilePath, 'test test test', testfilePath+'.bck')
+        results = cat.appendFile(testfilePath, 'test test test', testfilePath + '.bck')
         self.assertTrue(results)
 
         results = cat(testfilePath, rerun=True)
         self.assertEqual(results, 'test test test')
 
-        results = cat.replaceFile(testfilePath, 'another test', backupRerun=True, backupPath=testfilePath+'.bck2')
+        results = cat.replaceFile(testfilePath, 'another test', backupRerun=True, backupPath=testfilePath + '.bck2')
         self.assertTrue(results)
 
         results = cat(testfilePath, rerun=True)
         self.assertEqual(results, 'another test')
 
-        results = cat(testfilePath+'.bck2', rerun=True)
+        results = cat(testfilePath + '.bck2', rerun=True)
         self.assertEqual(results, 'test test test')
 
         rm(testfilePath)
-        rm(testfilePath+'.bck')
-        rm(testfilePath+'.bck2')
+        rm(testfilePath + '.bck')
+        rm(testfilePath + '.bck2')
 
     def test_aae_echo(self):
         global tki
@@ -747,19 +743,19 @@ class TestEFileModules(unittest.TestCase):
         results = echo.makeFile(testfilePath)
         self.assertTrue(results)
 
-        results = echo.appendFile(testfilePath, 'test test test', testfilePath+'.bck')
+        results = echo.appendFile(testfilePath, 'test test test', testfilePath + '.bck')
         self.assertTrue(results)
 
         results = cat(testfilePath, rerun=True)
         self.assertEqual(results, 'test test test')
 
-        results = echo.replaceFile(testfilePath, 'another test', backupRerun=True, backupPath=testfilePath+'.bck2')
+        results = echo.replaceFile(testfilePath, 'another test', backupRerun=True, backupPath=testfilePath + '.bck2')
         self.assertTrue(results)
 
         results = cat(testfilePath, rerun=True)
         self.assertEqual(results, 'another test')
 
-        results = cat(testfilePath+'.bck2', rerun=True)
+        results = cat(testfilePath + '.bck2', rerun=True)
         self.assertEqual(results, 'test test test')
 
         rm(testfilePath)
@@ -949,7 +945,7 @@ class TestESystemModules(unittest.TestCase):
 
         messages.makeLogEntry('this is a test')
 
-        sleep(2)
+        sleep(2)  # Gives time for remote logging agent to write to disk. If the disk IO is busy this could fail
 
         results = messages.getLogsWithinTimeRange(trange='1 minute ago')
         self.assertIsInstance(results, str)
@@ -1044,8 +1040,8 @@ class TestESystemModules(unittest.TestCase):
 # noinspection PyUnresolvedReferences
 class TestFMySQLModule(unittest.TestCase):
     """
-        These are CommandModules that either require flags or have special methods that should be tested. Modules that
-        do require flags simply confirm they can be created.
+        This is for MySQL/MariaDB. Currently, this assumes that mysqld is visible in PATH and that root user has
+        access to the database without the need for a password
     """
 
     def test_aaa_login(self):

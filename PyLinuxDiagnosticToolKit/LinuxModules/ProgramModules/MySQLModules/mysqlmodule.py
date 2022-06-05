@@ -3,15 +3,14 @@
 #
 # Author: Ryan Henrichson, Timothy Nodine
 
-# Version: 0.3
+# Version: 0.4
 # Date: 05/08/15
 # Description:
 
 
-import traceback
 import logging
 import re
-from genericCmdModule import GenericCmdModule
+from genericCmdModule import GenericCmdModule, dummy_func
 from PyCustomCollections.CustomDataStructures import IndexList
 from PyCustomParsers.GenericParser import BashParser as GIP
 
@@ -21,26 +20,25 @@ log = logging.getLogger('MySQLModule')
 
 class mysqlModule(GenericCmdModule):
 
-    __NAME__ = "mysql"
-    __CONFIGNAME__ = __NAME__+"Config.json"
-    __LABEL__ = "MySQL"
-    __UNBOUND = None
-    _mysqlRunning = None
-    _mysqlServerInstalled = None
-    _mysqlReplication = None
-    _mysqlVariables = None
-    _mysqlStatus = None
-    _mysqlSummary = None
-    _mysqlProcessList = None
-    _slowQueryLogfile = None
-    _logError = None
-    _logFile = None
-    _proc = None
-    _channelObject = None
-
     def __init__(self, tki, *args, **kwargs):
         log.info("Creating MySQL Command Module")
         super(mysqlModule, self).__init__(tki=tki)
+        self.defaultCmd = 'ifconfig '
+        self.defaultKey = "ifconfig%s"
+        self.defaultFlags = ""
+        self.__NAME__ = 'mysql'
+        self.__LABEL__ = "MySQL"
+        self.__CONFIGNAME__ = self.__NAME__+"Config.json"
+        self.mysqlServerInstalled = None
+        self.mysqlReplication = None
+        self.log_error = None
+        self.general_log_file = None
+        self.slowQueryLogfile = None
+        self._mysqlVariables = None
+        self._mysqlStatus = None
+        self._mysqlSummary = None
+        self._mysqlProcessList = None
+        self._channelObject = None
 
     def escalateToMySQL(self):
         if not self._channelObject:
@@ -75,10 +73,10 @@ class mysqlModule(GenericCmdModule):
     def isMySQLServerInstalled(self, *args, **kwargs):
         def _isMySQLServerInstalled(results=None, *args, **kwargs):
             if '/mysqld' in results:
-                self._mysqlServerInstalled = True
+                self.mysqlServerInstalled = True
             else:
-                self._mysqlServerInstalled = False
-            return self._mysqlServerInstalled
+                self.mysqlServerInstalled = False
+            return self.mysqlServerInstalled
         return self.simpleExecute(command={'whichMySQLd': 'which mysqld'}, postparser=_isMySQLServerInstalled, **kwargs)
 
     def injectMySQL(self, sql=None, **kwargs):
@@ -205,12 +203,12 @@ class mysqlModule(GenericCmdModule):
     def getLogFiles(self, wait=30):
         if not self.isMySQLClientInstalled(wait=wait) and self.isMySQLRunning() is not True:
             return None
-        self._slowQueryLogfile = self.getVariable('slow_query_log_file', wait=wait)
-        self._logError = self.getVariable('log_error', wait=wait)
-        self._logFile = self.getVariable('general_log_file', wait=wait)
-        if self._logFile is None:
+        self.slowQueryLogfile = self.getVariable('slow_query_log_file', wait=wait)
+        self.log_error = self.getVariable('log_error', wait=wait)
+        self.general_log_file = self.getVariable('general_log_file', wait=wait)
+        if self.general_log_file is None:
             return None
-        return {'Slow': self._slowQueryLogfile, 'Error': self._logError, 'General': self._logFile}
+        return {'Slow': self.slowQueryLogfile, 'Error': self.log_error, 'General': self.general_log_file}
 
     def getMySQLServerProcess(self, *args, **kwargs):
         return self.tki.modules.ps.findCMD('mysqld', *args, **kwargs)
@@ -249,15 +247,12 @@ class mysqlModule(GenericCmdModule):
         return ""
 
     def getMySQLProcess(self, rerun=False, wait=60, **kwargs):
-        if self._proc is None:
-            self._proc = self.tki.getModules('ps')
-            if type(self._proc) is None:
-                return False
-        results = self._proc.findCMD(name=('CMD', 'mysqld'), explicit=True, caseSensitive=False, rerun=rerun,
-                                     wait=wait, **kwargs)
+        results = getattr(self.tki.modules.ps, 'findCMD', dummy_func)(name=('CMD', 'mysqld'), explicit=True,
+                                                                      caseSensitive=False, rerun=rerun,
+                                                                      wait=wait, **kwargs)
         if not results:
             return None
-        return self._proc.formatLines(results)
+        return getattr(self.tki.modules.ps, 'formatLines', dummy_func)(results)
 
     def getVariable(self, name, explicit=True, caseSensitive=False, wait=30):
         if not self._mysqlVariables or type(self._mysqlVariables) is not IndexList:
@@ -274,12 +269,6 @@ class mysqlModule(GenericCmdModule):
             return self._mysqlStatus.getSearchValues(name, explicit=explicit, caseSensitive=caseSensitive)
         return None
 
-    def setBOUND(self, other=True, bound=True):
-        if type(other) is bool:
-            self.__UNBOUND = other
-        else:
-            self.__UNBOUND = bound
-
     # Privates
     def _getCustomChannel(self):
         if self._channelObject:
@@ -291,7 +280,7 @@ class mysqlModule(GenericCmdModule):
         output = {'State': "", 'IO': "", 'SQL': "", 'Behind': ""}
         for line in results.splitlines():
             if len(line) <= 1:
-                self._mysqlReplication = False
+                self.mysqlReplication = False
             if 'Slave_IO_State:' in line:
                 output['State'] = line.split(': ')[-1]
             elif 'Slave_IO_Running:' in line:
@@ -301,8 +290,8 @@ class mysqlModule(GenericCmdModule):
             elif 'Seconds_Behind_Master:' in line:
                 output['Behind'] = line.split(': ')[-1]
         if output['State']:
-            self._mysqlReplication = output
-            return self._mysqlReplication
+            self.mysqlReplication = output
+            return self.mysqlReplication
         else:
             return None
 
@@ -323,11 +312,3 @@ class mysqlModule(GenericCmdModule):
             if column.splitlines() > 1:
                 return tuple(column.split())
         return column
-
-
-def getStackTrace():
-    """
-        This is a useful troubleshooting tool
-    :return:
-    """
-    return traceback.format_exc()

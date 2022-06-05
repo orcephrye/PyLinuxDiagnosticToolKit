@@ -12,7 +12,7 @@ from LinuxModules.CommandContainers import CommandContainer
 from LinuxModules.genericCmdModule import GenericCmdModule
 from PyLinuxDiagnosticToolKit.libs.OSNetworking.PyNIC import NetworkInterfaceCards
 from PyLinuxDiagnosticToolKit.libs.OSNetworking.PyRoute import Routes
-from PyCustomParsers.GenericParser import BashParser
+from PyCustomParsers.GenericParser import BashParser, IndexList
 
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -1033,6 +1033,56 @@ class TestESystemModules(unittest.TestCase):
 
         results = timedatectl.getTimezone()
         self.assertIsInstance(results, str)
+
+    def test_zzz_disconnect(self):
+        global tki
+        standard_check(self)
+        tki.disconnect()
+        self.assertFalse(tki.checkConnection())
+
+
+# noinspection PyUnresolvedReferences
+class TestFMySQLModule(unittest.TestCase):
+    """
+        These are CommandModules that either require flags or have special methods that should be tested. Modules that
+        do require flags simply confirm they can be created.
+    """
+
+    def test_aaa_login(self):
+        global tki
+
+        tki = ldtk.ToolKitInterface(arguments=getArguments(), auto_login=False)
+        self.assertIsInstance(tki, ldtk.ToolKitInterface)
+        conn = tki.createConnection()
+        self.assertIsInstance(conn, threadedSSH)
+        self.assertTrue(tki.checkConnection())
+
+    def test_aab_mysql(self):
+        global tki
+        standard_check(self)
+
+        mysql = tki.modules.mysql
+
+        output = mysql.isMySQLClientInstalled(wait=10)
+        self.assertIsInstance(output, (bool, str))
+
+        if output is False:
+            self.skipTest('MySQL Client is not installed on test target skipping... ')
+
+        output = mysql.isMySQLServerInstalled(wait=10)
+        self.assertIsInstance(output, (bool, str))
+
+        if output is False:
+            self.skipTest('MySQL Server is not installed on test target skipping... ')
+
+        output = mysql.isMySQLRunning(wait=10)
+        self.assertIsInstance(output, bool)
+
+        if output is False:
+            self.skipTest('MySQL server is not running on test target skipping... ')
+
+        output = mysql.getMySQLStatus(wait=20)
+        self.assertIsInstance(output, IndexList)
 
     def test_zzz_disconnect(self):
         global tki

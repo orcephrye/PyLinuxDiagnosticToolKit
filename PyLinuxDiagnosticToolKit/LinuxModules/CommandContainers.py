@@ -494,7 +494,8 @@ class CommandParsers(CommandData):
             return cmdResults
         # compile these up front one time for better performance on repeated calls
         # all this parsing helps us handle custom prompts and other weirdness better
-        cmdOutputRe = matchRe.search(startSubRe.sub('', cmdResults, count=1))
+        # The 'replace' method is to solve oddiets with Ubuntu subsell returning '\r\n\r' which breaks regex
+        cmdOutputRe = matchRe.search(startSubRe.sub('', cmdResults.replace('\r\n\r', '\r\n'), count=1))
         if cmdOutputRe:
             output = endSubRe.sub('', cmdOutputRe.group(), count=1).strip()
             if not output:
@@ -1087,7 +1088,6 @@ class CommandContainer(CommandSetup):
         - :param phase:
         - :return: boolean value: True for success and False for failure found in the results
         """
-
         if not self.checkResults(results):
             results = self.setFailure(results, **kwargs)
         if resultsOrigin:
@@ -1147,7 +1147,6 @@ class CommandContainer(CommandSetup):
 
         - :return: the value of 'self.results' or Exception
         """
-
         try:
             if self.parsed:
                 return self.lastResults or self.results
@@ -1195,13 +1194,13 @@ class CommandContainer(CommandSetup):
         try:
             if self._stopOnFailure:
                 if not self.failure:
-                    if self.setLastResults(self._parseResults()):
+                    if self.setLastResults(self._parseResults(), phase='finalizeOnFailure'):
                         self.performComplete()
             else:
-                self.setLastResults(self._parseResults())
+                self.setLastResults(self._parseResults(), phase='finalize')
                 self.performComplete()
         except Exception as e:
-            self.setLastResults(self._processException(e))
+            self.setLastResults(self._processException(e), phase='finalizeOnException')
         finally:
             self.results = self.lastResults
             self.lastResults = None

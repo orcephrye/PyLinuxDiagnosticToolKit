@@ -114,6 +114,7 @@ class sshBufferControl(sshCon):
             out.truncate(0)
             del out
             # log.debug(f"The output of the cmd: {cmd} is: \n===\n{output}\n===")
+            # print(f"The output of the cmd: {cmd} is: \n===\n{output}\n===")
             return output
 
     def _bufferControl(self, channel: EnvironmentControls, cmd: AnyStr, out: StringIO,

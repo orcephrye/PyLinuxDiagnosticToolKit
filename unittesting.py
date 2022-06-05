@@ -1058,6 +1058,7 @@ class TestFMySQLModule(unittest.TestCase):
         self.assertTrue(tki.checkConnection())
 
     def test_aab_mysql(self):
+        """ This assumes that root user can access MySQL server without prompting for password """
         global tki
         standard_check(self)
 

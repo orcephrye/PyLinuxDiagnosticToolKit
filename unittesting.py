@@ -55,6 +55,7 @@ def getConfig():
         config = json.load(f)
     return config
 
+
 def getArguments():
     config = getConfig()
     args = ArgumentWrapper.arguments().parse_known_args()[0]
@@ -290,6 +291,9 @@ def _test_dummy(self, moduleName=None):
     if module.requireFlags is True:
         return None
 
+    if getattr(module, 'defaultKwargs', {}).get('preparser', '') == module.doesCommandExistPreParser:
+        return None
+
     output = module()
 
     self.assertIsNotNone(output)
@@ -490,6 +494,9 @@ class TestENetworkModules(unittest.TestCase):
         global tki
         standard_check(self)
 
+        if not tki.modules.which.doesCommandExist('ifconfig'):
+            self.skipTest(f"ifconfig command doesn't exist on box skipping")
+
         ifconfig = tki.modules.ifconfig
 
         output = ifconfig()
@@ -543,6 +550,9 @@ class TestENetworkModules(unittest.TestCase):
     def test_aad_route(self):
         global tki
         standard_check(self)
+
+        if not tki.modules.which.doesCommandExist('route'):
+            self.skipTest(f"route command doesn't exist on box skipping")
 
         route = tki.modules.route
 

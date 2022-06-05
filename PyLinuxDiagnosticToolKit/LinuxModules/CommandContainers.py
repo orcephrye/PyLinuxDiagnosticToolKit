@@ -859,6 +859,8 @@ class CommandSetup(CommandRequirements):
                 preparResults = None
                 for prepar in self._preparser:
                     preparResults = prepar(this=self)
+                    if self.failure or self.complete:
+                        break
                 return preparResults
             return self._preparser(this=self)
         except Exception as e:

@@ -164,12 +164,19 @@ class GenericCmdModule(CommandModuleSettings):
         return self.simpleExecute(command={newKey: newCmd}, **self.mergeKwargs(kwargs, self.defaultKwargs))
 
     def doesCommandExistPreParser(self, *args, **kwargs) -> Optional[bool]:
-        return getattr(getattr(getattr(getattr(self, 'tki', None),
-                                       'modules', None),
-                               'which', None),
-                       'doesCommandExist', dummy_func)(kwargs.get('executable',
-                                                                  getattr(kwargs.get("this"), 'commandUnparsed', '')
-                                                                  .strip().split()[0]))
+        """ This uses a control flag PreParserStopOnFailure to stop the continued execution of the command.
+            It assumes PreParserStopOnFailure is True. Set to false if you wish the command to continue.
+        """
+        this = kwargs.get('this')
+        cmdExists = getattr(getattr(getattr(getattr(self, 'tki', None),
+                                            'modules', None),
+                                    'which', None),
+                            'doesCommandExist', dummy_func)(kwargs.get('executable',
+                                                                       getattr(this, 'commandUnparsed', '')
+                                                                       .strip().split()[0]))
+        if kwargs.get('PreParserStopOnFailure', True) and cmdExists is False:
+            this.setFailure(cmdExists)
+        return cmdExists
 
     def doesFileExistRequirement(self, filename, *args, **kwargs) -> bool:
         return getattr(getattr(getattr(getattr(self, 'tki', None),

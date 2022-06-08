@@ -33,10 +33,13 @@ class unameModule(GenericCmdModule):
         self.requireFlags = False
 
     def getKernelVersion(self, *args, **kwargs):
+        kwargs['wait'] = kwargs.get('wait', 10)
         return self.run('-r', **kwargs)
 
     def getHostName(self, *args, **kwargs):
+        kwargs['wait'] = kwargs.get('wait', 10)
         return self.run('-n', **kwargs)
 
     def getArch(self, *args, **kwargs):
+        kwargs['wait'] = kwargs.get('wait', 10)
         return self.run('-i', **kwargs)

@@ -1,6 +1,8 @@
 import unittest
 import os
 import json
+import warnings
+from time import sleep
 from functools import partialmethod
 from io import StringIO
 from PyLinuxDiagnosticToolKit import ldtk, find_modules
@@ -10,11 +12,11 @@ from LinuxModules.CommandContainers import CommandContainer
 from LinuxModules.genericCmdModule import GenericCmdModule
 from PyLinuxDiagnosticToolKit.libs.OSNetworking.PyNIC import NetworkInterfaceCards
 from PyLinuxDiagnosticToolKit.libs.OSNetworking.PyRoute import Routes
-from PyCustomParsers.GenericParser import BashParser
-import pdb
+from PyCustomParsers.GenericParser import BashParser, IndexList
+
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 tki = None
-
 
 testFile = """#!/bin/bash
 
@@ -23,8 +25,9 @@ sleep 1
 echo 'this is a test'
 """
 
-
 testfilePath = "/tmp/testfile.out"
+
+testConfigFile = "unittesting.json"
 
 
 # noinspection PyUnresolvedReferences
@@ -43,20 +46,28 @@ def letters_generator():
                 yield f'{chr(s)}{chr(m)}{chr(e)}'
 
 
+def getConfig():
+    with open(testConfigFile) as f:
+        config = json.load(f)
+    return config
+
+
+def getArguments():
+    config = getConfig()
+    args = ArgumentWrapper.arguments().parse_known_args()[0]
+    for key, value in config.items():
+        if hasattr(args, key):
+            setattr(args, key, value)
+    args.root = True if config.get('root') else False
+    return args
+
+
 # noinspection PyUnresolvedReferences
 class TestAAuthentication(unittest.TestCase):
 
     def test_a_new_instance(self):
         global tki
-        with open('unittesting.json') as f:
-            config = json.load(f)
-        args = ArgumentWrapper.arguments().parse_known_args()[0]
-        args.host = config.get('host')
-        args.username = config.get('username')
-        args.password = config.get('password')
-        args.root = True if config.get('root') else False
-        args.rootpwd = config.get('rootpwd')
-        tki = ldtk.ToolKitInterface(arguments=args, auto_login=False)
+        tki = ldtk.ToolKitInterface(arguments=getArguments(), auto_login=False)
         self.assertIsInstance(tki, ldtk.ToolKitInterface)
 
     def test_b_ssh(self):
@@ -84,15 +95,7 @@ class TestBSimpleExecution(unittest.TestCase):
 
     def test_a_login(self):
         global tki
-        with open('unittesting.json') as f:
-            config = json.load(f)
-        args = ArgumentWrapper.arguments().parse_known_args()[0]
-        args.host = config.get('host')
-        args.username = config.get('username')
-        args.password = config.get('password')
-        args.root = True if config.get('root') else False
-        args.rootpwd = config.get('rootpwd')
-        tki = ldtk.ToolKitInterface(arguments=args, auto_login=False)
+        tki = ldtk.ToolKitInterface(arguments=getArguments(), auto_login=False)
         self.assertIsInstance(tki, ldtk.ToolKitInterface)
         conn = tki.createConnection()
         self.assertIsInstance(conn, threadedSSH)
@@ -127,16 +130,7 @@ class TestCUserEscalation(unittest.TestCase):
     def test_a_login(self):
         global tki
 
-        with open('unittesting.json') as f:
-            config = json.load(f)
-        args = ArgumentWrapper.arguments().parse_known_args()[0]
-        args.host = config.get('host')
-        args.username = config.get('username')
-        args.password = config.get('password')
-        args.root = True if config.get('root') else False
-        args.rootpwd = config.get('rootpwd')
-
-        tki = ldtk.ToolKitInterface(arguments=args, auto_login=False)
+        tki = ldtk.ToolKitInterface(arguments=getArguments(), auto_login=False)
         self.assertIsInstance(tki, ldtk.ToolKitInterface)
         conn = tki.createConnection()
         self.assertIsInstance(conn, threadedSSH)
@@ -146,7 +140,7 @@ class TestCUserEscalation(unittest.TestCase):
         global tki
         standard_check(self)
 
-        with open('unittesting.json') as f:
+        with open(testConfigFile) as f:
             config = json.load(f)
         args = ArgumentWrapper.arguments().parse_known_args()[0]
         args.username = config.get('username')
@@ -196,7 +190,7 @@ class TestCUserEscalation(unittest.TestCase):
 
     def test_e_sudo_escalation_in_channel(self):
         """
-            This assumes that sudo will ask for the root password!
+            This assumes testerOne and testerTwo exist on target
         """
         global tki
         standard_check(self)
@@ -260,16 +254,7 @@ class TestDCommandModulesNoFlags(unittest.TestCase):
     def test_aaa_login(self):
         global tki
 
-        with open('unittesting.json') as f:
-            config = json.load(f)
-        args = ArgumentWrapper.arguments().parse_known_args()[0]
-        args.host = config.get('host')
-        args.username = config.get('username')
-        args.password = config.get('password')
-        args.root = True if config.get('root') else False
-        args.rootpwd = config.get('rootpwd')
-
-        tki = ldtk.ToolKitInterface(arguments=args, auto_login=False)
+        tki = ldtk.ToolKitInterface(arguments=getArguments(), auto_login=False)
         self.assertIsInstance(tki, ldtk.ToolKitInterface)
         conn = tki.createConnection()
         self.assertIsInstance(conn, threadedSSH)
@@ -302,6 +287,9 @@ def _test_dummy(self, moduleName=None):
     if module.requireFlags is True:
         return None
 
+    if getattr(module, 'defaultKwargs', {}).get('preparser', '') == module.doesCommandExistPreParser:
+        return None
+
     output = module()
 
     self.assertIsNotNone(output)
@@ -317,16 +305,7 @@ class TestESFTPandSCP(unittest.TestCase):
     def test_a_login(self):
         global tki
 
-        with open('unittesting.json') as f:
-            config = json.load(f)
-        args = ArgumentWrapper.arguments().parse_known_args()[0]
-        args.host = config.get('host')
-        args.username = config.get('username')
-        args.password = config.get('password')
-        args.root = True if config.get('root') else False
-        args.rootpwd = config.get('rootpwd')
-
-        tki = ldtk.ToolKitInterface(arguments=args, auto_login=False)
+        tki = ldtk.ToolKitInterface(arguments=getArguments(), auto_login=False)
         self.assertIsInstance(tki, ldtk.ToolKitInterface)
         conn = tki.createConnection()
         self.assertIsInstance(conn, threadedSSH)
@@ -431,22 +410,14 @@ class TestEProcessModules(unittest.TestCase):
     def test_aaa_login(self):
         global tki
 
-        with open('unittesting.json') as f:
-            config = json.load(f)
-        args = ArgumentWrapper.arguments().parse_known_args()[0]
-        args.host = config.get('host')
-        args.username = config.get('username')
-        args.password = config.get('password')
-        args.root = True if config.get('root') else False
-        args.rootpwd = config.get('rootpwd')
-
-        tki = ldtk.ToolKitInterface(arguments=args, auto_login=False)
+        tki = ldtk.ToolKitInterface(arguments=getArguments(), auto_login=False)
         self.assertIsInstance(tki, ldtk.ToolKitInterface)
         conn = tki.createConnection()
         self.assertIsInstance(conn, threadedSSH)
         self.assertTrue(tki.checkConnection())
 
     def test_aab_ps(self):
+        """ Assumes system has systemd """
         global tki
         standard_check(self)
 
@@ -510,16 +481,7 @@ class TestENetworkModules(unittest.TestCase):
     def test_aaa_login(self):
         global tki
 
-        with open('unittesting.json') as f:
-            config = json.load(f)
-        args = ArgumentWrapper.arguments().parse_known_args()[0]
-        args.host = config.get('host')
-        args.username = config.get('username')
-        args.password = config.get('password')
-        args.root = True if config.get('root') else False
-        args.rootpwd = config.get('rootpwd')
-
-        tki = ldtk.ToolKitInterface(arguments=args, auto_login=False)
+        tki = ldtk.ToolKitInterface(arguments=getArguments(), auto_login=False)
         self.assertIsInstance(tki, ldtk.ToolKitInterface)
         conn = tki.createConnection()
         self.assertIsInstance(conn, threadedSSH)
@@ -528,6 +490,9 @@ class TestENetworkModules(unittest.TestCase):
     def test_aab_ifconfig(self):
         global tki
         standard_check(self)
+
+        if not tki.modules.which.doesCommandExist('ifconfig'):
+            self.skipTest(f"ifconfig command doesn't exist on box skipping")
 
         ifconfig = tki.modules.ifconfig
 
@@ -564,7 +529,6 @@ class TestENetworkModules(unittest.TestCase):
         localIPDict = {'localhost': '127.0.0.1', 'GoogleDNS': '8.8.8.8'}
         localIPList = ['127.0.0.1', '8.8.8.8']
 
-
         results = ping(localIPStr)
         self.assertIsInstance(results, str)
 
@@ -582,6 +546,9 @@ class TestENetworkModules(unittest.TestCase):
     def test_aad_route(self):
         global tki
         standard_check(self)
+
+        if not tki.modules.which.doesCommandExist('route'):
+            self.skipTest(f"route command doesn't exist on box skipping")
 
         route = tki.modules.route
 
@@ -615,16 +582,7 @@ class TestEDiskModules(unittest.TestCase):
     def test_aaa_login(self):
         global tki
 
-        with open('unittesting.json') as f:
-            config = json.load(f)
-        args = ArgumentWrapper.arguments().parse_known_args()[0]
-        args.host = config.get('host')
-        args.username = config.get('username')
-        args.password = config.get('password')
-        args.root = True if config.get('root') else False
-        args.rootpwd = config.get('rootpwd')
-
-        tki = ldtk.ToolKitInterface(arguments=args, auto_login=False)
+        tki = ldtk.ToolKitInterface(arguments=getArguments(), auto_login=False)
         self.assertIsInstance(tki, ldtk.ToolKitInterface)
         conn = tki.createConnection()
         self.assertIsInstance(conn, threadedSSH)
@@ -663,17 +621,24 @@ class TestEDiskModules(unittest.TestCase):
         self.assertIsInstance(output, BashParser)
 
     def test_aac_findfs(self):
-        """ Assumes specific UUID [a8da7689-9994-4d6b-9bc7-2e69b536e5e3] and LABEL [ROOT] exist """
+        """ Requires *.json config file to include findfs_test_uuid, findfs_test_label, findfs_test_value keys  """
         global tki
         standard_check(self)
 
+        config = getConfig()
+        uuid_str = config.get('findfs_test_uuid', '')
+        label_str = config.get('findfs_test_label', '')
+        correct_value = config.get('findfs_test_value', 'error')
+
         findfs = tki.modules.findfs
 
-        results = findfs.convertUUID('a8da7689-9994-4d6b-9bc7-2e69b536e5e3')
+        results = findfs.convertUUID(uuid_str)
         self.assertIsInstance(results, str)
+        self.assertEqual(results.strip(), correct_value)
 
-        results = findfs.convertLABEL('ROOT')
+        results = findfs.convertLABEL(label_str)
         self.assertIsInstance(results, str)
+        self.assertEqual(results.strip(), correct_value)
 
     def test_aad_findmnt(self):
         global tki
@@ -704,16 +669,7 @@ class TestEFileModules(unittest.TestCase):
     def test_aaa_login(self):
         global tki
 
-        with open('unittesting.json') as f:
-            config = json.load(f)
-        args = ArgumentWrapper.arguments().parse_known_args()[0]
-        args.host = config.get('host')
-        args.username = config.get('username')
-        args.password = config.get('password')
-        args.root = True if config.get('root') else False
-        args.rootpwd = config.get('rootpwd')
-
-        tki = ldtk.ToolKitInterface(arguments=args, auto_login=False)
+        tki = ldtk.ToolKitInterface(arguments=getArguments(), auto_login=False)
         self.assertIsInstance(tki, ldtk.ToolKitInterface)
         conn = tki.createConnection()
         self.assertIsInstance(conn, threadedSSH)
@@ -756,24 +712,24 @@ class TestEFileModules(unittest.TestCase):
         results = cat.makeFile(testfilePath)
         self.assertTrue(results)
 
-        results = cat.appendFile(testfilePath, 'test test test', testfilePath+'.bck')
+        results = cat.appendFile(testfilePath, 'test test test', testfilePath + '.bck')
         self.assertTrue(results)
 
         results = cat(testfilePath, rerun=True)
         self.assertEqual(results, 'test test test')
 
-        results = cat.replaceFile(testfilePath, 'another test', backupRerun=True, backupPath=testfilePath+'.bck2')
+        results = cat.replaceFile(testfilePath, 'another test', backupRerun=True, backupPath=testfilePath + '.bck2')
         self.assertTrue(results)
 
         results = cat(testfilePath, rerun=True)
         self.assertEqual(results, 'another test')
 
-        results = cat(testfilePath+'.bck2', rerun=True)
+        results = cat(testfilePath + '.bck2', rerun=True)
         self.assertEqual(results, 'test test test')
 
         rm(testfilePath)
-        rm(testfilePath+'.bck')
-        rm(testfilePath+'.bck2')
+        rm(testfilePath + '.bck')
+        rm(testfilePath + '.bck2')
 
     def test_aae_echo(self):
         global tki
@@ -787,19 +743,19 @@ class TestEFileModules(unittest.TestCase):
         results = echo.makeFile(testfilePath)
         self.assertTrue(results)
 
-        results = echo.appendFile(testfilePath, 'test test test', testfilePath+'.bck')
+        results = echo.appendFile(testfilePath, 'test test test', testfilePath + '.bck')
         self.assertTrue(results)
 
         results = cat(testfilePath, rerun=True)
         self.assertEqual(results, 'test test test')
 
-        results = echo.replaceFile(testfilePath, 'another test', backupRerun=True, backupPath=testfilePath+'.bck2')
+        results = echo.replaceFile(testfilePath, 'another test', backupRerun=True, backupPath=testfilePath + '.bck2')
         self.assertTrue(results)
 
         results = cat(testfilePath, rerun=True)
         self.assertEqual(results, 'another test')
 
-        results = cat(testfilePath+'.bck2', rerun=True)
+        results = cat(testfilePath + '.bck2', rerun=True)
         self.assertEqual(results, 'test test test')
 
         rm(testfilePath)
@@ -878,29 +834,20 @@ class TestEFileModules(unittest.TestCase):
         standard_check(self)
 
         ll = tki.modules.ll
-        print('')
-        print('About to touch file')
+
         if not tki.modules.touch(testfilePath):
             self.skipTest(f'Touch failed to make test file for ll test: {testfilePath}')
-        print(f'Done touching file')
 
-        print('About to get /tmp listing')
         output = ll('/tmp')
         self.assertIsInstance(output, BashParser)
 
-        # pdb.set_trace()
-
-        print('About to check fileExists')
         results = ll.fileExist(testfilePath)
         self.assertTrue(results)
 
-        print('About to check isFileEmpty')
         results = ll.isFileEmpty(testfilePath)
         self.assertTrue(results)
 
-        print('About to rm')
         tki.modules.rm(testfilePath)
-        print('done!')
 
     def test_zzz_disconnect(self):
         global tki
@@ -919,16 +866,7 @@ class TestEUserModules(unittest.TestCase):
     def test_aaa_login(self):
         global tki
 
-        with open('unittesting.json') as f:
-            config = json.load(f)
-        args = ArgumentWrapper.arguments().parse_known_args()[0]
-        args.host = config.get('host')
-        args.username = config.get('username')
-        args.password = config.get('password')
-        args.root = True if config.get('root') else False
-        args.rootpwd = config.get('rootpwd')
-
-        tki = ldtk.ToolKitInterface(arguments=args, auto_login=False)
+        tki = ldtk.ToolKitInterface(arguments=getArguments(), auto_login=False)
         self.assertIsInstance(tki, ldtk.ToolKitInterface)
         conn = tki.createConnection()
         self.assertIsInstance(conn, threadedSSH)
@@ -960,16 +898,7 @@ class TestESystemModules(unittest.TestCase):
     def test_aaa_login(self):
         global tki
 
-        with open('unittesting.json') as f:
-            config = json.load(f)
-        args = ArgumentWrapper.arguments().parse_known_args()[0]
-        args.host = config.get('host')
-        args.username = config.get('username')
-        args.password = config.get('password')
-        args.root = True if config.get('root') else False
-        args.rootpwd = config.get('rootpwd')
-
-        tki = ldtk.ToolKitInterface(arguments=args, auto_login=False)
+        tki = ldtk.ToolKitInterface(arguments=getArguments(), auto_login=False)
         self.assertIsInstance(tki, ldtk.ToolKitInterface)
         conn = tki.createConnection()
         self.assertIsInstance(conn, threadedSSH)
@@ -1016,7 +945,9 @@ class TestESystemModules(unittest.TestCase):
 
         messages.makeLogEntry('this is a test')
 
-        results = messages.getLogsWithinTimeRange()
+        sleep(2)  # Gives time for remote logging agent to write to disk. If the disk IO is busy this could fail
+
+        results = messages.getLogsWithinTimeRange(trange='1 minute ago')
         self.assertIsInstance(results, str)
         self.assertGreaterEqual(len(results.splitlines()), 1)
         self.assertIn('this is a test', results)
@@ -1106,7 +1037,61 @@ class TestESystemModules(unittest.TestCase):
         self.assertFalse(tki.checkConnection())
 
 
+# noinspection PyUnresolvedReferences
+class TestFMySQLModule(unittest.TestCase):
+    """
+        This is for MySQL/MariaDB. Currently, this assumes that mysqld is visible in PATH and that root user has
+        access to the database without the need for a password
+    """
+
+    def test_aaa_login(self):
+        global tki
+
+        tki = ldtk.ToolKitInterface(arguments=getArguments(), auto_login=False)
+        self.assertIsInstance(tki, ldtk.ToolKitInterface)
+        conn = tki.createConnection()
+        self.assertIsInstance(conn, threadedSSH)
+        self.assertTrue(tki.checkConnection())
+
+    def test_aab_mysql(self):
+        """ This assumes that root user can access MySQL server without prompting for password """
+        global tki
+        standard_check(self)
+
+        mysql = tki.modules.mysql
+
+        output = mysql.isMySQLClientInstalled(wait=10)
+        self.assertIsInstance(output, (bool, str))
+
+        if output is False:
+            self.skipTest('MySQL Client is not installed on test target skipping... ')
+
+        output = mysql.isMySQLServerInstalled(wait=10)
+        self.assertIsInstance(output, (bool, str))
+
+        if output is False:
+            self.skipTest('MySQL Server is not installed on test target skipping... ')
+
+        output = mysql.isMySQLRunning(wait=10)
+        self.assertIsInstance(output, bool)
+
+        if output is False:
+            self.skipTest('MySQL server is not running on test target skipping... ')
+
+        output = mysql.getMySQLStatus(wait=20)
+        self.assertIsInstance(output, IndexList)
+
+    def test_zzz_disconnect(self):
+        global tki
+        standard_check(self)
+        tki.disconnect()
+        self.assertFalse(tki.checkConnection())
+
+
 if __name__ == '__main__':
+    # use 'export UnitTestingConfigFile="unittesting_centos.json"; python3 unittesting.py' to change the config file
+    # to unittesting_centos.json or whatever desired file
+    testConfigFile = os.getenv('UnitTestingConfigFile', 'unittesting.json')
     modules = find_modules(moduleSubDir='CommandModules')
     maxLength = 17572
     letterGen = letters_generator()

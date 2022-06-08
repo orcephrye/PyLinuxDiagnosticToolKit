@@ -46,6 +46,8 @@ class sshEnvironmentControl(sshBufferControl):
 
         super(sshEnvironmentControl, self).__init__(arguments=arguments, **kwargs)
 
+        self.usermap = arguments.usermap
+
         if self.checkConnection():
             self.mainEnvironment.push("su -", name=arguments.username, additionalInput=arguments.password)
             self._promptWait(self.mainEnvironment, StringIO(), timeout=10, iotime=2)

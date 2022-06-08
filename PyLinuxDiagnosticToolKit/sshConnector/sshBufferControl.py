@@ -27,6 +27,7 @@ from typing import Any, AnyStr, Optional, Union, Tuple, Type
 
 log = logging.getLogger('sshBufferControl')
 warnings.filterwarnings("ignore", category=ResourceWarning)
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 
 class sshBufferControl(sshCon):
@@ -62,11 +63,19 @@ class sshBufferControl(sshCon):
 
         def _parseOutput(tmpOut, tmpPrompt):
             try:
+                # print(f'=== parseOutput in executeOnEnvironment\n{tmpOut}\n')
                 tmpOut = sshBufferControl._decodeStringEscape(tmpOut)
-            except UnicodeDecodeError as e:
+            except (UnicodeDecodeError, UnicodeEncodeError) as e:
                 log.error(f'ERROR: for method _parseOutput: {e}')
                 log.debug(f"[DEBUG] for _parseOutput: {traceback.format_exc()}")
-                tmpOut = sshBufferControl._decodeStringEscape(tmpOut, encoding='latin1')
+                try:
+                    tmpOut = sshBufferControl._decodeStringEscape(tmpOut, encoding='latin1')
+                except (UnicodeDecodeError, UnicodeEncodeError) as e:
+                    if 'CMDSTART' in tmpOut and 'CMDEND' in tmpOut:
+                        log.debug('Another parse failure within _parseOutput method. However, ignoring sense string'
+                                  'contains CMDSTART and CMDEND this may be parsed successfully by CC')
+                    else:
+                        raise e
             tmpOut = sshBufferControl.escapeChars.sub('', tmpOut).strip()
             return tmpOut.replace(tmpPrompt, '').replace(cmd, '').strip()
 
@@ -105,6 +114,7 @@ class sshBufferControl(sshCon):
             out.truncate(0)
             del out
             # log.debug(f"The output of the cmd: {cmd} is: \n===\n{output}\n===")
+            # print(f"The output of the cmd: {cmd} is: \n===\n{output}\n===")
             return output
 
     def _bufferControl(self, channel: EnvironmentControls, cmd: AnyStr, out: StringIO,
@@ -260,6 +270,7 @@ class sshBufferControl(sshCon):
     @staticmethod
     def _decodeStringEscape(s: AnyStr, encoding: AnyStr = 'utf-8') -> AnyStr:
         # print(f'String:\n======\n{s}\n=======\n\n\nString type: {type(s)}\n')
+
         try:
             return (s.encode('latin1')  # To bytes, required by 'unicode-escape'
                     .decode('unicode-escape')  # Perform the actual octal-escaping decode

@@ -9,7 +9,7 @@
 
 import logging
 from LinuxModules.genericCmdModule import GenericCmdModule
-from PyCustomCollections.CustomDataStructures import IndexList
+from PyCustomCollections.CustomDataStructures import IndexedTable
 import re
 
 log = logging.getLogger('osModule')
@@ -170,15 +170,13 @@ class osModule(GenericCmdModule):
         return self.modules.uptime.rebootedWithin(timeInSeconds)
 
     def tailVarLog(self, **kwargs):
-        keyedLog = IndexList()
         logFile = '/var/log/messages'
         if 'ubuntu' in self.osName.lower():
             logFile = '/var/log/syslog'
         rawLog = self.modules.tail(logFile, wait=60)
         if not rawLog:
             return None
-        keyedLog.extend([x.split() for x in rawLog.splitlines()])
-        return keyedLog
+        return IndexedTable([x.split() for x in rawLog.splitlines()])
 
     def getTimeZone(self, wait=60, **kwargs):
 

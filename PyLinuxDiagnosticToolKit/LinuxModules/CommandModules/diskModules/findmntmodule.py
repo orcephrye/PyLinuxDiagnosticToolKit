@@ -10,7 +10,7 @@
 
 import logging
 from LinuxModules.genericCmdModule import GenericCmdModule
-from PyCustomParsers.GenericParser import BashParser
+from PyCustomParsers.GenericParsers import BashParser
 import re
 
 
@@ -49,7 +49,7 @@ class findmntModule(GenericCmdModule, BashParser):
         if not results:
             return None
         results = list(filter(findmntModule.cmdFilter, [x.split() for x in results.splitlines() if x != '']))
-        self.parseInput(source=results)
+        self.parse(source=results)
         return self
 
     def isMountBind(self, mountpoint, **kwargs):

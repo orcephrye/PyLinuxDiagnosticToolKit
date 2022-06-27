@@ -11,8 +11,8 @@
 import logging
 import re
 from LinuxModules.genericCmdModule import GenericCmdModule
-from PyCustomParsers.GenericParser import BashParser
-from PyCustomCollections.CustomDataStructures import IndexList
+from PyCustomParsers.GenericParsers import BashParser
+from PyCustomCollections.CustomDataStructures import IndexedTable
 from libs.LDTKExceptions import exceptionDecorator
 
 
@@ -57,7 +57,7 @@ class fstabModule(GenericCmdModule, BashParser):
             if results is None:
                 return None
             output = list(map(fstabOptions, filter(fstabFilter, [line.split() for line in results.splitlines()])))
-            self.parseInput(source=output, refreshData=True)
+            self.parse(source=output, refreshData=True)
             return self
 
         return self.tki.modules.cat('/etc/fstab', postparser=parsefstab, **kwargs)
@@ -80,8 +80,8 @@ class fstabModule(GenericCmdModule, BashParser):
             reg = re.compile(filesystem)
         for line in self:
             if reg.search(line[0]) or reg.search(line[1]):
-                return IndexList([line], columns=self._fstabTemplate)
-        return IndexList([[]], columns=self._fstabTemplate)
+                return IndexedTable([line], columns=self._fstabTemplate)
+        return IndexedTable([[]], columns=self._fstabTemplate)
 
     def isKernelAware(self, mountpoint, **kwargs):
         if not mountpoint:

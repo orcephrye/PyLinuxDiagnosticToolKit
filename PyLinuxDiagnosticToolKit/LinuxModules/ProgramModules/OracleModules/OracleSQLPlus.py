@@ -18,7 +18,7 @@ except:
     from ldtk import CommandContainer
 import logging
 from LinuxModules.genericCmdModule import GenericCmdModule
-from PyCustomParsers.GenericParser import BashParser
+from PyCustomParsers.GenericParsers import BashParser
 
 
 log = logging.getLogger('OracleSQLPlus')
@@ -65,5 +65,4 @@ class OracleSQLPlus(GenericCmdModule):
             return None
         # Unknown why '-2' is part of this split
         # gcp = BashParser(source=lines[2:-2], head=1, header=0)
-        gcp = BashParser(source=lines, head=2, header=0)
-        return gcp
+        return BashParser(source=lines, head=2, header=0)

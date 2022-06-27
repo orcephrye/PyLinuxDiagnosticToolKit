@@ -10,7 +10,7 @@
 
 import logging
 from LinuxModules.genericCmdModule import GenericCmdModule
-from PyCustomParsers.GenericParser import BashParser
+from PyCustomParsers.GenericParsers import BashParser
 import re
 
 
@@ -50,11 +50,11 @@ class findModule(GenericCmdModule):
             results = "\n".join(filter(_filterResults, results.strip().splitlines()))
 
             obj = BashParser(strFormat=self._findStrFormat, columns=self._findColumns, header=self._findHeader)
-            obj.parseInput(source=results, refreshData=True)
+            obj.parse(source=results, refreshData=True)
             if sort:
                 obj.sort(key='SIZE', keyType=int, reverse=True)
             if head and head < len(obj) + 1:
-                obj.parseInput(source=results[:head + 1], refreshData=True)
+                obj.parse(source=results[:head + 1], refreshData=True)
             return obj.convertResultsToBytes(obj, columnList=['SIZE'], _baseSize='B')
 
         kwargs.update({'postparser': parseFindOutput})

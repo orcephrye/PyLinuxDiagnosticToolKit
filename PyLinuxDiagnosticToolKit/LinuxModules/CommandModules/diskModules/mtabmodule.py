@@ -10,7 +10,7 @@
 
 import logging
 from LinuxModules.genericCmdModule import GenericCmdModule
-from PyCustomParsers.GenericParser import BashParser
+from PyCustomParsers.GenericParsers import BashParser
 import re
 
 
@@ -51,7 +51,7 @@ class mtabModule(GenericCmdModule, BashParser):
             if results is None:
                 return None
             output = list(map(mtabOptions, filter(mtabFilter, [line.split() for line in results.splitlines()])))
-            self.parseInput(source=output)
+            self.parse(source=output)
             return self
 
         return self.tki.modules.cat('/etc/mtab', postparser=parsemtab, **kwargs)

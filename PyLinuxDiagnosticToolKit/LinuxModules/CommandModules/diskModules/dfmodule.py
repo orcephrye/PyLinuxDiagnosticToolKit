@@ -114,7 +114,7 @@ class dfModule(GenericCmdModule, BashParser):
             return {}
         output, baseLine = dfModule._preFormatHelper(output.splitlines())
         baseDict = dict(enumerate(output))
-        for num, line in baseDict.items():
+        for num, line in baseDict.copy().items():
             numLine = len(line.split())
             # if the length of the line is less than the length of the header line
             # and it exists and the next line exists

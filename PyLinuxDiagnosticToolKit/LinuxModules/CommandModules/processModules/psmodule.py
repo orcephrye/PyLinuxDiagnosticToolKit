@@ -11,7 +11,7 @@
 import logging
 import re
 from LinuxModules.genericCmdModule import GenericCmdModule
-from PyCustomParsers.GenericParser import BashParser
+from PyCustomParsers.GenericParsers import BashParser
 
 
 log = logging.getLogger('psModule')
@@ -24,12 +24,12 @@ class psModule(GenericCmdModule, BashParser):
         defaultCmd: /bin/ps
         defaultFlags = -wweo user,pid,%cpu,%mem,vsz,rss,nlwp,tname,stat,comm,args
         _psHeader = ['USER', 'PID', '%CPU', '%MEM', 'VSZ', 'RSS', 'NLWP', 'TTY', 'STAT', 'CMD', 'COMMAND']
-            _psHeader is used by the BashParser which then inherits to help construct the IndexList.
+            _psHeader is used by the BashParser which then inherits to help construct the IndexedTable.
     """
 
     _psColumns = {'USER': 0, 'PID': 1, 'CPU': 2, 'MEM': 3, 'VSZ': 4, 'RSS': 5, 'NLWP': 6,
                    'TTY': 7, 'STAT': 8, 'COMMAND': 9, 'CMDLONG': 10}
-    _psHeader = ['USER', 'PID', '%CPU', '%MEM', 'VSZ', 'RSS', 'NLWP', 'TTY', 'STAT', 'CMD', 'COMMAND']
+    _psHeader = ['USER', 'PID', '%CPU', '%MEM', 'VSZ', 'RSS', 'NLWP', 'TTY', 'STAT', 'COMMAND', 'CMDLONG']
     MEM_VSZ = 'VSZ'
     MEM_RSS = 'RSS'
     MEM = 'MEM'
@@ -53,7 +53,7 @@ class psModule(GenericCmdModule, BashParser):
         """
 
         def _formatOutput(results, *args, **kwargs):
-            self.parseInput(source=results, refreshData=True)
+            self.parse(source=results, refreshData=True)
             return self
 
         command = {flags or self.defaultKey: self.defaultCmd + (flags or self.defaultFlags)}
@@ -65,23 +65,23 @@ class psModule(GenericCmdModule, BashParser):
         """ Returns a process with the same PID.
 
         - :param pid: (int)
-        - :param kwargs: passed directly to 'getCorrelation'
-        - :return: IndexList
+        - :param kwargs: passed directly to 'correlation'
+        - :return: IndexedTable
         """
 
         self.verifyNeedForRun(**kwargs)
-        return self.getCorrelation(('PID', str(pid)), **kwargs)
+        return self.correlation(('PID', str(pid)), **kwargs)
 
     def searchProcesses(self, search, **kwargs):
         """ Returns processes with the name from the parameter 'name'.
 
         - :param search: (str) name of process to search for
-        - :param kwargs:  passed directly to 'getSearchValues'
+        - :param kwargs:  passed directly to 'search'
         - :return: list
         """
 
         self.verifyNeedForRun(**kwargs)
-        return self.getSearch(search, **kwargs)
+        return self.search(search, **kwargs)
 
     def findCMD(self, name, **kwargs):
         """ Returns processes with the name from the parameter 'name'.
@@ -92,7 +92,7 @@ class psModule(GenericCmdModule, BashParser):
         """
 
         self.verifyNeedForRun(**kwargs)
-        return self.getCorrelation(('COMMAND', name), **kwargs)
+        return self.correlation(('COMMAND', name), **kwargs)
 
     def searchCommandString(self, name, **kwargs):
         """ Returns processes with the name from the parameter 'name'.
@@ -103,20 +103,20 @@ class psModule(GenericCmdModule, BashParser):
         """
 
         self.verifyNeedForRun(**kwargs)
-        return self.getCorrelation(('COMMAND', name), **kwargs)
+        return self.correlation(('CMDLONG', name), **kwargs)
 
-    def getPIDListByName(self, name, explicit=False, caseSensitive=False, **kwargs):
+    def getPIDListByName(self, name, explicit=False, ignore_case=False, **kwargs):
         """ Returns processes PIDs that has the 'name' located inside the 'COMMAND' field of
             '/bin/ps -wweo user,pid,%cpu,%mem,vsz,rss,nlwp,tname,stat,comm,args' output.
 
         - :param name: (str)
-        - :param explicit: argument for the 'getSearchColumns' method
-        - :param caseSensitive: argument for the 'getSearchColumns' method
+        - :param explicit: argument for the 'search_by_column' method
+        - :param ignore_case: argument for the 'search_by_column' method
         - :return: list
         """
 
         self.verifyNeedForRun(**kwargs)
-        return self.getSearch('COMMAND', name, explicit=explicit, caseSensitive=caseSensitive)['PID']
+        return self.search_by_column('COMMAND', name, explicit=explicit, ignore_case=ignore_case)['PID']
 
     def getTopCPU(self, top=10, **kwargs):
         """ Sorts output from '/bin/ps -wweo user,pid,%cpu,%mem,vsz,rss,nlwp,tname,stat,comm,args' using the CPU
@@ -127,7 +127,7 @@ class psModule(GenericCmdModule, BashParser):
         """
 
         self.verifyNeedForRun(**kwargs)
-        self.sort(key='CPU', reverse=True, keyType=float)
+        self.sort_by_column('CPU', reverse=True, column_type=float)
         return self[0:top]
 
     def getTopMem(self, top=10, memType='MEM', **kwargs):
@@ -141,7 +141,7 @@ class psModule(GenericCmdModule, BashParser):
 
         self.verifyNeedForRun(**kwargs)
         if memType == self.MEM or memType == self.MEM_RSS or memType == self.MEM_VSZ:
-            self.sort(key=memType, reverse=True, keyType=float)
+            self.sort_by_column(memType, reverse=True, column_type=float)
             return self[0:top]
 
     def getRunQue(self, **kwargs):
@@ -152,7 +152,7 @@ class psModule(GenericCmdModule, BashParser):
         """
 
         self.verifyNeedForRun(**kwargs)
-        return self.getSearch(('STAT', 'R'), explicit=False)
+        return self.search_by_column('STAT', 'R', explicit=False)
 
     def getProcQueue(self, rerun=True):
         """ Utilizes the 'w' module to determine basic load average summary of the machine.

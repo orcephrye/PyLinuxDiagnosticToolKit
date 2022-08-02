@@ -10,7 +10,7 @@
 
 import logging
 from LinuxModules.genericCmdModule import GenericCmdModule
-from PyCustomParsers.GenericParser import BashParser
+from PyCustomParsers.GenericParsers import BashParser
 from PyCustomParsers.dateparseline import DateParseLine as DPL
 from dateutil import tz
 

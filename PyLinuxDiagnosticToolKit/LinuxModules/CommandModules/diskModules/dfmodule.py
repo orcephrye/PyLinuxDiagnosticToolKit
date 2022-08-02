@@ -10,7 +10,7 @@
 
 import logging
 from LinuxModules.genericCmdModule import GenericCmdModule
-from PyCustomParsers.GenericParser import BashParser
+from PyCustomParsers.GenericParsers import BashParser
 from libs.LDTKExceptions import exceptionDecorator
 import re
 
@@ -56,7 +56,7 @@ class dfModule(GenericCmdModule, BashParser):
             output = []
             for x in range(1, len(dfi)):
                 output.append(_combineLines(dfi[x], dfh[x]))
-            self.parseInput(source=output)
+            self.parse(source=output)
             return self
 
         if not flags:
@@ -71,45 +71,45 @@ class dfModule(GenericCmdModule, BashParser):
             return self.simpleExecute(command=command, **kwargs)
 
     @exceptionDecorator(returnOnExcept=[])
-    def _helperMBParser(self, indexList, threshold):
-        values = list(map(int, indexList['Available']))
-        return [indexList[x] for x in range(len(values)) if values[x] / 1024 <= threshold]
+    def _helperMBParser(self, indexedTable, threshold):
+        values = list(map(int, indexedTable['Available']))
+        return [indexedTable[x] for x in range(len(values)) if values[x] / 1024 <= threshold]
 
     @exceptionDecorator(returnOnExcept=[])
-    def _helperPercentParser(self, indexList, threshold):
-        values = list(map(lambda x: 100 - float(x.strip('%')), indexList['Percent']))
-        return [indexList[x] for x in range(len(values)) if values[x] <= threshold]
+    def _helperPercentParser(self, indexedTable, threshold):
+        values = list(map(lambda x: 100 - float(x.strip('%')), indexedTable['Percent']))
+        return [indexedTable[x] for x in range(len(values)) if values[x] <= threshold]
 
     def _helperMountFilesystemFinder(self, filesystem=None, mountpoint=None):
         self.verifyNeedForRun()
         if not self:
             return []
         if filesystem:
-            return self.getSearch(('Filesystem', filesystem))
+            return self.correlation(('Filesystem', filesystem))
         if mountpoint:
-            return self.getSearch(('Mount', mountpoint))
+            return self.correlation(('Mount', mountpoint))
 
     def isBelowPercentThreshold(self, threshold=5, filesystem=None, mountpoint=None):
         threshold = int(threshold)
-        fileSystemIndexList = self._helperMountFilesystemFinder(filesystem, mountpoint)
-        if fileSystemIndexList:
-            return self._helperPercentParser(fileSystemIndexList, threshold)
+        fileSystemIndexedTable = self._helperMountFilesystemFinder(filesystem, mountpoint)
+        if fileSystemIndexedTable:
+            return self._helperPercentParser(fileSystemIndexedTable, threshold)
         return self._helperPercentParser(self, threshold)
 
     def isBelowMBThreshold(self, threshold=5000, filesystem=None, mountpoint=None):
         threshold = int(threshold)
-        fileSystemIndexList = self._helperMountFilesystemFinder(filesystem, mountpoint)
-        if fileSystemIndexList:
-            return self._helperMBParser(fileSystemIndexList, threshold)
+        fileSystemIndexedTable = self._helperMountFilesystemFinder(filesystem, mountpoint)
+        if fileSystemIndexedTable:
+            return self._helperMBParser(fileSystemIndexedTable, threshold)
         return self._helperMBParser(self, threshold)
 
     def dfConvertResultsToBytes(self):
-        return self.convertResultsToBytes(self, ['Size', 'Available', 'Used'], _baseSize='K')
+        return self.convert_results_to_bytes(self, ['Size', 'Available', 'Used'], _baseSize='K')
 
     @staticmethod
     def _preFormatter(output=None):
         # preformats the df output so that each entry appears on a single line
-        # this is to prevent the IndexList, IndexTable, and KeyedList from crashing when __get__ is called
+        # this is to prevent the IndexedTable, and KeyedList from crashing when __get__ is called
         if not output:
             return {}
         output, baseLine = dfModule._preFormatHelper(output.splitlines())

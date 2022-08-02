@@ -104,7 +104,7 @@ class dfModule(GenericCmdModule, BashParser):
         return self._helperMBParser(self, threshold)
 
     def dfConvertResultsToBytes(self):
-        return self.convertResultsToBytes(self, ['Size', 'Available', 'Used'], _baseSize='K')
+        return self.convert_results_to_bytes(self, ['Size', 'Available', 'Used'], _baseSize='K')
 
     @staticmethod
     def _preFormatter(output=None):

@@ -52,7 +52,7 @@ class oracleSystem(object):
         #     self.processMod = self.tki.getModules('ps')
         self.initializeData()
         self.processMod(wait=120)
-        self.oraMmonPids = self.processMod.getSearch(('CMDLONG', 'ora_mmon'), explicit=False)
+        self.oraMmonPids = self.processMod.correlation(('CMDLONG', 'ora_mmon'), explicit=False)
         self.oraMmonPids = dict(zip(self.oraMmonPids['PID'], self.oraMmonPids['CMDLONG']))
         log.debug(" === The oraMmonPids before filter are: %s" % self.oraMmonPids)
         # self._adrciFilter()
@@ -97,10 +97,10 @@ class oracleSystem(object):
         if not self.processMod:
             self.processMod = self.tki.getModules('ps')
         self.processMod(wait=120)
-        self.tnsPids = self.processMod.getSearch(('CMDLONG', 'Tns'), explicit=False, caseSensitive=False)
+        self.tnsPids = self.processMod.correlation(('CMDLONG', 'Tns'), explicit=False, ignore_case=False)['PIDS']
         if self.tnsPids and len(self.tnsPids) > 1:
-            self.tnsPids = self._filterIndexList(self.tnsPids, '_SCAN')
-            self.tnsPids = self.tnsPids.getSearch('LISTENER', explicit=False, caseSensitive=False)
+            self.tnsPids = self._filterIndexedTable(self.tnsPids, '_SCAN')
+            self.tnsPids = self.tnsPids.search('LISTENER', explicit=False, ignore_case=False)
         if not self.tnsPids:
             return False
         cmdList = self.tnsPids['CMDLONG']
@@ -313,8 +313,8 @@ class oracleSystem(object):
         return outputDict
 
     @staticmethod
-    def _filterIndexList(unfiltered, excludeStr):
-        tempList = unfiltered.getSearch(excludeStr, explicit=False)
+    def _filterIndexedTable(unfiltered, excludeStr):
+        tempList = unfiltered.search(excludeStr, explicit=False)
         if tempList:
             for item in tempList:
                 unfiltered.remove(item)

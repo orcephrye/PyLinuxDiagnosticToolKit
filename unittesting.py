@@ -12,7 +12,8 @@ from LinuxModules.CommandContainers import CommandContainer
 from LinuxModules.genericCmdModule import GenericCmdModule
 from PyLinuxDiagnosticToolKit.libs.OSNetworking.PyNIC import NetworkInterfaceCards
 from PyLinuxDiagnosticToolKit.libs.OSNetworking.PyRoute import Routes
-from PyCustomParsers.GenericParser import BashParser, IndexList
+# from PyCustomParsers.GenericParser import BashParser, IndexList
+from PyCustomParsers.GenericParsers import BashParser, IndexedTable
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
@@ -1079,7 +1080,7 @@ class TestFMySQLModule(unittest.TestCase):
             self.skipTest('MySQL server is not running on test target skipping... ')
 
         output = mysql.getMySQLStatus(wait=20)
-        self.assertIsInstance(output, IndexList)
+        self.assertIsInstance(output, IndexedTable)
 
     def test_zzz_disconnect(self):
         global tki

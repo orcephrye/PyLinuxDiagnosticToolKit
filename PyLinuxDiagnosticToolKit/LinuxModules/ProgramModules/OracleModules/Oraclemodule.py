@@ -13,7 +13,7 @@
 import logging
 from multiprocessing import RLock
 from PyMultiTasking import wait_lock
-from PyCustomCollections.CustomDataStructures import IndexList
+from PyCustomCollections.CustomDataStructures import IndexedTable
 from OracleData import oracleData
 from OracleLogs import oracleLogs
 from OracleSystem import oracleSystem
@@ -99,7 +99,7 @@ class oracleModule(AllTheOracle):
             if self.allTheOracleInfo:
                 return self.allTheOracleInfo
             self._psInfo = self.getPSInfo(**kwargs)
-            allTheOracleInfo = IndexList(values=self._psInfo)
+            allTheOracleInfo = IndexedTable(self._psInfo)
             adrciSids = []
             for user in self.knownUsers:
                 tmpSid = self.getSIDsInfo(user.username, **kwargs)
@@ -132,8 +132,7 @@ class oracleModule(AllTheOracle):
             template = {'User': 0, 'Sid': 1, 'Home': 2}
             if not results:
                 return False
-            output = IndexList(values=[row.strip().split('::') for row in results.strip().splitlines()],
-                               columns=template)
+            output = IndexedTable([row.strip().split('::') for row in results.strip().splitlines()], columns=template)
             self._knownUsers = list(map(self.getOracleUser, set([c[0] for c in output])))
             self._knownSIDs = list(set([c[1] for c in output]))
             self._knownHomes = list(set([c[2] for c in output]))

@@ -628,7 +628,7 @@ class CommandRequirements(CommandParsers):
             log.debug(f"[DEBUG] for _parseRequirements: {traceback.format_exc()}")
             raise e
 
-    def _parseRequirementsHelper(self, rawRequirements: Any) -> Union[Union[List[partial], partial], Exception]:
+    def _parseRequirementsHelper(self, rawRequirements: Any) -> Union[List[partial], partial, Exception]:
         """ This is the work horse of the __init__/_parseRequirements methods.
             This is a recursive method that attempts to parse requirements and turn them into callable partials
                 for the _requirementRunner method to be used by the Pool.
@@ -958,7 +958,7 @@ class CommandContainer(CommandSetup):
             self.endTime = time.time()
             return self.finalizeExecution()
 
-    def _executorThreadHelper(self) -> Union[Union[str, dict], Exception]:
+    def _executorThreadHelper(self) -> Union[str, dict, Exception]:
         """ Attempts to execute threaded commands in a batch or a queue, or a single threaded command.
 
         - :return: string for single command, dict for multiple commands, exception on error
@@ -980,7 +980,7 @@ class CommandContainer(CommandSetup):
                                        f'{self.commandKey} : {self.children}')
         return self._executorFailure()
 
-    def _executorUnThreadedHelper(self) -> Union[Union[str, dict], Exception]:
+    def _executorUnThreadedHelper(self) -> Union[str, dict, Exception]:
         """ Attempts to execute on the main ssh channel one command at a time.
 
         - :return: string for single command, dict for multiple commands, exception on error
@@ -1046,7 +1046,7 @@ class CommandContainer(CommandSetup):
         log.error(f"Failed to determine execution mode for CommandObject: {self.commandKey}")
         return ExecutionException(f'Failed to determine execution mode for CommandObject: {self.commandKey}')
 
-    def waitForResults(self, wait: Optional[Union[float, int]] = None) -> Union[Union[str, dict], Exception]:
+    def waitForResults(self, wait: Optional[Union[float, int]] = None) -> Union[str, dict, Exception]:
         """ This is designed to wait until the command object is finished executing the command and parsing the results.
 
         - :param wait: use when the command object has children, defaults to the timeout attribute of the container
@@ -1064,7 +1064,7 @@ class CommandContainer(CommandSetup):
         if self._timeoutExceptions:
             return TimeoutException(f'Command timed out waiting for results: {self.commandKey}')
 
-    def _waitForChildren(self, wait: Optional[Union[float, int]] = None) -> Union[Union[str, dict], Exception]:
+    def _waitForChildren(self, wait: Optional[Union[float, int]] = None) -> Union[str, dict, Exception]:
         """ Private method to wait for just the children so the parent knows when to proceed """
 
         if wait is None:

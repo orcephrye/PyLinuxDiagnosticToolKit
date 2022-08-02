@@ -59,7 +59,7 @@ class duModule(GenericCmdModule, BashParser):
                     parserObject.sort(key='SIZE', keyType=int, reverse=True)
                     if maxLines and maxLines < len(parserObject) + 1:
                         parserObject.parseInput(source=parserObject[:maxLines + 1], refreshData=True)
-                    return self.convertResultsToBytes(parserObject, columnList=['SIZE'], _baseSize='K')
+                    return self.convert_results_to_bytes(parserObject, columnList=['SIZE'], _baseSize='K')
                 parserObject.parseInput(source=results, refreshData=refreshData)
                 return parserObject
             if flags:

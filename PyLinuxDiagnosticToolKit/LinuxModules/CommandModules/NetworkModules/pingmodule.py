@@ -17,8 +17,8 @@ log = logging.getLogger('pingModule')
 
 class pingModule(GenericCmdModule):
     """
-        pingModule class. This class inherits both GenericCmdModule and BashParser. It is used to execute the Linux
-        command 'ping' on remote machines.
+        pingModule class. This class inherits GenericCmdModule. It is used to execute the Linux command 'ping' on
+        remote machines.
         defaultCmd: ping
         defaultFlags = -c %s -W %s %s
     """

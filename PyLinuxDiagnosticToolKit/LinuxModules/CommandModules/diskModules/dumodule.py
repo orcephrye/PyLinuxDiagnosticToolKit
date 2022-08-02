@@ -10,7 +10,7 @@
 
 import logging
 from LinuxModules.genericCmdModule import GenericCmdModule
-from PyCustomParsers.GenericParser import BashParser
+from PyCustomParsers.GenericParsers import BashParser
 import re
 
 
@@ -53,13 +53,13 @@ class duModule(GenericCmdModule):
 
             obj = BashParser(strFormat=self._duStrFormat, columns=self._duTemplate, header=self._duHeader)
             if maxLines and maxLines < len(obj) + 1:
-                obj.parseInput(source=results[:maxLines + 1], refreshData=True)
+                obj.parse(source=results[:maxLines + 1], refreshData=True)
             else:
-                obj.parseInput(source=results, refreshData=refreshData)
+                obj.parse(source=results, refreshData=refreshData)
             if sort:
-                obj.sort(key='SIZE', keyType=int, reverse=True)
+                obj.sort_by_column('SIZE', column_type=int, reverse=True)
             if parseOutput:
-                return obj.convertResultsToBytes(obj, columnList=['SIZE'], _baseSize='K')
+                return obj.convert_results_to_bytes(obj, columnList=['SIZE'], _baseSize='K')
             return obj
 
         self.defaultKwargs = {'postparser': parseFilesystemOutput}

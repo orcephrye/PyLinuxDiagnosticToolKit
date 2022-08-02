@@ -10,7 +10,7 @@
 
 import logging
 from LinuxModules.genericCmdModule import GenericCmdModule
-from PyCustomParsers.GenericParser import BashParser
+from PyCustomParsers.GenericParsers import BashParser
 import re
 
 
@@ -26,9 +26,10 @@ class findmntModule(GenericCmdModule, BashParser):
     """
 
     _findmntStrFormat = "{0:<[0]}{1:<}"
-    _findmntTemplate = {'SOURCE': 0, 'TARGET': 1}
-    _findmntHeader = ['SOURCE', 'TARGET']
+    _findmntTemplate = {'TARGET': 0, 'SOURCE': 1}
+    _findmntHeader = ['TARGET', 'SOURCE']
 
+    # noinspection PyArgumentList
     def __init__(self, tki, *args, **kwargs):
         log.info("Creating findmnt module.")
         super(findmntModule, self).__init__(tki=tki)
@@ -49,16 +50,15 @@ class findmntModule(GenericCmdModule, BashParser):
         if not results:
             return None
         results = list(filter(findmntModule.cmdFilter, [x.split() for x in results.splitlines() if x != '']))
-        self.parseInput(source=results)
+        self.parse(source=results)
         return self
 
-    def isMountBind(self, mountpoint, **kwargs):
-        if not self:
-            return None
-        mountEntry = self.getSearch('TARGET', mountpoint, **kwargs)
-        if not mountEntry:
-            return False
-        for source in mountEntry['SOURCE']:
-            if re.search('\\[', source):
+    def isMountBind(self, mount, **kwargs):
+        self.verifyNeedForRun(**kwargs)
+        for result in self.correlation(('SOURCE', mount), **kwargs)['SOURCE']:
+            if re.search('\\[', result):
+                return True
+        for result in self.correlation(('TARGET', mount), **kwargs)['SOURCE']:
+            if re.search('\\[', result):
                 return True
         return False

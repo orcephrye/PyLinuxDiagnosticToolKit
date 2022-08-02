@@ -11,8 +11,8 @@
 import logging
 import re
 from genericCmdModule import GenericCmdModule, dummy_func
-from PyCustomCollections.CustomDataStructures import IndexList
-from PyCustomParsers.GenericParser import BashParser as GIP
+from PyCustomCollections.CustomDataStructures import IndexedTable
+from PyCustomParsers.GenericParsers import BashParser as GIP
 
 
 log = logging.getLogger('MySQLModule')
@@ -94,11 +94,9 @@ class mysqlModule(GenericCmdModule):
 
     def getMySQLVariables(self, rerun=False, wait=0, **kwargs):
 
-        if self._mysqlVariables is None or rerun:
-            self._mysqlVariables = IndexList(columns={'Name': 0, 'Value': 1})
-
         def _mysqlVarPostParser(results, *args, **kwargs):
-            self._mysqlVariables.extend([[item for item in line.split()] for line in results.splitlines()])
+            self._mysqlVariables = IndexedTable([[item for item in line.split()] for line in results.splitlines()],
+                                                columns={'Name': 0, 'Value': 1})
             return self._mysqlVariables
 
         requirements = [{'running': self.isMySQLRunning}, {'mysqlCmd': self.isMySQLClientInstalled}]
@@ -139,9 +137,9 @@ class mysqlModule(GenericCmdModule):
         requirements = [{'running': self.isMySQLRunning}, {'mysqlCmd': self.isMySQLClientInstalled}]
 
         if self._mysqlStatus is None or rerun:
-            self._mysqlStatus = IndexList(columns={'Name': 0, 'Value': 1})
+            self._mysqlStatus = IndexedTable(columns={'Name': 0, 'Value': 1})
         if self._mysqlSummary is None or rerun:
-            self._mysqlSummary = IndexList(columns={'Name': 0, 'Value': 1})
+            self._mysqlSummary = IndexedTable(columns={'Name': 0, 'Value': 1})
         self.simpleExecute(command={'mysqlShowStatus': "%s -N -B -e 'show status'"},
                            preparser=mysqlModule._MySQLStatusPreParser, postparser=_parseShowStatus, rerun=rerun,
                            requirements=requirements, **kwargs)
@@ -220,7 +218,7 @@ class mysqlModule(GenericCmdModule):
             if type(self._mysqlProcessList) is not GIP:
                 return ""
             processList = self._mysqlProcessList
-            processList.sort(key='Time', reverse=True, keyType=float)
+            processList.sort_by_column('Time', reverse=True, column_type=float)
             if len(processList) < top:
                 top = len(self._mysqlProcessList)
             return self._mysqlProcessList.formatLines(lines=processList[0:top])
@@ -235,7 +233,7 @@ class mysqlModule(GenericCmdModule):
             if type(self._mysqlProcessList) is not GIP:
                 return None
             processList = self._mysqlProcessList
-            processList.sort(key='Time', reverse=True, keyType=float)
+            processList.sort_by_column('Time', reverse=True, column_type=float)
             for mysqlProcess in processList:
                 if 'system user' in mysqlProcess[1]:
                     continue
@@ -254,19 +252,19 @@ class mysqlModule(GenericCmdModule):
             return None
         return getattr(self.tki.modules.ps, 'formatLines', dummy_func)(results)
 
-    def getVariable(self, name, explicit=True, caseSensitive=False, wait=30):
-        if not self._mysqlVariables or type(self._mysqlVariables) is not IndexList:
+    def getVariable(self, name, AND=False, explicit=True, ignore_case=False, wait=30):
+        if not self._mysqlVariables or type(self._mysqlVariables) is not IndexedTable:
             self.getMySQLVariables()
         self.getMySQLVariables(wait=wait)
-        if type(self._mysqlVariables) is IndexList:
-            return self._mysqlVariables.getSearchValues(name, explicit=explicit, caseSensitive=caseSensitive)
+        if type(self._mysqlVariables) is IndexedTable:
+            return self._mysqlVariables.search(name, AND=AND, explicit=explicit, ignore_case=ignore_case)
         return None
 
-    def getStatus(self, name, explicit=True, caseSensitive=False, wait=30):
+    def getStatus(self, name, AND=False, explicit=True, ignore_case=False, wait=30):
         if not self._mysqlStatus:
             self.getMySQLStatus(wait=wait)
-        if type(self._mysqlStatus) is IndexList:
-            return self._mysqlStatus.getSearchValues(name, explicit=explicit, caseSensitive=caseSensitive)
+        if type(self._mysqlStatus) is IndexedTable:
+            return self._mysqlStatus.search(name, AND=AND, explicit=explicit, ignore_case=ignore_case)
         return None
 
     # Privates

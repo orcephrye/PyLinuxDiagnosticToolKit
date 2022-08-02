@@ -117,7 +117,7 @@ class lsofModule(GenericCmdModule, BashParser):
             results = self
         # print(f'lsofConvertResultsToBytes - Shortest Line: {results.shortestLine}')
         # print(f'lsofConvertResultsToBytes - Shortest Line: {results._getShortestLine(results)}')
-        return self.convertResultsToBytes(results, ['SIZE/OFF'])
+        return self.convert_results_to_bytes(results, ['SIZE/OFF'])
 
     def formatOpenDeletedFiles(self, maxLines=None, formatColumns=None):
         """ Outputs a list of open but deleted files that depending on the 'formatColumns' param has had the 'SIZE/OFF'
@@ -129,17 +129,17 @@ class lsofModule(GenericCmdModule, BashParser):
         """
 
         if not maxLines and not formatColumns:
-            return self.lsofConvertResultsToBytes(self.getOpenDeletedFiles().sort(key='SIZE/OFF',
-                                                                                  keyType=int, reverse=True)
-                                                  ).formatOutput().replace('(deleted)', ' (deleted)')
+            return self.lsofConvertResultsToBytes(self.getOpenDeletedFiles().sort_by_column('SIZE/OFF', column_type=int,
+                                                                                            reverse=True)
+                                                  ).format_output().replace('(deleted)', ' (deleted)')
 
-        openDeletedFiles = self.getOpenDeletedFiles().sort(key='SIZE/OFF', keyType=int, reverse=True)
+        openDeletedFiles = self.getOpenDeletedFiles().sort_by_column('SIZE/OFF', column_type=int, reverse=True)
         if formatColumns:
             openDeletedFiles = self.trimResultsToColumns(openDeletedFiles, formatColumns)
         if maxLines and maxLines < len(openDeletedFiles) + 1:
             openDeletedFiles.parse(source=openDeletedFiles[:maxLines + 1], refreshData=True)
 
-        return self.lsofConvertResultsToBytes(openDeletedFiles).formatOutput().replace('(deleted)', ' (deleted)')
+        return self.lsofConvertResultsToBytes(openDeletedFiles).format_output().replace('(deleted)', ' (deleted)')
 
     @staticmethod
     def _lsofBasicFormatter(results):

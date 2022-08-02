@@ -218,7 +218,7 @@ class mysqlModule(GenericCmdModule):
             if type(self._mysqlProcessList) is not GIP:
                 return ""
             processList = self._mysqlProcessList
-            processList.sort(key='Time', reverse=True, keyType=float)
+            processList.sort_by_column('Time', reverse=True, column_type=float)
             if len(processList) < top:
                 top = len(self._mysqlProcessList)
             return self._mysqlProcessList.formatLines(lines=processList[0:top])
@@ -233,7 +233,7 @@ class mysqlModule(GenericCmdModule):
             if type(self._mysqlProcessList) is not GIP:
                 return None
             processList = self._mysqlProcessList
-            processList.sort(key='Time', reverse=True, keyType=float)
+            processList.sort_by_column('Time', reverse=True, column_type=float)
             for mysqlProcess in processList:
                 if 'system user' in mysqlProcess[1]:
                     continue

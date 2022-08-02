@@ -117,7 +117,7 @@ class lsofModule(GenericCmdModule, BashParser):
             results = self
         print(f'lsofConvertResultsToBytes - Shortest Line: {results.shortestLine}')
         print(f'lsofConvertResultsToBytes - Shortest Line: {results._getShortestLine(results)}')
-        return self.convertResultsToBytes(results, ['SIZE/OFF'])
+        return self.convert_results_to_bytes(results, ['SIZE/OFF'])
 
     def formatOpenDeletedFiles(self, maxLines=None, formatColumns=None):
         """ Outputs a list of open but deleted files that depending on the 'formatColumns' param has had the 'SIZE/OFF'

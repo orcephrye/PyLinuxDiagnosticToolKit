@@ -52,10 +52,10 @@ class findModule(GenericCmdModule):
             obj = BashParser(strFormat=self._findStrFormat, columns=self._findColumns, header=self._findHeader)
             obj.parse(source=results, refreshData=True)
             if sort:
-                obj.sort(key='SIZE', keyType=int, reverse=True)
+                obj.sort_by_column('SIZE', column_type=int, reverse=True)
             if head and head < len(obj) + 1:
                 obj.parse(source=results[:head + 1], refreshData=True)
-            return obj.convertResultsToBytes(obj, columnList=['SIZE'], _baseSize='B')
+            return obj.convert_results_to_bytes(obj, columnList=['SIZE'], _baseSize='B')
 
         kwargs.update({'postparser': parseFindOutput})
 

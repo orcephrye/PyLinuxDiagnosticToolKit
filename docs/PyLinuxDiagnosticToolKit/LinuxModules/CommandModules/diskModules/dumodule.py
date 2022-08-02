@@ -57,9 +57,9 @@ class duModule(GenericCmdModule):
             else:
                 obj.parseInput(source=results, refreshData=refreshData)
             if sort:
-                obj.sort(key='SIZE', keyType=int, reverse=True)
+                obj.sort_by_column('SIZE', column_type=int, reverse=True)
             if parseOutput:
-                return obj.convertResultsToBytes(obj, columnList=['SIZE'], _baseSize='K')
+                return obj.convert_results_to_bytes(obj, columnList=['SIZE'], _baseSize='K')
             return obj
 
         self.defaultKwargs = {'postparser': parseFilesystemOutput}

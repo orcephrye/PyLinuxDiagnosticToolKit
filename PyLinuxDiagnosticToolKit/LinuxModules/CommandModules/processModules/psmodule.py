@@ -29,7 +29,7 @@ class psModule(GenericCmdModule, BashParser):
 
     _psColumns = {'USER': 0, 'PID': 1, 'CPU': 2, 'MEM': 3, 'VSZ': 4, 'RSS': 5, 'NLWP': 6,
                    'TTY': 7, 'STAT': 8, 'COMMAND': 9, 'CMDLONG': 10}
-    _psHeader = ['USER', 'PID', '%CPU', '%MEM', 'VSZ', 'RSS', 'NLWP', 'TTY', 'STAT', 'CMD', 'COMMAND']
+    _psHeader = ['USER', 'PID', '%CPU', '%MEM', 'VSZ', 'RSS', 'NLWP', 'TTY', 'STAT', 'COMMAND', 'CMDLONG']
     MEM_VSZ = 'VSZ'
     MEM_RSS = 'RSS'
     MEM = 'MEM'
@@ -92,7 +92,7 @@ class psModule(GenericCmdModule, BashParser):
         """
 
         self.verifyNeedForRun(**kwargs)
-        return self.correlation(('CMD', name), **kwargs)
+        return self.correlation(('COMMAND', name), **kwargs)
 
     def searchCommandString(self, name, **kwargs):
         """ Returns processes with the name from the parameter 'name'.
@@ -103,10 +103,10 @@ class psModule(GenericCmdModule, BashParser):
         """
 
         self.verifyNeedForRun(**kwargs)
-        return self.correlation(('COMMAND', name), **kwargs)
+        return self.correlation(('CMDLONG', name), **kwargs)
 
     def getPIDListByName(self, name, explicit=False, ignore_case=False, **kwargs):
-        """ Returns processes PIDs that has the 'name' located inside the 'CMD' field of
+        """ Returns processes PIDs that has the 'name' located inside the 'COMMAND' field of
             '/bin/ps -wweo user,pid,%cpu,%mem,vsz,rss,nlwp,tname,stat,comm,args' output.
 
         - :param name: (str)
@@ -116,7 +116,7 @@ class psModule(GenericCmdModule, BashParser):
         """
 
         self.verifyNeedForRun(**kwargs)
-        return self.search_by_column('CMD', name, explicit=explicit, ignore_case=ignore_case)['PID']
+        return self.search_by_column('COMMAND', name, explicit=explicit, ignore_case=ignore_case)['PID']
 
     def getTopCPU(self, top=10, **kwargs):
         """ Sorts output from '/bin/ps -wweo user,pid,%cpu,%mem,vsz,rss,nlwp,tname,stat,comm,args' using the CPU
@@ -127,7 +127,7 @@ class psModule(GenericCmdModule, BashParser):
         """
 
         self.verifyNeedForRun(**kwargs)
-        self.sort(key='CPU', reverse=True, keyType=float)
+        self.sort_by_column('CPU', reverse=True, column_type=float)
         return self[0:top]
 
     def getTopMem(self, top=10, memType='MEM', **kwargs):
@@ -141,7 +141,7 @@ class psModule(GenericCmdModule, BashParser):
 
         self.verifyNeedForRun(**kwargs)
         if memType == self.MEM or memType == self.MEM_RSS or memType == self.MEM_VSZ:
-            self.sort(key=memType, reverse=True, keyType=float)
+            self.sort_by_column(memType, reverse=True, column_type=float)
             return self[0:top]
 
     def getRunQue(self, **kwargs):

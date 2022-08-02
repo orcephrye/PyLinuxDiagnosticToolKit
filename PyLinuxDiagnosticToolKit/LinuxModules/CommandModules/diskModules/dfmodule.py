@@ -85,9 +85,9 @@ class dfModule(GenericCmdModule, BashParser):
         if not self:
             return []
         if filesystem:
-            return self.getSearch(('Filesystem', filesystem))
+            return self.correlation(('Filesystem', filesystem))
         if mountpoint:
-            return self.getSearch(('Mount', mountpoint))
+            return self.correlation(('Mount', mountpoint))
 
     def isBelowPercentThreshold(self, threshold=5, filesystem=None, mountpoint=None):
         threshold = int(threshold)
@@ -104,7 +104,7 @@ class dfModule(GenericCmdModule, BashParser):
         return self._helperMBParser(self, threshold)
 
     def dfConvertResultsToBytes(self):
-        return self.convertResultsToBytes(self, ['Size', 'Available', 'Used'], _baseSize='K')
+        return self.convert_results_to_bytes(self, ['Size', 'Available', 'Used'], _baseSize='K')
 
     @staticmethod
     def _preFormatter(output=None):

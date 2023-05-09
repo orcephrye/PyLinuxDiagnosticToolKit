@@ -12,6 +12,9 @@
 
 
 import logging
+import warnings
+from cryptography.utils import CryptographyDeprecationWarning
+warnings.filterwarnings('ignore', category=CryptographyDeprecationWarning)
 import traceback
 from PyLinuxDiagnosticToolKit import find_modules
 from libs import ArgumentWrapper
@@ -52,7 +55,7 @@ class ToolKitInterface:
     __KNOWNMODULES__ = {'oracle': {'from': 'Oraclemodule', 'import': 'oracleModule'},
                         'mysql': {'from': 'mysqlmodule', 'import': 'mysqlModule'}}
 
-    def __init__(self, arguments: ArgumentParsers, auto_login: bool = True, *args, **kwargs):
+    def __init__(self, arguments: Optional[ArgumentParsers] = None, auto_login: bool = True, *args, **kwargs):
         """ This acts differently depending on what is passed to it. More explained below.
 
         - :param arguments: Args is from argparse and is the main way data is passed between classes

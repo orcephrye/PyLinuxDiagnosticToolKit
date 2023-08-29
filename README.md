@@ -32,8 +32,8 @@ package.
 The ToolKitInterface class should be the primary class a python script interacts with. It is as simple as importing 
 the package and instantiating an object.
 
-```pycon
-from ldtk import ToolKitInterface
+```python
+from PyLinuxDiagnosticToolKit.ldtk import ToolKitInterface
 tki = ToolKitInterface()
 ```
 
@@ -44,7 +44,7 @@ object. If you are not creating a callable script but utilizing this program wit
 you will need too pass the ArgumentWrapper manually.
     
 ```python
-from LST_LinuxDiagnosticToolKit.libs import ArgumentWrapper
+from PyLinuxDiagnosticToolKit.libs import ArgumentWrapper
 args = ArgumentWrapper.arguments().parse_known_args()[0]
 args.host = '127.0.0.1'; args.username = 'server'; args.password = 'abc123'; args.root = True; args.rootpwd = 'abc123'
 tki = ToolKitInterface(arguments=args)
@@ -92,9 +92,7 @@ For a full explanation go to the [CommandContainer](../LST_LinuxDiagnosticToolKi
 ---
 
 Currently, there are only 'LinuxModulse' which contain 'CommandModules', 'OtherModules', and 'ProgramModules'. 
-Eventually These will be reorganized once Windows is supported. 
-Currently, there are only 'LinuxModulse' which contain 'CommandModules' and 'ProgramModules'. Eventually These will be 
-reorganized once Windows is supported. 
+Eventually These will be reorganized once Windows is supported.
 
 - Command Modules are common Linux specific commands (i.e: cat, ps, etc...)
 - Program Modules are programs that run on the target remote OS. (i.e: MySQL, Oracle, etc...)
@@ -103,7 +101,7 @@ To get a list of modules use the 'getAvailableModules' method. This returns a li
 supported commands.
 
 ```pycon
-from ldtk import ToolKitInterface
+from PyLinuxDiagnosticToolKit.ldtk import ToolKitInterface
 tki = ToolKitInterface()
 tki.getAvailableModules()
 ```

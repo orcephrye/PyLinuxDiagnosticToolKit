@@ -1,4 +1,4 @@
-LST_LinuxDiagnosticToolKit
+PyLinuxDiagnosticToolKit
 ==========================
 
 

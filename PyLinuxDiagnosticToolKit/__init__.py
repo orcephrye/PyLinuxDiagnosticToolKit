@@ -11,9 +11,8 @@ sys.path.append(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentf
 #     f"{os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))))}"
 #     f"/PyMultiTasking")
 # End requirement
-import PyLinuxDiagnosticToolKit.libs
-import PyLinuxDiagnosticToolKit.sshConnector
-import PyLinuxDiagnosticToolKit.LinuxModules
+
+__version__ = "0.9.0"
 
 
 def find_modules(workingDir=None, moduleSubDir=None):

@@ -8,7 +8,7 @@
 
 
 import logging
-from OSNetworking import regExtractIP4NoMask, regExtractIP4WithMask, regExtractIP6WithMask, regExtractIP6NoMask
+from OSNetworking import regExtractIP4NoMask, regExtractIP4WithMask, regExtractIP6WithMask
 from OSNetworking import dottedQuadToCidrNetmask, cidrNetmaskToDottedQuad
 from PyLinuxDiagnosticToolKit.libs.LDTKExceptions import exceptionDecorator as excDec
 from typing import Literal, List

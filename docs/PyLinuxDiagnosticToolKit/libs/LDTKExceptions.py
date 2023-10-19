@@ -125,7 +125,7 @@ class CommandObjectException(LDTKBaseException):
 
     def __init__(self, *args, **kwargs):
         self.baseException = kwargs.pop('baseException', None) or None
-        if isinstance(self.baseException, CommandObjectException) or not type(self.baseException) is list:
+        if isinstance(self.baseException, CommandObjectException) or type(self.baseException) is not list:
             self.baseException = [self.baseException.__repr__().replace(',)', ')')]
         super(CommandObjectException, self).__init__(*args)
 

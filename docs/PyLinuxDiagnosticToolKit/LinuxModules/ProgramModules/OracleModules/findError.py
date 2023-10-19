@@ -14,7 +14,7 @@ import re
 import logging
 import pytz
 import pytz.reference
-from PyCustomCollections.CustomDataStructures import IndexList
+from PyCustomCollections.CustomDataStructures import IndexedTable
 from PyCustomParsers.dateparseline import DateParseLine
 
 
@@ -144,7 +144,7 @@ class SearchLog(object):
         log.debug("The searchCode is: %s" % self.searchCode)
         if not self.searchCode:
             return None
-        if type(logItem) is not IndexList:
+        if type(logItem) is not IndexedTable:
             IndexLog = self._createIndex(logs=logItem)
         else:
             IndexLog = logItem
@@ -152,7 +152,7 @@ class SearchLog(object):
         def cmpSortFunc(x, y):
             return IndexLog.index(x) - IndexLog.index(y)
 
-        errorLines = IndexLog.getSearch(*self.searchCode)
+        errorLines = IndexLog.search(*self.searchCode)
         # log.debug("The errorLines are: %s" % errorLines)
 
         if not errorLines:
@@ -172,7 +172,7 @@ class SearchLog(object):
 
     def getSearchDateInfo(self, indexedLog):
         """
-            Builds the searchDateLog information. Tries to do this by either using Correlation from IndexList if it
+            Builds the searchDateLog information. Tries to do this by either using Correlation from IndexedTable if it
             has the searchDate. Or we search the logs from the searchPos backwards and forwards for the first
             occupancies of a timestamp.
         :param logKey:
@@ -278,7 +278,7 @@ class SearchLog(object):
     @staticmethod
     def _searchItemDate(IndexedLog, searchDate):
         timeSearch = searchDate.getDateString().split()
-        searchDateLog = IndexedLog.getCorrelation(*timeSearch)
+        searchDateLog = IndexedLog.search(*timeSearch, AND=True)
         if searchDateLog:
             searchDateLog = SearchLog._createIndex(searchDateLog)
         return searchDateLog
@@ -350,6 +350,6 @@ class SearchLog(object):
 
     @staticmethod
     def _createIndex(logs):
-        IndexSource = IndexList()
+        IndexSource = IndexedTable()
         map(IndexSource.append, logs)
         return IndexSource

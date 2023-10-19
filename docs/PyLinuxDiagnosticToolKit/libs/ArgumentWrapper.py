@@ -21,7 +21,8 @@ import re
 import argparse
 from copy import copy
 from json import loads
-from PyCustomCollections import NamespaceDict
+from yaml import safe_load
+from PyCustomCollections.CustomDataStructures import NamespaceDict
 from PyCustomParsers.CustomParsers import jsonHook, literal_eval_include
 
 
@@ -226,6 +227,8 @@ def arguments(explicit_option_match=True, option_sep='='):
                         help='ssh port')
     parser.add_argument('-k', '--sshkey', '--key', dest='key', nargs='?', type=str, default="",
                         help='private ssh key')
+    parser.add_argument('--passphrase', dest='passphrase', type=str, default="",
+                        help="This is the ssh keys passphrase")
     parser.add_argument('-u', '--username', '--user', '--uname', dest='username', default='server',
                         help='ssh login username')
     parser.add_argument('-p', '--password', '--pass', '--pasw', '--pw', dest='password',
@@ -238,6 +241,10 @@ def arguments(explicit_option_match=True, option_sep='='):
                         help='The login command for escalating to root')
     parser.add_argument('--rootLoginExplicit', dest='rootLoginExplicit', action='store_true', default=False,
                         help='Determines if the script should retry to escalate to root with another method.')
+    parser.add_argument('--user-map', '--umap', dest='usermap', type=safe_load, default={},
+                        help='This is a map of additional users and there passwords. This is used if the script needs'
+                             'to escalate in an unprivileged environment to a different user then the one provided at'
+                             'login. Or if sudo requires a password of a different user.')
     parser.add_argument('--bash-norc', dest='useBashnorc', action='store_true', default=True,
                         help='Determines if the script should open bash with the -norc flag to avoid custom prompts')
     parser.add_argument('--runtimeout', dest='runTimeout', type=int, default=300,
@@ -478,22 +485,22 @@ def translateMetadata(mdata=None, _originalData=None, _secondPass=None):
             ndata = loads(mdata, object_hook=jsonHook)
             if isinstance(ndata, str): raise Exception
             return ndata
-        except Exception as e:
+        except Exception:
             try:
                 ndata = literal_eval_include(mdata)
                 if isinstance(ndata, str): raise
                 return ndata
-            except Exception as e:
+            except Exception:
                 try:
                     ndata = dict(mdata)
                     if isinstance(ndata, str): raise
                     return ndata
-                except Exception as e:
+                except Exception:
                     try:
                         ndata = loads(loads('"' + mdata + '"', object_hook=jsonHook), object_hook=jsonHook)
                         if isinstance(ndata, str): raise
                         return ndata
-                    except Exception as e:
+                    except Exception:
                         if not _originalData:
                             return translateMetadata(argSanitizer(theseArgs=mdata, dequote=True),
                                                      _originalData=mdata, _secondPass=True)

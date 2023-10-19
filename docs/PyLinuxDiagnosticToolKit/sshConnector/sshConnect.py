@@ -54,6 +54,7 @@ class sshConnect(object):
         self.key = arguments.key
         self.username = arguments.username
         self.password = arguments.password
+        self.passphrase = arguments.passphrase if arguments.passphrase else None
         self.root = arguments.root
         self.rootLogin = sshConnect.processRootLogin(arguments.rootLogin)
         self.rootpwd = arguments.rootpwd
@@ -103,7 +104,7 @@ class sshConnect(object):
 
             ssh.connect(self.host,
                         port=int(self.port),
-                        pkey=self._handleSSHKey(self.key, self.password),
+                        pkey=self._handleSSHKey(self.key, self.passphrase),
                         username=self.username,
                         password=self.password,
                         timeout=float(self.connTimeout),
@@ -240,7 +241,7 @@ class sshConnect(object):
                 sshKeyFile.write(key.read())
             else:
                 sshKeyFile.write(key)
-        except Exception as e:
+        except Exception:
             log.debug("There was a failure to read the provied SSH key file!")
             log.debug(f"[DEBUG] for _handleSSHKey: {traceback.format_exc()}")
             return None
@@ -279,7 +280,7 @@ class sshConnect(object):
         if sshKey:
             return sshKey
 
-        log.warning(f'Unable to translate SSH private SSH key for use.')
+        log.warning('Unable to translate SSH private SSH key for use.')
         return None
 
     @staticmethod

@@ -1,3 +1,160 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "PyLinuxDiagnosticToolKit"
+dynamic = ["version"]
+description = "A Python library that supports accessing and running commands on remote Linux devices"
+readme = "README.md"
+license = ""
+requires-python = ">=3.8"
+authors = [
+    { name = "Ryan Henrichson", email = "orcephrye@gmail.com" },
+]
+classifiers = [
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+]
+dependencies = [
+    "paramiko >= 2.8.1",
+    "PyCustomCollections @ git+http://github.com/orcephrye/PyCustomCollections.git#egg=PyCustomCollections",
+    "PyCustomParsers @ git+http://github.com/orcephrye/PyCustomParsers.git#egg=PyCustomParsers",
+    "PyMultiTasking @ git+http://github.com/orcephrye/PyMultiTasking.git#egg=PyMultiTasking",
+    "pytz     >= 2021.3",
+    "pyyaml   >= 6.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/orcephrye/PyMultiprocessTools"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.version]
+path = "PyLinuxDiagnosticToolKit/__init__.py"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/PyLinuxDiagnosticToolKit",
+]
+exclude = [
+  "/.github",
+  "/docs",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["PyLinuxDiagnosticToolKit/"]
+
+[[tool.hatch.envs.test.matrix]]
+python = ["3.8", "3.9", "3.10", "3.11"]
+
+[tool.hatch.envs.default]
+dependencies = [
+    "black",
+    "pytest",
+    "ruff",
+    "portray",
+]
+
+[tool.hatch.envs.default.scripts]
+lint = "ruff check ."
+lint-fix = "ruff check . --fix"
+lint-clean = "ruff clean"
+clean-build = [
+    "rm -fr build",
+    "rm -fr dist",
+    "rm -fr .eggs",
+    "find . -name '*.egg-info' -exec rm -fr {{}} +",
+    "find . -name '*.egg' -exec rm -f {{}} +",
+]
+clean-pyc = [
+    "find . -name '*.pyc' -exec rm -f {{}} +",
+    "find . -name '*.pyo' -exec rm -f {{}} +",
+    "find . -name '*~' -exec rm -f {{}} +",
+    "find . -name '__pycache__' -exec rm -fr {{}} +",
+]
+
+[tool.hatch.envs.docs.scripts]
+clean = "rm -rf docs"
+html = "portray as_html -o docs"
+test = "portray in_browser"
+github = "portray on_github_pages"
+dependencies = [
+    "portray",
+    "paramiko >= 2.8.1",
+    "PyCustomCollections @ git+http://github.com/orcephrye/PyCustomCollections.git#egg=PyCustomCollections",
+    "PyCustomParsers @ git+http://github.com/orcephrye/PyCustomParsers.git#egg=PyCustomParsers",
+    "PyMultiTasking @ git+http://github.com/orcephrye/PyMultiTasking.git#egg=PyMultiTasking",
+    "pytz     >= 2021.3",
+    "pyyaml   >= 6.0",
+]
+
+
+[tool.ruff]
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
+select = ["E", "F"]
+ignore = []
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["A", "B", "C", "D", "E", "F", "G", "I", "N", "Q", "S", "T", "W", "ANN", "ARG", "BLE", "COM", "DJ", "DTZ", "EM", "ERA", "EXE", "FBT", "ICN", "INP", "ISC", "NPY", "PD", "PGH", "PIE", "PL", "PT", "PTH", "PYI", "RET", "RSE", "RUF", "SIM", "SLF", "TCH", "TID", "TRY", "UP", "YTT"]
+unfixable = []
+
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+
+# Same as Black.
+line-length = 120
+
+[tool.ruff.mccabe]
+# Unlike Flake8, default to a complexity level of 10.
+max-complexity = 10
+
+[tool.black]
+line-length = 120
+include = '\.pyi?$'
+exclude = '''
+
+(
+  /(
+      \.eggs         # exclude a few common directories in the
+    | \.git          # root of the project
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | env
+    | _build
+    | buck-out
+    | build
+    | dist
+  )/
+)
+'''
+
 [tool.portray]
 output_dir = "docs"
 extra_dirs = ["PyLinuxDiagnosticToolKit/sshConnector", "PyLinuxDiagnosticToolKit/LinuxModules", "PyLinuxDiagnosticToolKit/libs"]
@@ -25,3 +182,4 @@ sshConnector = "PyLinuxDiagnosticToolKit/sshConnector/README.md"
 
 [[tool.portray.mkdocs.nav]]
 CommandContainer = "PyLinuxDiagnosticToolKit/LinuxModules/README.md"
+

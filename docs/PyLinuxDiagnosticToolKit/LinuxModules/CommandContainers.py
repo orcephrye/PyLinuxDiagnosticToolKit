@@ -20,7 +20,7 @@ import re
 import traceback
 import time
 import uuid
-from collections import OrderedDict  # TODO remove OrderedDict
+from collections import OrderedDict
 from threading import RLock, Event
 from functools import partial
 from sshConnector.sshLibs.sshChannelEnvironment import EnvironmentControls
@@ -46,6 +46,7 @@ startSubRe = re.compile(r'.*?(?=^CMDSTART)', flags=re.MULTILINE | re.DOTALL)
 endSubRe = re.compile(r'CMDEND.*', flags=re.MULTILINE | re.DOTALL)
 #Unparse the command string
 unParseCmd = re.compile(r'echo CMDSTART &&(.*)&& echo CMDEND')
+
 
 class CommandData(object):
     """
@@ -93,7 +94,7 @@ class CommandData(object):
         """
 
         self.timeout = timeout or kwargs.get('runTimeout') or kwargs.get('wait') or 300
-        if not type(self.timeout) in (int, float):
+        if type(self.timeout) not in (int, float):
             self.timeout = 300
         self.__OBJECTLOCK__ = RLock()
         self.__LASTRESULTSLOCK__ = RLock()
@@ -493,7 +494,8 @@ class CommandParsers(CommandData):
             return cmdResults
         # compile these up front one time for better performance on repeated calls
         # all this parsing helps us handle custom prompts and other weirdness better
-        cmdOutputRe = matchRe.search(startSubRe.sub('', cmdResults, count=1))
+        # The 'replace' method is to solve oddiets with Ubuntu subsell returning '\r\n\r' which breaks regex
+        cmdOutputRe = matchRe.search(startSubRe.sub('', cmdResults.replace('\r\n\r', '\r\n'), count=1))
         if cmdOutputRe:
             output = endSubRe.sub('', cmdOutputRe.group(), count=1).strip()
             if not output:
@@ -857,6 +859,8 @@ class CommandSetup(CommandRequirements):
                 preparResults = None
                 for prepar in self._preparser:
                     preparResults = prepar(this=self)
+                    if self.failure or self.complete:
+                        break
                 return preparResults
             return self._preparser(this=self)
         except Exception as e:
@@ -1086,7 +1090,6 @@ class CommandContainer(CommandSetup):
         - :param phase:
         - :return: boolean value: True for success and False for failure found in the results
         """
-
         if not self.checkResults(results):
             results = self.setFailure(results, **kwargs)
         if resultsOrigin:
@@ -1146,7 +1149,6 @@ class CommandContainer(CommandSetup):
 
         - :return: the value of 'self.results' or Exception
         """
-
         try:
             if self.parsed:
                 return self.lastResults or self.results
@@ -1194,13 +1196,13 @@ class CommandContainer(CommandSetup):
         try:
             if self._stopOnFailure:
                 if not self.failure:
-                    if self.setLastResults(self._parseResults()):
+                    if self.setLastResults(self._parseResults(), phase='finalizeOnFailure'):
                         self.performComplete()
             else:
-                self.setLastResults(self._parseResults())
+                self.setLastResults(self._parseResults(), phase='finalize')
                 self.performComplete()
         except Exception as e:
-            self.setLastResults(self._processException(e))
+            self.setLastResults(self._processException(e), phase='finalizeOnException')
         finally:
             self.results = self.lastResults
             self.lastResults = None
@@ -1226,7 +1228,7 @@ class CommandContainer(CommandSetup):
         objectType = type(e)
         if objectType == SSHExceptionConn:
             log.error(f'CONNECTION ERROR: {e}\n{traceback.format_exc()}')
-            log.debug(f'This usually occurs when the SSH connection is prematurely severed.')
+            log.debug('This usually occurs when the SSH connection is prematurely severed.')
             log.debug(f'The preRunner failed for CommandObject with preparser and requirements: '
                       f'{self.commandKey} : {str(self._preparser)} : {str(self.requirements)}')
             e = _disconnectHelper()

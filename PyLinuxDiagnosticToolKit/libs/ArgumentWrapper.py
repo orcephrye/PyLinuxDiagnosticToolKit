@@ -22,7 +22,7 @@ import argparse
 from copy import copy
 from json import loads
 from yaml import safe_load
-from PyCustomCollections import NamespaceDict
+from PyCustomCollections.CustomDataStructures import NamespaceDict
 from PyCustomParsers.CustomParsers import jsonHook, literal_eval_include
 
 
@@ -485,22 +485,22 @@ def translateMetadata(mdata=None, _originalData=None, _secondPass=None):
             ndata = loads(mdata, object_hook=jsonHook)
             if isinstance(ndata, str): raise Exception
             return ndata
-        except Exception as e:
+        except Exception:
             try:
                 ndata = literal_eval_include(mdata)
                 if isinstance(ndata, str): raise
                 return ndata
-            except Exception as e:
+            except Exception:
                 try:
                     ndata = dict(mdata)
                     if isinstance(ndata, str): raise
                     return ndata
-                except Exception as e:
+                except Exception:
                     try:
                         ndata = loads(loads('"' + mdata + '"', object_hook=jsonHook), object_hook=jsonHook)
                         if isinstance(ndata, str): raise
                         return ndata
-                    except Exception as e:
+                    except Exception:
                         if not _originalData:
                             return translateMetadata(argSanitizer(theseArgs=mdata, dequote=True),
                                                      _originalData=mdata, _secondPass=True)

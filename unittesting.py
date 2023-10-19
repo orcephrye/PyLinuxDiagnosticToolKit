@@ -493,7 +493,7 @@ class TestENetworkModules(unittest.TestCase):
         standard_check(self)
 
         if not tki.modules.which.doesCommandExist('ifconfig'):
-            self.skipTest(f"ifconfig command doesn't exist on box skipping")
+            self.skipTest("ifconfig command doesn't exist on box skipping")
 
         ifconfig = tki.modules.ifconfig
 
@@ -549,7 +549,7 @@ class TestENetworkModules(unittest.TestCase):
         standard_check(self)
 
         if not tki.modules.which.doesCommandExist('route'):
-            self.skipTest(f"route command doesn't exist on box skipping")
+            self.skipTest("route command doesn't exist on box skipping")
 
         route = tki.modules.route
 
@@ -938,7 +938,7 @@ class TestESystemModules(unittest.TestCase):
         messages = tki.modules.messages
 
         if tki.modules.ll.fileExist('/var/log/messages', rerun=True) is False:
-            self.skipTest(f'/var/log/messages file not present on the target OS skipping messages test')
+            self.skipTest('/var/log/messages file not present on the target OS skipping messages test')
 
         output = messages()
         self.assertIsInstance(output, str)

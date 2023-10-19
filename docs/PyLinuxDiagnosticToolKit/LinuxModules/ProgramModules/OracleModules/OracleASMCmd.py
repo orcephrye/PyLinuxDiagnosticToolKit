@@ -12,7 +12,7 @@
 
 import logging
 from LinuxModules.genericCmdModule import GenericCmdModule
-from PyCustomParsers.GenericParser import BashParser
+from PyCustomParsers.GenericParsers import BashParser
 
 
 log = logging.getLogger('OracleASMCmd')
@@ -43,5 +43,4 @@ class ASMCmd(GenericCmdModule):
         lines = [i.strip().split() for i in results.splitlines() if i != '' and 'ASMCMD' not in i]
         if not (len(lines) > 1):
             return None
-        gcp = BashParser(source=lines, head=1, header=0)
-        return gcp
+        return BashParser(source=lines, head=1, header=0)

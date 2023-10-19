@@ -14,7 +14,7 @@ TODO: This module is broken. The SIZE/OFF column can either show size in bits, o
 import logging
 import re
 from LinuxModules.genericCmdModule import GenericCmdModule
-from PyCustomParsers.GenericParser import BashParser
+from PyCustomParsers.GenericParsers import BashParser
 
 
 log = logging.getLogger('lsofModule')
@@ -46,7 +46,7 @@ class lsofModule(GenericCmdModule, BashParser):
 
     def run(self, flags=None, rerun=True, **kwargs):
         def _formatOutput(results, *args, **kwargs):
-            self.parseInput(source=self._lsofBasicFormatter(results), **kwargs)
+            self.parse(source=self._lsofBasicFormatter(results), **kwargs)
             return self
 
         command = {flags or self.defaultKey: self.defaultCmd + (flags or self.defaultFlags)}
@@ -103,8 +103,8 @@ class lsofModule(GenericCmdModule, BashParser):
 
         - :return:
         """
-
-        return self.getSearch(('TYPE', 'REG')).getSearch(('NAME', '(deleted)'), explicit=False)
+        # return self.search_by_column('TYPE', 'REG').search_by_column('NAME', '(deleted)', explicit=False)
+        return self.correlation(('TYPE', 'REG', True, False), ('NAME', '(deleted)', False, False), convert=True)
 
     def lsofConvertResultsToBytes(self, results=None):
         """ Coverts the 'SIZE/OFF' column in the lsof output to Bytes.
@@ -115,8 +115,8 @@ class lsofModule(GenericCmdModule, BashParser):
 
         if results is None:
             results = self
-        print(f'lsofConvertResultsToBytes - Shortest Line: {results.shortestLine}')
-        print(f'lsofConvertResultsToBytes - Shortest Line: {results._getShortestLine(results)}')
+        # print(f'lsofConvertResultsToBytes - Shortest Line: {results.shortestLine}')
+        # print(f'lsofConvertResultsToBytes - Shortest Line: {results._getShortestLine(results)}')
         return self.convert_results_to_bytes(results, ['SIZE/OFF'])
 
     def formatOpenDeletedFiles(self, maxLines=None, formatColumns=None):
@@ -129,17 +129,17 @@ class lsofModule(GenericCmdModule, BashParser):
         """
 
         if not maxLines and not formatColumns:
-            return self.lsofConvertResultsToBytes(self.getOpenDeletedFiles().sort(key='SIZE/OFF',
-                                                                                  keyType=int, reverse=True)
-                                                  ).formatOutput().replace('(deleted)', ' (deleted)')
+            return self.lsofConvertResultsToBytes(self.getOpenDeletedFiles().sort_by_column('SIZE/OFF', column_type=int,
+                                                                                            reverse=True)
+                                                  ).format_output().replace('(deleted)', ' (deleted)')
 
-        openDeletedFiles = self.getOpenDeletedFiles().sort(key='SIZE/OFF', keyType=int, reverse=True)
+        openDeletedFiles = self.getOpenDeletedFiles().sort_by_column('SIZE/OFF', column_type=int, reverse=True)
         if formatColumns:
             openDeletedFiles = self.trimResultsToColumns(openDeletedFiles, formatColumns)
         if maxLines and maxLines < len(openDeletedFiles) + 1:
-            openDeletedFiles.parseInput(source=openDeletedFiles[:maxLines + 1], refreshData=True)
+            openDeletedFiles.parse(source=openDeletedFiles[:maxLines + 1], refreshData=True)
 
-        return self.lsofConvertResultsToBytes(openDeletedFiles).formatOutput().replace('(deleted)', ' (deleted)')
+        return self.lsofConvertResultsToBytes(openDeletedFiles).format_output().replace('(deleted)', ' (deleted)')
 
     @staticmethod
     def _lsofBasicFormatter(results):

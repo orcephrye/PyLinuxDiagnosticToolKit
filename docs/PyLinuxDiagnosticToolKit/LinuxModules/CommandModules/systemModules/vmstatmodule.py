@@ -10,12 +10,12 @@
 
 import logging
 from LinuxModules.genericCmdModule import GenericCmdModule
-from PyCustomParsers.GenericParser import GenericInputParser
+from PyCustomParsers.GenericParsers import GenericInputParser
 from collections import OrderedDict  # TODO remove OrderedDict
 
 
 log = logging.getLogger('vmstatModule')
-convertBytes = GenericInputParser.convertBytes
+convertBytes = GenericInputParser.convert_bytes
 
 
 class vmstatModule(GenericCmdModule):

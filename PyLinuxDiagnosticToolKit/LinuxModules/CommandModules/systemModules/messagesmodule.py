@@ -193,7 +193,7 @@ class messagesModule(GenericCmdModule):
                 if self.messageDate.dateStr:
                     break
             return results
-        except Exception as e:
+        except Exception:
             return results
 
     def _getTimeWithMessageDate(self, line, **kwargs):

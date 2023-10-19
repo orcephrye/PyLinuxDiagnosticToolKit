@@ -67,5 +67,5 @@ class uptimeModule(GenericCmdModule):
 
         try:
             return str(timedelta(seconds=float(results.strip())))
-        except Exception as e:
+        except Exception:
             return None

@@ -336,9 +336,9 @@ class GenericCmdModule(CommandModuleSettings):
                 newKwarg[addKey] = addValue  # maintain the order if required
             return {addToArg: newKwarg}
 
-        if not type(addThese) is list:
+        if type(addThese) is not list:
             addThese = [addThese]
-        if not type(newKwarg) is list:
+        if type(newKwarg) is not list:
             newKwarg = [newKwarg]
         for addThis in addThese:
             if _forceFirst:

@@ -27,7 +27,7 @@ class OracleEscalation(object):
     def checkUserExists(**kwargs):
         try:
             return kwargs.get('this').tki.modules.id(kwargs.get('username'), wait=30) is not False
-        except Exception as e:
+        except Exception:
             return False
 
     @staticmethod

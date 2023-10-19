@@ -95,7 +95,7 @@ class sshBufferControl(sshCon):
         try:
             self._bufferControl(environment, cmd, out, prompt=prompt, unsafe=unsafe, **kwargs)
             output = _parseOutput(out.getvalue(), prompt)
-        except RecvReady as e:
+        except RecvReady:
             log.error(f"The timeout of {self.runTimeout} was reached while waiting for prompt on buffer.")
             log.debug(f"[DEBUG] for executeOnEnvironment: {traceback.format_exc()}")
             output = _parseOutput(out.getvalue(), prompt)
@@ -128,7 +128,7 @@ class sshBufferControl(sshCon):
         try:
 
             while channel.recv_ready():
-                log.debug(f'There is old data left in the Channel Buffer. Clearing...')
+                log.debug('There is old data left in the Channel Buffer. Clearing...')
                 channel.recv(65536)
                 sleep(.1)
 

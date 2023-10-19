@@ -124,7 +124,7 @@ class serviceModule(GenericCmdModule):
             return self.simpleExecute({'initd-restart': f'/etc/init.d/{service} restart; echo $?'},
                                       rerun=rerun, wait=wait, **kwargs)
         if status:
-            return self.simpleExecute({'initd-status': '/etc/init.d/{service} status'},
+            return self.simpleExecute({'initd-status': f'/etc/init.d/{service} status'},
                                       rerun=rerun, wait=wait, **kwargs)
 
     @staticmethod

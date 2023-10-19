@@ -8,7 +8,7 @@
 
 
 from LinuxModules.genericCmdModule import GenericCmdModule, executionDecorator
-from PyCustomParsers.GenericParser import BashParser
+from PyCustomParsers.GenericParsers import BashParser
 import logging
 
 
@@ -18,8 +18,8 @@ log = logging.getLogger('hostsModule')
 # TODO: Host module should either not be a bashparser or it needs work
 
 class hostsModule(GenericCmdModule, BashParser):
-    """ hostModule class. This class uses 'catModule' to get the '/etc/hosts' file. This is converted into an IndexList
-        using BashParser.
+    """ hostModule class. This class uses 'catModule' to get the '/etc/hosts' file. This is converted into an
+        IndexedTable using BashParser.
     """
 
     returnValueType = str
@@ -38,5 +38,5 @@ class hostsModule(GenericCmdModule, BashParser):
     @executionDecorator
     def run(self, *args, **kwargs):
         if kwargs.get('rerun') or not self:
-            self.parseInput(self.tki.modules.cat('/etc/hosts', rerun=True), refreshData=True)
+            self.parse(self.tki.modules.cat('/etc/hosts', rerun=True), refreshData=True)
         return self

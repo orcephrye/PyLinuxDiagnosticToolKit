@@ -94,7 +94,7 @@ class CommandData(object):
         """
 
         self.timeout = timeout or kwargs.get('runTimeout') or kwargs.get('wait') or 300
-        if not type(self.timeout) in (int, float):
+        if type(self.timeout) not in (int, float):
             self.timeout = 300
         self.__OBJECTLOCK__ = RLock()
         self.__LASTRESULTSLOCK__ = RLock()
@@ -1228,7 +1228,7 @@ class CommandContainer(CommandSetup):
         objectType = type(e)
         if objectType == SSHExceptionConn:
             log.error(f'CONNECTION ERROR: {e}\n{traceback.format_exc()}')
-            log.debug(f'This usually occurs when the SSH connection is prematurely severed.')
+            log.debug('This usually occurs when the SSH connection is prematurely severed.')
             log.debug(f'The preRunner failed for CommandObject with preparser and requirements: '
                       f'{self.commandKey} : {str(self._preparser)} : {str(self.requirements)}')
             e = _disconnectHelper()

@@ -422,8 +422,8 @@ class EnvironmentControls(sshEnvironment):
         with self._LOCK:
             try:
                 if not self.checkConnection():
-                    log.debug(f'Connection already closed this will set "dead" variable to True and remove this from '
-                              f'the Environment list')
+                    log.debug('Connection already closed this will set "dead" variable to True and remove this from '
+                              'the Environment list')
                     return False
                 self.sshParent.disconnect(environment=self)
             except SSHExceptionConn:

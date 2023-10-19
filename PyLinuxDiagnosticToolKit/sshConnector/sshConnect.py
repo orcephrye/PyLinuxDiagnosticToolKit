@@ -241,7 +241,7 @@ class sshConnect(object):
                 sshKeyFile.write(key.read())
             else:
                 sshKeyFile.write(key)
-        except Exception as e:
+        except Exception:
             log.debug("There was a failure to read the provied SSH key file!")
             log.debug(f"[DEBUG] for _handleSSHKey: {traceback.format_exc()}")
             return None
@@ -280,7 +280,7 @@ class sshConnect(object):
         if sshKey:
             return sshKey
 
-        log.warning(f'Unable to translate SSH private SSH key for use.')
+        log.warning('Unable to translate SSH private SSH key for use.')
         return None
 
     @staticmethod

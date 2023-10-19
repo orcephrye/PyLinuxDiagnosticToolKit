@@ -10,10 +10,9 @@
 
 import logging
 from LinuxModules.genericCmdModule import GenericCmdModule
-from PyCustomParsers.GenericParser import BashParser
+from PyCustomParsers.GenericParsers import BashParser
 from PyCustomParsers.dateparseline import DateParseLine as DPL
-import pytz
-import pytz.reference
+from dateutil import tz
 
 
 log = logging.getLogger('llModule')
@@ -35,8 +34,6 @@ class llModule(GenericCmdModule, BashParser):
     def __init__(self, tki, *args, **kwargs):
         log.info("Creating ll module.")
         super(llModule, self).__init__(tki=tki, columns=self._llcolumns, header=self._llheader)
-        # log.info('Creating BashParser')
-        # super(GenericCmdModule, self).__init__(columns=self._llcolumns, header=self._llheader)
         log.info('Finished creating BashParser')
         self.defaultCmd = 'ls '
         self.defaultKey = "ls%s"
@@ -77,7 +74,7 @@ class llModule(GenericCmdModule, BashParser):
         output = ""
         lsOutList = [item.split() for item in lsOut.splitlines()]
         remoteTZ = self.tki.getModules('os').getTimeZone()
-        remoteTZ = remoteTZ if remoteTZ else pytz.reference.LocalTimezone()
+        remoteTZ = tz.gettz(remoteTZ) if remoteTZ else tz.gettz('/etc/localtime')
         dp = None
 
         def _parseHelper(dpItem, tmpList):
